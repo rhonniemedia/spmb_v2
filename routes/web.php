@@ -1,0 +1,34 @@
+<?php
+
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+// --- GOOGLE AUTH ---
+Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.login');
+Route::get('auth/google/callback', [GoogleController::class, 'callback']);
+
+// --- REGISTRASI MANUAL ---
+Route::get('/register', fn() => view('auth.register'))->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store']);
+
+// --- VERIFIKASI EMAIL ---
+Route::get('/email/verify', fn() => view('auth.verify-email'))->middleware('auth')->name('verification.notice');
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/dashboard');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+// --- DASHBOARD ---
+Route::get('/dashboard', fn() => view('dashboard'))->middleware(['auth', 'verified'])->name('dashboard');
+
+// --- LOGOUT ---
+Route::post('/logout', [RegisteredUserController::class, 'destroy'])->name('logout');
+
+// Proses pengiriman ulang link email
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('status', 'verification-link-sent');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
