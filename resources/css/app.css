@@ -6,6 +6,53 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Font Settings */
+    --font-sans: 'Sora', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Brand Colors */
+    --color-primary: #ff1443;
+    --color-primary-hover: #d90f38;
+    --color-foreground: #080c1a;
+    --color-secondary: #6a7686;
+    --color-muted: #eff2f7;
+    --color-border: #e5e7eb;
+    
+    /* Status Colors */
+    --color-success: #30b22d;
+    --color-success-light: #dcfce7;
+    --color-success-dark: #166534;
+    --color-error: #ed6b60;
+    --color-error-light: #fee2e2;
+    --color-error-dark: #991b1b;
+    --color-warning: #f59e0b;
+    --color-warning-light: #fffbeb;
+    --color-warning-dark: #854d0e;
+    --color-info: #3b82f6;
+    --color-info-light: #eff6ff;
+
+    /* Custom Variables */
+    --color-card-grey: #f1f3f6;
+}
+
+/* Base Styles & Custom Elements */
+@layer base {
+    select {
+        appearance: none;
+        background-repeat: no-repeat;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-position: right 10px center;
+        padding-right: 40px;
+    }
+}
+
+/* Custom Utilities */
+@layer utilities {
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
 }

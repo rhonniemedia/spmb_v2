@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -11,18 +12,30 @@ Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.l
 Route::get('auth/google/callback', [GoogleController::class, 'callback']);
 
 // --- REGISTRASI MANUAL ---
-Route::get('/register', fn() => view('auth.register'))->name('register');
+Route::get('/register', fn() => view('pages.auth.register'))->name('register');
 Route::post('/register', [RegisteredUserController::class, 'store']);
 
 // --- VERIFIKASI EMAIL ---
-Route::get('/email/verify', fn() => view('auth.verify-email'))->middleware('auth')->name('verification.notice');
+Route::get('/email/verify', fn() => view('pages.auth.verify-email'))->middleware('auth')->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
     return redirect('/dashboard');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 // --- DASHBOARD ---
-Route::get('/dashboard', fn() => view('dashboard'))->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', fn() => view('dashboard'))->middleware(['auth', 'verified'])->name('user.dashboard');
+
+// ADMIN DASHBOARD
+Route::get('/admin/dashboard', fn() => view('pages.admin.dashboard'))->name('admin.dashboard');
+Route::get('/admin/verification', fn() => view('pages.admin.verifikasi'))->name('admin.verifikasi');
+Route::get('/admin/announcement', fn() => view('pages.admin.pengumuman'))->name('admin.pengumuman');
+
+Route::prefix('verifikasi')->name('verifikasi.')->group(function () {
+    Route::get('/', [VerifikasiController::class, 'index'])->name('index');
+    Route::get('/{noPendaftaran}', [VerifikasiController::class, 'show'])->name('show');
+    Route::post('/{noPendaftaran}/keputusan', [VerifikasiController::class, 'keputusan'])->name('keputusan');
+    Route::post('/{noPendaftaran}/dokumen/{dokId}', [VerifikasiController::class, 'updateDokumen'])->name('dokumen.update');
+});
 
 // --- LOGOUT ---
 Route::post('/logout', [RegisteredUserController::class, 'destroy'])->name('logout');
