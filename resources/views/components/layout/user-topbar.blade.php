@@ -19,7 +19,7 @@
             ['label' => 'Biodata', 'icon' => 'fa-id-card', 'route' => 'biodata', 'active' => request()->routeIs('biodata'), 'badge' => '!', 'badgeColor' => 'bg-amber-400'],
             ['label' => 'Pengumuman', 'icon' => 'fa-bullhorn', 'route' => 'pengumuman', 'active' => request()->routeIs('pengumuman')],
             ['label' => 'Daftar Ulang', 'icon' => 'fa-rotate-right', 'route' => 'daftar-ulang', 'active' => request()->routeIs('daftar-ulang')],
-            ['label' => 'Bantuan', 'icon' => 'fa-circle-question', 'route' => '#', 'active' => false],
+            ['label' => 'Bantuan', 'icon' => 'fa-circle-question', 'route' => 'bantuan', 'active' => request()->routeIs('bantuan')],
             ];
             @endphp
 

@@ -41,6 +41,7 @@ Route::view('/user/dashboard', 'pages.user.dashboard')->name('dashboard');
 Route::view('/user/pengumuman', 'pages.user.pengumuman')->name('pengumuman');
 Route::view('/user/biodata', 'pages.user.biodata')->name('biodata');
 Route::view('/user/daftar-ulang', 'pages.user.daftar-ulang')->name('daftar-ulang');
+Route::view('/user/bantuan', 'pages.user.bantuan')->name('bantuan');
 
 // --- LOGOUT ---
 Route::post('/logout', [RegisteredUserController::class, 'destroy'])->name('logout');
