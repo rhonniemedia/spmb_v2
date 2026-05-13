@@ -17,37 +17,40 @@
     <span>Pengumuman</span>
 </div>
 
-{{-- ═══════════════════════════════════════════════════
+{{-- ══════════════════════════════════════════
         HERO BANNER
-════════════════════════════════════════════════════ --}}
-<div class="relative rounded-card overflow-hidden mb-6 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-br from-primary via-[#D90F38] to-[#B00F30] animate-fade-in">
-    {{-- dekorasi lingkaran --}}
-    <div class="absolute -top-10 -right-10 w-[200px] h-[200px] bg-white/5 rounded-full pointer-events-none"></div>
-    <div class="absolute -bottom-[60px] right-20 w-[160px] h-[160px] bg-white/5 rounded-full pointer-events-none"></div>
+══════════════════════════════════════════ --}}
+<div class="relative rounded-[20px] overflow-hidden mb-5 p-6 md:p-7 flex flex-col md:flex-row items-center justify-between gap-5"
+    style="background: linear-gradient(135deg, #FF1443 0%, #D90F38 50%, #B00F30 100%);">
+    {{-- Decorative circles --}}
+    <div class="absolute -top-10 -right-10 w-[200px] h-[200px] bg-white/[0.06] rounded-full pointer-events-none"></div>
+    <div class="absolute -bottom-[60px] right-24 w-[160px] h-[160px] bg-white/[0.04] rounded-full pointer-events-none"></div>
 
+    {{-- Left --}}
     <div class="relative z-10 w-full md:flex-1 text-center md:text-left">
-        <div class="inline-flex items-center gap-1.5 bg-white/20 text-white text-[12px] font-bold px-3 py-1 rounded-full mb-3 border border-white/20 tracking-wider">
-            <i class="fa-solid fa-circle-dot text-[8px] animate-pulse"></i> Info SPMB 2026
+        <div class="inline-flex items-center gap-1.5 bg-white/15 text-white text-sm font-bold px-3 py-1 rounded-full mb-3 border border-white/25">
+            <i class="fa-solid fa-circle-dot text-[10px] animate-pulse"></i> Info SPMB 2026
         </div>
-        <h2 class="text-xl md:text-3xl font-black text-white mb-2 leading-tight">
+        <h1 class="text-xl md:text-2xl font-black text-white mb-1 leading-tight">
             Pengumuman Hasil Seleksi Segera Hadir!
-        </h2>
-        <p class="text-[14px] text-white/80 leading-relaxed mb-6 max-w-xl">
+        </h1>
+        <p class="text-sm text-white/80 leading-relaxed mb-5 max-w-[540px]">
             Pantau terus halaman ini. Pengumuman penerimaan peserta didik baru akan dipublikasikan pada
             <span class="text-white font-bold">10 Juni 2026</span>.
         </p>
         <a href="#daftar-pengumuman"
-            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-primary text-[13px] font-black rounded-full no-underline shadow-md hover:bg-gray-50 transition-all">
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-[#FF1443] text-[13px] font-black rounded-full no-underline shadow-md hover:bg-gray-50 transition-all">
             <i class="fa-solid fa-list-ul"></i> Lihat Semua Pengumuman
         </a>
     </div>
 
+    {{-- Right: Stats Card --}}
     <div class="relative z-10 w-full md:w-auto">
-        <div class="bg-white/10 border border-white/20 rounded-card px-6 py-5 backdrop-blur-md text-center shadow-xl">
+        <div class="bg-white/10 border border-white/20 rounded-[16px] px-6 py-5 backdrop-blur-md text-center shadow-xl">
             <div class="text-[12px] text-white/70 font-semibold uppercase tracking-widest mb-3">Total Pengumuman</div>
             <div class="text-[36px] font-black text-white leading-none mb-1">5</div>
-            <div class="text-[13px] text-white/70 mb-3">pengumuman aktif</div>
-            <div class="flex items-center justify-center gap-1.5 bg-white/20 px-3 py-1.5 rounded-full">
+            <div class="text-sm text-white/70 mb-3">pengumuman aktif</div>
+            <div class="inline-flex items-center justify-center gap-1.5 bg-white/15 px-3 py-1.5 rounded-full">
                 <span class="pulse-dot"></span>
                 <span class="text-[12px] font-bold text-white">1 baru hari ini</span>
             </div>
@@ -75,151 +78,151 @@
             {{-- Filter pills --}}
             <div class="flex items-center gap-1.5 flex-wrap" id="filterPills">
                 @php
-                    $filters = ['Semua', 'PPDB', 'Kelulusan', 'Jadwal', 'Umum'];
+                $filters = ['Semua', 'PPDB', 'Kelulusan', 'Jadwal', 'Umum'];
                 @endphp
                 @foreach($filters as $f)
-                    <button onclick="setFilter('{{ $f }}')"
-                        data-filter="{{ $f }}"
-                        class="filter-pill {{ $loop->first ? 'active' : 'bg-gray-50 text-[#6A7686] border border-gray-200' }} text-[12px] font-bold px-3 py-1.5 rounded-full border whitespace-nowrap">
-                        {{ $f }}
-                    </button>
+                <button onclick="setFilter('{{ $f }}')"
+                    data-filter="{{ $f }}"
+                    class="filter-pill {{ $loop->first ? 'active' : 'bg-gray-50 text-[#6A7686] border border-gray-200' }} text-[12px] font-bold px-3 py-1.5 rounded-full border whitespace-nowrap">
+                    {{ $f }}
+                </button>
                 @endforeach
             </div>
         </div>
 
         {{-- ── DAFTAR KARTU PENGUMUMAN ── --}}
         @php
-            $announcements = [
-                [
-                    'id'       => 1,
-                    'kategori' => 'PPDB',
-                    'katColor' => 'bg-red-50 text-primary border-primary/20',
-                    'katDot'   => 'bg-primary',
-                    'icon'     => 'fa-bullhorn',
-                    'iconBg'   => 'bg-red-50 text-primary',
-                    'judul'    => 'Pengumuman Resmi Pembukaan PPDB 2026/2027',
-                    'ringkas'  => 'Pendaftaran peserta didik baru jalur zonasi dan prestasi resmi dibuka. Kuota terbatas, segera lengkapi berkas dan daftarkan diri Anda sebelum batas waktu yang ditentukan.',
-                    'tanggal'  => '12 Mei 2026',
-                    'waktu'    => 'Hari ini, 08:30 WIB',
-                    'badge'    => ['label' => 'BARU', 'class' => 'bg-primary/10 text-primary border-primary/20'],
-                    'penting'  => false,
-                    'border'   => 'border-primary/30',
-                ],
-                [
-                    'id'       => 2,
-                    'kategori' => 'Kelulusan',
-                    'katColor' => 'bg-green-50 text-green-700 border-green-200',
-                    'katDot'   => 'bg-green-500',
-                    'icon'     => 'fa-award',
-                    'iconBg'   => 'bg-green-50 text-green-600',
-                    'judul'    => 'Pengumuman Hasil Kelulusan Tahun Pelajaran 2025/2026',
-                    'ringkas'  => 'Seluruh siswa kelas XII dinyatakan lulus ujian akhir tahun pelajaran 2025/2026. Sertifikat kelulusan dapat diambil mulai 20 Mei 2026 di sekretariat sekolah.',
-                    'tanggal'  => '02 Mei 2026',
-                    'waktu'    => '10 hari lalu',
-                    'badge'    => ['label' => 'PENTING', 'class' => 'bg-amber-50 text-amber-600 border-amber-200'],
-                    'penting'  => true,
-                    'border'   => 'border-amber-300',
-                ],
-                [
-                    'id'       => 3,
-                    'kategori' => 'Jadwal',
-                    'katColor' => 'bg-blue-50 text-blue-700 border-blue-200',
-                    'katDot'   => 'bg-blue-500',
-                    'icon'     => 'fa-calendar-check',
-                    'iconBg'   => 'bg-blue-50 text-blue-600',
-                    'judul'    => 'Jadwal Pelaksanaan Yudisium dan Wisuda 2026',
-                    'ringkas'  => 'Yudisium akan dilaksanakan pada 5 Juni 2026 di Aula Utama, diikuti prosesi wisuda pada 12 Juni 2026. Peserta wajib hadir tepat waktu dengan mengenakan seragam resmi.',
-                    'tanggal'  => '28 Apr 2026',
-                    'waktu'    => '14 hari lalu',
-                    'badge'    => null,
-                    'penting'  => false,
-                    'border'   => 'border-gray-200',
-                ],
-                [
-                    'id'       => 4,
-                    'kategori' => 'PPDB',
-                    'katColor' => 'bg-red-50 text-primary border-primary/20',
-                    'katDot'   => 'bg-primary',
-                    'icon'     => 'fa-file-lines',
-                    'iconBg'   => 'bg-red-50 text-primary',
-                    'judul'    => 'Persyaratan dan Dokumen Wajib PPDB 2026',
-                    'ringkas'  => 'Daftar lengkap dokumen yang harus disiapkan calon peserta didik baru, termasuk akta kelahiran, ijazah SMP, rapor, dan pas foto terbaru.',
-                    'tanggal'  => '20 Apr 2026',
-                    'waktu'    => '22 hari lalu',
-                    'badge'    => null,
-                    'penting'  => false,
-                    'border'   => 'border-gray-200',
-                ],
-                [
-                    'id'       => 5,
-                    'kategori' => 'Umum',
-                    'katColor' => 'bg-gray-100 text-[#6A7686] border-gray-200',
-                    'katDot'   => 'bg-gray-400',
-                    'icon'     => 'fa-circle-info',
-                    'iconBg'   => 'bg-gray-100 text-[#6A7686]',
-                    'judul'    => 'Informasi Libur Sekolah dan Kegiatan Akhir Tahun',
-                    'ringkas'  => 'Sekolah akan libur pada 15–16 Mei 2026 dalam rangka peringatan Hari Raya. Seluruh kegiatan administrasi PPDB tetap berjalan melalui portal online.',
-                    'tanggal'  => '10 Apr 2026',
-                    'waktu'    => '1 bulan lalu',
-                    'badge'    => null,
-                    'penting'  => false,
-                    'border'   => 'border-gray-200',
-                ],
-            ];
+        $announcements = [
+        [
+        'id' => 1,
+        'kategori' => 'PPDB',
+        'katColor' => 'bg-red-50 text-primary border-primary/20',
+        'katDot' => 'bg-primary',
+        'icon' => 'fa-bullhorn',
+        'iconBg' => 'bg-red-50 text-primary',
+        'judul' => 'Pengumuman Resmi Pembukaan PPDB 2026/2027',
+        'ringkas' => 'Pendaftaran peserta didik baru jalur zonasi dan prestasi resmi dibuka. Kuota terbatas, segera lengkapi berkas dan daftarkan diri Anda sebelum batas waktu yang ditentukan.',
+        'tanggal' => '12 Mei 2026',
+        'waktu' => 'Hari ini, 08:30 WIB',
+        'badge' => ['label' => 'BARU', 'class' => 'bg-primary/10 text-primary border-primary/20'],
+        'penting' => false,
+        'border' => 'border-primary/30',
+        ],
+        [
+        'id' => 2,
+        'kategori' => 'Kelulusan',
+        'katColor' => 'bg-green-50 text-green-700 border-green-200',
+        'katDot' => 'bg-green-500',
+        'icon' => 'fa-award',
+        'iconBg' => 'bg-green-50 text-green-600',
+        'judul' => 'Pengumuman Hasil Kelulusan Tahun Pelajaran 2025/2026',
+        'ringkas' => 'Seluruh siswa kelas XII dinyatakan lulus ujian akhir tahun pelajaran 2025/2026. Sertifikat kelulusan dapat diambil mulai 20 Mei 2026 di sekretariat sekolah.',
+        'tanggal' => '02 Mei 2026',
+        'waktu' => '10 hari lalu',
+        'badge' => ['label' => 'PENTING', 'class' => 'bg-amber-50 text-amber-600 border-amber-200'],
+        'penting' => true,
+        'border' => 'border-amber-300',
+        ],
+        [
+        'id' => 3,
+        'kategori' => 'Jadwal',
+        'katColor' => 'bg-blue-50 text-blue-700 border-blue-200',
+        'katDot' => 'bg-blue-500',
+        'icon' => 'fa-calendar-check',
+        'iconBg' => 'bg-blue-50 text-blue-600',
+        'judul' => 'Jadwal Pelaksanaan Yudisium dan Wisuda 2026',
+        'ringkas' => 'Yudisium akan dilaksanakan pada 5 Juni 2026 di Aula Utama, diikuti prosesi wisuda pada 12 Juni 2026. Peserta wajib hadir tepat waktu dengan mengenakan seragam resmi.',
+        'tanggal' => '28 Apr 2026',
+        'waktu' => '14 hari lalu',
+        'badge' => null,
+        'penting' => false,
+        'border' => 'border-gray-200',
+        ],
+        [
+        'id' => 4,
+        'kategori' => 'PPDB',
+        'katColor' => 'bg-red-50 text-primary border-primary/20',
+        'katDot' => 'bg-primary',
+        'icon' => 'fa-file-lines',
+        'iconBg' => 'bg-red-50 text-primary',
+        'judul' => 'Persyaratan dan Dokumen Wajib PPDB 2026',
+        'ringkas' => 'Daftar lengkap dokumen yang harus disiapkan calon peserta didik baru, termasuk akta kelahiran, ijazah SMP, rapor, dan pas foto terbaru.',
+        'tanggal' => '20 Apr 2026',
+        'waktu' => '22 hari lalu',
+        'badge' => null,
+        'penting' => false,
+        'border' => 'border-gray-200',
+        ],
+        [
+        'id' => 5,
+        'kategori' => 'Umum',
+        'katColor' => 'bg-gray-100 text-[#6A7686] border-gray-200',
+        'katDot' => 'bg-gray-400',
+        'icon' => 'fa-circle-info',
+        'iconBg' => 'bg-gray-100 text-[#6A7686]',
+        'judul' => 'Informasi Libur Sekolah dan Kegiatan Akhir Tahun',
+        'ringkas' => 'Sekolah akan libur pada 15–16 Mei 2026 dalam rangka peringatan Hari Raya. Seluruh kegiatan administrasi PPDB tetap berjalan melalui portal online.',
+        'tanggal' => '10 Apr 2026',
+        'waktu' => '1 bulan lalu',
+        'badge' => null,
+        'penting' => false,
+        'border' => 'border-gray-200',
+        ],
+        ];
         @endphp
 
         <div class="space-y-4" id="annList">
             @foreach($announcements as $ann)
-                <div class="ann-card bg-white border {{ $ann['border'] }} {{ $ann['penting'] ? 'border-l-4 border-l-amber-400' : '' }} rounded-[20px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.04)]"
-                    data-kategori="{{ $ann['kategori'] }}"
-                    data-judul="{{ strtolower($ann['judul']) }} {{ strtolower($ann['ringkas']) }}">
+            <div class="ann-card bg-white border {{ $ann['border'] }} {{ $ann['penting'] ? 'border-l-4 border-l-amber-400' : '' }} rounded-[20px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.04)]"
+                data-kategori="{{ $ann['kategori'] }}"
+                data-judul="{{ strtolower($ann['judul']) }} {{ strtolower($ann['ringkas']) }}">
 
-                    <div class="p-5 flex gap-4">
-                        {{-- Ikon kategori --}}
-                        <div class="w-12 h-12 rounded-[14px] {{ $ann['iconBg'] }} flex items-center justify-center flex-shrink-0 text-[18px]">
-                            <i class="fa-solid {{ $ann['icon'] }}"></i>
+                <div class="p-5 flex gap-4">
+                    {{-- Ikon kategori --}}
+                    <div class="w-12 h-12 rounded-[14px] {{ $ann['iconBg'] }} flex items-center justify-center flex-shrink-0 text-[18px]">
+                        <i class="fa-solid {{ $ann['icon'] }}"></i>
+                    </div>
+
+                    {{-- Konten --}}
+                    <div class="flex-1 min-w-0">
+                        {{-- Badge + tanggal --}}
+                        <div class="flex items-center gap-2 flex-wrap mb-2">
+                            <span class="inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-1 rounded-full border uppercase tracking-wide {{ $ann['katColor'] }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $ann['katDot'] }} flex-shrink-0"></span>
+                                {{ $ann['kategori'] }}
+                            </span>
+                            @if($ann['badge'])
+                            <span class="inline-flex items-center text-[11px] font-black px-2.5 py-1 rounded-full border {{ $ann['badge']['class'] }}">
+                                {{ $ann['badge']['label'] }}
+                            </span>
+                            @endif
+                            <span class="text-[12px] text-[#B0B8C4] font-semibold ml-auto flex items-center gap-1">
+                                <i class="fa-regular fa-clock text-[11px]"></i> {{ $ann['waktu'] }}
+                            </span>
                         </div>
 
-                        {{-- Konten --}}
-                        <div class="flex-1 min-w-0">
-                            {{-- Badge + tanggal --}}
-                            <div class="flex items-center gap-2 flex-wrap mb-2">
-                                <span class="inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-1 rounded-full border uppercase tracking-wide {{ $ann['katColor'] }}">
-                                    <span class="w-1.5 h-1.5 rounded-full {{ $ann['katDot'] }} flex-shrink-0"></span>
-                                    {{ $ann['kategori'] }}
-                                </span>
-                                @if($ann['badge'])
-                                    <span class="inline-flex items-center text-[11px] font-black px-2.5 py-1 rounded-full border {{ $ann['badge']['class'] }}">
-                                        {{ $ann['badge']['label'] }}
-                                    </span>
-                                @endif
-                                <span class="text-[12px] text-[#B0B8C4] font-semibold ml-auto flex items-center gap-1">
-                                    <i class="fa-regular fa-clock text-[11px]"></i> {{ $ann['waktu'] }}
-                                </span>
-                            </div>
+                        {{-- Judul --}}
+                        <h3 class="text-[15px] font-black text-[#080C1A] leading-snug mb-1.5 group-hover:text-primary transition-colors">
+                            {{ $ann['judul'] }}
+                        </h3>
 
-                            {{-- Judul --}}
-                            <h3 class="text-[15px] font-black text-[#080C1A] leading-snug mb-1.5 group-hover:text-primary transition-colors">
-                                {{ $ann['judul'] }}
-                            </h3>
+                        {{-- Ringkasan --}}
+                        <p class="text-[13px] text-[#6A7686] leading-relaxed line-clamp-2">
+                            {{ $ann['ringkas'] }}
+                        </p>
 
-                            {{-- Ringkasan --}}
-                            <p class="text-[13px] text-[#6A7686] leading-relaxed line-clamp-2">
-                                {{ $ann['ringkas'] }}
-                            </p>
-
-                            {{-- Footer kartu --}}
-                            <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
-                                <span class="text-[12px] text-[#B0B8C4] font-semibold flex items-center gap-1.5">
-                                    <i class="fa-regular fa-calendar text-[11px]"></i> {{ $ann['tanggal'] }}
-                                </span>
-                                <a href="#" class="inline-flex items-center gap-1.5 text-[13px] font-black text-primary hover:underline">
-                                    Baca Selengkapnya <i class="fa-solid fa-arrow-right text-[11px]"></i>
-                                </a>
-                            </div>
+                        {{-- Footer kartu --}}
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
+                            <span class="text-[12px] text-[#B0B8C4] font-semibold flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar text-[11px]"></i> {{ $ann['tanggal'] }}
+                            </span>
+                            <a href="#" class="inline-flex items-center gap-1.5 text-[13px] font-black text-primary hover:underline">
+                                Baca Selengkapnya <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
+            </div>
             @endforeach
         </div>
 
@@ -245,24 +248,24 @@
             </div>
             <div class="p-5 space-y-3">
                 @php
-                    $summary = [
-                        ['label' => 'PPDB',      'count' => 2, 'total' => 5, 'color' => 'bg-primary',    'text' => 'text-primary'],
-                        ['label' => 'Kelulusan', 'count' => 1, 'total' => 5, 'color' => 'bg-green-500',  'text' => 'text-green-600'],
-                        ['label' => 'Jadwal',    'count' => 1, 'total' => 5, 'color' => 'bg-blue-500',   'text' => 'text-blue-600'],
-                        ['label' => 'Umum',      'count' => 1, 'total' => 5, 'color' => 'bg-gray-400',   'text' => 'text-[#6A7686]'],
-                    ];
+                $summary = [
+                ['label' => 'PPDB', 'count' => 2, 'total' => 5, 'color' => 'bg-primary', 'text' => 'text-primary'],
+                ['label' => 'Kelulusan', 'count' => 1, 'total' => 5, 'color' => 'bg-green-500', 'text' => 'text-green-600'],
+                ['label' => 'Jadwal', 'count' => 1, 'total' => 5, 'color' => 'bg-blue-500', 'text' => 'text-blue-600'],
+                ['label' => 'Umum', 'count' => 1, 'total' => 5, 'color' => 'bg-gray-400', 'text' => 'text-[#6A7686]'],
+                ];
                 @endphp
                 @foreach($summary as $s)
-                    <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="text-[13px] font-bold text-[#080C1A]">{{ $s['label'] }}</span>
-                            <span class="text-[12px] font-black {{ $s['text'] }}">{{ $s['count'] }} pengumuman</span>
-                        </div>
-                        <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="{{ $s['color'] }} h-full rounded-full transition-all duration-500"
-                                style="width: {{ ($s['count'] / $s['total']) * 100 }}%"></div>
-                        </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[13px] font-bold text-[#080C1A]">{{ $s['label'] }}</span>
+                        <span class="text-[12px] font-black {{ $s['text'] }}">{{ $s['count'] }} pengumuman</span>
                     </div>
+                    <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="{{ $s['color'] }} h-full rounded-full transition-all duration-500"
+                            style="width: {{ ($s['count'] / $s['total']) * 100 }}%"></div>
+                    </div>
+                </div>
                 @endforeach
             </div>
         </div>
@@ -334,14 +337,14 @@
     }
 
     function filterCards() {
-        const q     = document.getElementById('searchInput').value.toLowerCase().trim();
+        const q = document.getElementById('searchInput').value.toLowerCase().trim();
         const cards = document.querySelectorAll('#annList [data-kategori]');
         let visible = 0;
 
         cards.forEach(card => {
-            const katMatch   = activeFilter === 'Semua' || card.dataset.kategori === activeFilter;
-            const textMatch  = !q || card.dataset.judul.includes(q);
-            const show       = katMatch && textMatch;
+            const katMatch = activeFilter === 'Semua' || card.dataset.kategori === activeFilter;
+            const textMatch = !q || card.dataset.judul.includes(q);
+            const show = katMatch && textMatch;
             card.style.display = show ? '' : 'none';
             if (show) visible++;
         });

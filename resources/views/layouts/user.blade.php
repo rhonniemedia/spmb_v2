@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,7 +49,7 @@
     </script>
 </head>
 
-<body class="font-sans bg-gray-50 text-[#080C1A] min-h-screen" x-data="{ mobileMenu: false }">
+<body class="user-dashboard font-sans bg-gray-50 text-[#080C1A] min-h-screen" x-data="{ mobileMenu: false }">
 
     @include('components.layout.user-topbar')
 
@@ -61,4 +62,5 @@
     @stack('scripts')
 
 </body>
+
 </html>

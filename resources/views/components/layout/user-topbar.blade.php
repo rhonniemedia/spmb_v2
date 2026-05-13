@@ -16,7 +16,7 @@
             @php
             $navLinks = [
             ['label' => 'Dashboard', 'icon' => 'fa-gauge', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard')],
-            ['label' => 'Biodata', 'icon' => 'fa-id-card', 'route' => 'biodata', 'active' => request()->routeIs('biodata'), 'badge' => '!', 'badgeColor' => 'bg-amber-400'],
+            ['label' => 'Biodata', 'icon' => 'fa-id-card', 'route' => 'biodata', 'active' => request()->routeIs('biodata')],
             ['label' => 'Pengumuman', 'icon' => 'fa-bullhorn', 'route' => 'pengumuman', 'active' => request()->routeIs('pengumuman')],
             ['label' => 'Daftar Ulang', 'icon' => 'fa-rotate-right', 'route' => 'daftar-ulang', 'active' => request()->routeIs('daftar-ulang')],
             ['label' => 'Bantuan', 'icon' => 'fa-circle-question', 'route' => 'bantuan', 'active' => request()->routeIs('bantuan')],
@@ -46,25 +46,27 @@
             <div class="relative" x-data="{ profileOpen: false }">
                 <div @click="profileOpen = !profileOpen"
                     class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full py-1 pl-1 pr-3 cursor-pointer hover:border-primary transition-all">
-                    <div class="w-[26px] h-[26px] rounded-full bg-gradient-to-br from-primary to-[#FF6B8A] flex items-center justify-center font-black text-white text-[11px]">AF</div>
-                    <span class="hidden md:block text-[13px] font-bold text-[#080C1A]">Ahmad Fauzi</span>
+                    <div class="w-[26px] h-[26px] rounded-full flex items-center justify-center font-black text-white text-[11px] flex-shrink-0"
+                        style="background: linear-gradient(135deg, #FF1443, #FF6B8A);">AF</div>
+                    <span class="hidden sm:inline text-[13px] font-bold text-[#080C1A] whitespace-nowrap">Ahmad Fauzi</span>
                     <i class="fa-solid fa-chevron-down text-[10px] text-[#6A7686] transition-transform" :class="profileOpen ? 'rotate-180' : ''"></i>
                 </div>
 
                 <div x-show="profileOpen"
+                    x-cloak
                     @click.away="profileOpen = false"
                     x-transition:enter="transition ease-out duration-100"
                     x-transition:enter-start="opacity-0 scale-95"
                     x-transition:enter-end="opacity-100 scale-100"
-                    class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg py-2 z-[210]">
-                    <a href="#" class="block px-4 py-2 text-[13px] text-[#6A7686] hover:bg-gray-50 hover:text-primary font-medium">
-                        <i class="fa-solid fa-user-gear mr-2"></i> Pengaturan Profil
+                    class="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-lg py-2 px-2 z-[210]">
+                    <a href="#" class="flex items-center gap-2 px-3 py-2 text-[13px] text-[#6A7686] hover:bg-gray-50 hover:text-primary font-medium rounded-lg transition-all">
+                        <i class="fa-solid fa-user-gear w-4 text-center"></i> Pengaturan Profil
                     </a>
                     <hr class="my-1 border-gray-100">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="w-full text-left px-4 py-2 text-[13px] text-red-500 hover:bg-red-50 font-bold">
-                            <i class="fa-solid fa-right-from-bracket mr-2"></i> Keluar Sistem
+                        <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-red-500 hover:bg-red-50 font-bold rounded-lg transition-all">
+                            <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> Keluar Sistem
                         </button>
                     </form>
                 </div>

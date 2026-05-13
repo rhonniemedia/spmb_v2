@@ -43,8 +43,8 @@
     </div>
 
     {{-- ══════════════════════════════════════════
-            HERO BANNER
-    ══════════════════════════════════════════ --}}
+        HERO BANNER
+══════════════════════════════════════════ --}}
     <div x-show="!isSubmitted"
         class="relative rounded-[20px] overflow-hidden mb-5 p-6 md:p-7 flex flex-col md:flex-row items-center justify-between gap-5"
         style="background: linear-gradient(135deg, #FF1443 0%, #D90F38 50%, #B00F30 100%);">
@@ -57,31 +57,31 @@
             <div class="inline-flex items-center gap-1.5 bg-white/15 text-white text-sm font-bold px-3 py-1 rounded-full mb-3 border border-white/25">
                 <i class="fa-solid fa-id-card"></i> Formulir Biodata
             </div>
-            <h1 class="text-xl md:text-2xl font-black text-white mb-1">Kelengkapan Data Diri</h1>
-            <p class="text-sm text-white/80 leading-relaxed mb-4 max-w-[540px]">
+            <h1 class="text-xl md:text-2xl font-black text-white mb-1 leading-tight">Kelengkapan Data Diri</h1>
+            <p class="text-sm text-white/80 leading-relaxed mb-5 max-w-[540px]">
                 Lengkapi seluruh data berikut dengan benar dan jujur. Data akan digunakan dalam proses seleksi penerimaan peserta didik baru.
             </p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                 <a href="{{ route('dashboard') }}"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-[#FF1443] text-sm font-black rounded-full no-underline shadow-md">
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-[#FF1443] text-[13px] font-black rounded-full no-underline shadow-md hover:bg-gray-50 transition-all">
                     <i class="fa-solid fa-gauge"></i> Kembali ke Dashboard
                 </a>
-                <span class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/15 text-white text-sm font-bold rounded-full border border-white/30 cursor-default">
+                <span class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/15 text-white text-[13px] font-bold rounded-full border border-white/25 cursor-default">
                     <i class="fa-solid fa-id-badge"></i> No. Peserta: SPMB-2026-004821
                 </span>
             </div>
         </div>
 
-        {{-- Right: progress card --}}
+        {{-- Right: Progress Card --}}
         <div class="relative z-10 w-full md:w-auto flex-shrink-0">
-            <div class="bg-white/15 border-2 border-white/30 rounded-[20px] px-6 py-4 backdrop-blur-[10px] text-center min-w-[180px]">
-                <div class="text-[13px] text-white/70 font-semibold uppercase tracking-wider mb-1">Progress Pengisian</div>
+            <div class="bg-white/10 border border-white/20 rounded-[16px] px-6 py-5 backdrop-blur-md text-center shadow-xl min-w-[180px]">
+                <div class="text-[12px] text-white/70 font-semibold uppercase tracking-widest mb-2">Progress Pengisian</div>
                 <div class="text-[28px] font-black text-white leading-none mb-1" x-text="progressPct + '%'"></div>
                 <div class="h-1.5 bg-white/25 rounded-full overflow-hidden mb-2">
                     <div class="h-full bg-white rounded-full transition-all duration-500"
                         :style="'width:' + progressPct + '%'"></div>
                 </div>
-                <div class="text-sm text-white/70 font-semibold" x-text="'Langkah ' + step + ' dari ' + totalSteps"></div>
+                <div class="text-[12px] text-white/70 font-semibold" x-text="'Langkah ' + step + ' dari ' + totalSteps"></div>
             </div>
         </div>
     </div>
@@ -207,11 +207,11 @@
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Jenis Kelamin <span class="text-primary">*</span></label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option value="">Pilih</option>
-                                            <option>Laki-laki</option>
-                                            <option>Perempuan</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option value="">Pilih</option>
+                                        <option>Laki-laki</option>
+                                        <option>Perempuan</option>
+                                    </select>
 
                                 </div>
                             </div>
@@ -220,34 +220,34 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                             <div class="space-y-1.5">
                                 <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Agama <span class="text-primary">*</span></label>
-                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                        <option value="">Pilih Agama</option>
-                                        <option>Islam</option>
-                                        <option>Kristen</option>
-                                        <option>Katolik</option>
-                                        <option>Hindu</option>
-                                        <option>Budha</option>
-                                        <option>Konghucu</option>
-                                    </select>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                    <option value="">Pilih Agama</option>
+                                    <option>Islam</option>
+                                    <option>Kristen</option>
+                                    <option>Katolik</option>
+                                    <option>Hindu</option>
+                                    <option>Budha</option>
+                                    <option>Konghucu</option>
+                                </select>
 
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Kewarganegaraan <span class="text-primary">*</span></label>
-                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                        <option>WNI</option>
-                                        <option>WNA</option>
-                                    </select>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                    <option>WNI</option>
+                                    <option>WNA</option>
+                                </select>
 
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Golongan Darah</label>
-                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                        <option value="">Tidak tahu</option>
-                                        <option>A</option>
-                                        <option>B</option>
-                                        <option>AB</option>
-                                        <option>O</option>
-                                    </select>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                    <option value="">Tidak tahu</option>
+                                    <option>A</option>
+                                    <option>B</option>
+                                    <option>AB</option>
+                                    <option>O</option>
+                                </select>
 
                             </div>
                         </div>
@@ -296,13 +296,13 @@
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Kebutuhan Khusus</label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option value="">Tidak ada</option>
-                                            <option>Tunanetra</option>
-                                            <option>Tunarungu</option>
-                                            <option>Tunadaksa</option>
-                                            <option>Lainnya</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option value="">Tidak ada</option>
+                                        <option>Tunanetra</option>
+                                        <option>Tunarungu</option>
+                                        <option>Tunadaksa</option>
+                                        <option>Lainnya</option>
+                                    </select>
 
                                 </div>
                             </div>
@@ -345,24 +345,24 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div class="space-y-1.5">
                                 <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Provinsi <span class="text-primary">*</span></label>
-                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                        <option value="">Pilih Provinsi</option>
-                                        <option>Bengkulu</option>
-                                        <option>Sumatera Selatan</option>
-                                        <option>DKI Jakarta</option>
-                                        <option>Jawa Barat</option>
-                                        <option>Jawa Tengah</option>
-                                        <option>Jawa Timur</option>
-                                    </select>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                    <option value="">Pilih Provinsi</option>
+                                    <option>Bengkulu</option>
+                                    <option>Sumatera Selatan</option>
+                                    <option>DKI Jakarta</option>
+                                    <option>Jawa Barat</option>
+                                    <option>Jawa Tengah</option>
+                                    <option>Jawa Timur</option>
+                                </select>
 
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Kota / Kabupaten <span class="text-primary">*</span></label>
-                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                        <option value="">Pilih Kota/Kab</option>
-                                        <option>Kota Bengkulu</option>
-                                        <option>Kab. Rejang Lebong</option>
-                                    </select>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                    <option value="">Pilih Kota/Kab</option>
+                                    <option>Kota Bengkulu</option>
+                                    <option>Kab. Rejang Lebong</option>
+                                </select>
 
                             </div>
                         </div>
@@ -398,26 +398,26 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Jarak Rumah ke Sekolah</label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option value="">Pilih kisaran</option>
-                                            <option>Kurang dari 1 km</option>
-                                            <option>1 – 5 km</option>
-                                            <option>5 – 10 km</option>
-                                            <option>10 – 20 km</option>
-                                            <option>Lebih dari 20 km</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option value="">Pilih kisaran</option>
+                                        <option>Kurang dari 1 km</option>
+                                        <option>1 – 5 km</option>
+                                        <option>5 – 10 km</option>
+                                        <option>10 – 20 km</option>
+                                        <option>Lebih dari 20 km</option>
+                                    </select>
 
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Moda Transportasi</label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option value="">Pilih</option>
-                                            <option>Jalan kaki</option>
-                                            <option>Sepeda</option>
-                                            <option>Sepeda motor</option>
-                                            <option>Angkutan umum</option>
-                                            <option>Diantar orang tua</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option value="">Pilih</option>
+                                        <option>Jalan kaki</option>
+                                        <option>Sepeda</option>
+                                        <option>Sepeda motor</option>
+                                        <option>Angkutan umum</option>
+                                        <option>Diantar orang tua</option>
+                                    </select>
 
                                 </div>
                             </div>
@@ -442,18 +442,18 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div class="space-y-1.5">
                                         <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Provinsi Asal</label>
-                                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                                <option>Pilih Provinsi</option>
-                                                <option>Bengkulu</option>
-                                            </select>
+                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                            <option>Pilih Provinsi</option>
+                                            <option>Bengkulu</option>
+                                        </select>
 
                                     </div>
                                     <div class="space-y-1.5">
                                         <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Kota / Kab. Asal</label>
-                                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                                <option>Pilih Kota/Kab</option>
-                                                <option>Kota Bengkulu</option>
-                                            </select>
+                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                            <option>Pilih Kota/Kab</option>
+                                            <option>Kota Bengkulu</option>
+                                        </select>
 
                                     </div>
                                 </div>
@@ -512,42 +512,42 @@
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Pendidikan Terakhir</label>
-                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                        <option>Pilih</option>
-                                        <option>Tidak sekolah</option>
-                                        <option>SD/Sederajat</option>
-                                        <option>SMP/Sederajat</option>
-                                        <option>SMA/SMK/Sederajat</option>
-                                        <option>D1/D2/D3</option>
-                                        <option>S1/D4</option>
-                                        <option>S2/S3</option>
-                                    </select>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                    <option>Pilih</option>
+                                    <option>Tidak sekolah</option>
+                                    <option>SD/Sederajat</option>
+                                    <option>SMP/Sederajat</option>
+                                    <option>SMA/SMK/Sederajat</option>
+                                    <option>D1/D2/D3</option>
+                                    <option>S1/D4</option>
+                                    <option>S2/S3</option>
+                                </select>
 
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Pekerjaan</label>
-                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                        <option>Pilih</option>
-                                        <option>PNS/TNI/Polri</option>
-                                        <option>Pegawai Swasta</option>
-                                        <option>Wiraswasta/Pedagang</option>
-                                        <option>Petani/Nelayan</option>
-                                        <option>Buruh</option>
-                                        <option>Tidak bekerja</option>
-                                        <option>Lainnya</option>
-                                    </select>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                    <option>Pilih</option>
+                                    <option>PNS/TNI/Polri</option>
+                                    <option>Pegawai Swasta</option>
+                                    <option>Wiraswasta/Pedagang</option>
+                                    <option>Petani/Nelayan</option>
+                                    <option>Buruh</option>
+                                    <option>Tidak bekerja</option>
+                                    <option>Lainnya</option>
+                                </select>
 
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Penghasilan Per Bulan</label>
-                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                        <option>Pilih kisaran</option>
-                                        <option>Tidak berpenghasilan</option>
-                                        <option>Di bawah Rp 1.000.000</option>
-                                        <option>Rp 1.000.000 – 3.000.000</option>
-                                        <option>Rp 3.000.000 – 5.000.000</option>
-                                        <option>Di atas Rp 5.000.000</option>
-                                    </select>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                    <option>Pilih kisaran</option>
+                                    <option>Tidak berpenghasilan</option>
+                                    <option>Di bawah Rp 1.000.000</option>
+                                    <option>Rp 1.000.000 – 3.000.000</option>
+                                    <option>Rp 3.000.000 – 5.000.000</option>
+                                    <option>Di atas Rp 5.000.000</option>
+                                </select>
 
                             </div>
                             <div class="space-y-1.5">
@@ -579,42 +579,42 @@
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Pendidikan Terakhir</label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option>Pilih</option>
-                                            <option>Tidak sekolah</option>
-                                            <option>SD/Sederajat</option>
-                                            <option>SMP/Sederajat</option>
-                                            <option>SMA/SMK/Sederajat</option>
-                                            <option>D1/D2/D3</option>
-                                            <option>S1/D4</option>
-                                            <option>S2/S3</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option>Pilih</option>
+                                        <option>Tidak sekolah</option>
+                                        <option>SD/Sederajat</option>
+                                        <option>SMP/Sederajat</option>
+                                        <option>SMA/SMK/Sederajat</option>
+                                        <option>D1/D2/D3</option>
+                                        <option>S1/D4</option>
+                                        <option>S2/S3</option>
+                                    </select>
 
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Pekerjaan</label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option>Pilih</option>
-                                            <option>PNS/TNI/Polri</option>
-                                            <option>Pegawai Swasta</option>
-                                            <option>Wiraswasta/Pedagang</option>
-                                            <option>Ibu Rumah Tangga</option>
-                                            <option>Petani/Nelayan</option>
-                                            <option>Tidak bekerja</option>
-                                            <option>Lainnya</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option>Pilih</option>
+                                        <option>PNS/TNI/Polri</option>
+                                        <option>Pegawai Swasta</option>
+                                        <option>Wiraswasta/Pedagang</option>
+                                        <option>Ibu Rumah Tangga</option>
+                                        <option>Petani/Nelayan</option>
+                                        <option>Tidak bekerja</option>
+                                        <option>Lainnya</option>
+                                    </select>
 
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Penghasilan Per Bulan</label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option>Pilih kisaran</option>
-                                            <option>Tidak berpenghasilan</option>
-                                            <option>Di bawah Rp 1.000.000</option>
-                                            <option>Rp 1.000.000 – 3.000.000</option>
-                                            <option>Rp 3.000.000 – 5.000.000</option>
-                                            <option>Di atas Rp 5.000.000</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option>Pilih kisaran</option>
+                                        <option>Tidak berpenghasilan</option>
+                                        <option>Di bawah Rp 1.000.000</option>
+                                        <option>Rp 1.000.000 – 3.000.000</option>
+                                        <option>Rp 3.000.000 – 5.000.000</option>
+                                        <option>Di atas Rp 5.000.000</option>
+                                    </select>
 
                                 </div>
                                 <div class="space-y-1.5">
@@ -645,13 +645,13 @@
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Hubungan dengan Peserta <span class="text-primary">*</span></label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option>Pilih</option>
-                                            <option>Kakek/Nenek</option>
-                                            <option>Paman/Bibi</option>
-                                            <option>Kakak kandung</option>
-                                            <option>Lainnya</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option>Pilih</option>
+                                        <option>Kakek/Nenek</option>
+                                        <option>Paman/Bibi</option>
+                                        <option>Kakak kandung</option>
+                                        <option>Lainnya</option>
+                                    </select>
 
                                 </div>
                                 <div class="space-y-1.5">
@@ -688,13 +688,13 @@
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Hubungan <span class="text-primary">*</span></label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option>Ayah</option>
-                                            <option>Ibu</option>
-                                            <option>Kakak</option>
-                                            <option>Wali</option>
-                                            <option>Lainnya</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option>Ayah</option>
+                                        <option>Ibu</option>
+                                        <option>Kakak</option>
+                                        <option>Wali</option>
+                                        <option>Lainnya</option>
+                                    </select>
 
                                 </div>
                                 <div class="space-y-1.5">
@@ -765,12 +765,12 @@
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Tahun Lulus <span class="text-primary">*</span></label>
-                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                        <option>2026</option>
-                                        <option>2025</option>
-                                        <option>2024</option>
-                                        <option>2023</option>
-                                    </select>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                    <option>2026</option>
+                                    <option>2025</option>
+                                    <option>2024</option>
+                                    <option>2023</option>
+                                </select>
 
                             </div>
                             <div class="space-y-1.5">
@@ -785,10 +785,10 @@
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Provinsi</label>
-                                                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                        <option>Bengkulu</option>
-                                        <option>Lainnya</option>
-                                    </select>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                    <option>Bengkulu</option>
+                                    <option>Lainnya</option>
+                                </select>
 
                             </div>
                             <div class="space-y-1.5">
@@ -834,26 +834,26 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Pilihan Jurusan 1 <span class="text-primary">*</span></label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option value="">Pilih Jurusan</option>
-                                            <option>Rekayasa Perangkat Lunak (RPL)</option>
-                                            <option>Teknik Komputer & Jaringan (TKJ)</option>
-                                            <option>Multimedia / Desain Komunikasi Visual</option>
-                                            <option>Akuntansi & Keuangan Lembaga</option>
-                                            <option>Teknik Kendaraan Ringan Otomotif (TKRO)</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option value="">Pilih Jurusan</option>
+                                        <option>Rekayasa Perangkat Lunak (RPL)</option>
+                                        <option>Teknik Komputer & Jaringan (TKJ)</option>
+                                        <option>Multimedia / Desain Komunikasi Visual</option>
+                                        <option>Akuntansi & Keuangan Lembaga</option>
+                                        <option>Teknik Kendaraan Ringan Otomotif (TKRO)</option>
+                                    </select>
 
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[13px] font-black text-[#6A7686] uppercase tracking-wide">Pilihan Jurusan 2 <span class="text-[13px] text-[#6A7686] normal-case font-normal">(cadangan)</span></label>
-                                                                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
-                                            <option value="">Pilih Jurusan</option>
-                                            <option>Rekayasa Perangkat Lunak (RPL)</option>
-                                            <option>Teknik Komputer & Jaringan (TKJ)</option>
-                                            <option>Multimedia / Desain Komunikasi Visual</option>
-                                            <option>Akuntansi & Keuangan Lembaga</option>
-                                            <option>Teknik Kendaraan Ringan Otomotif (TKRO)</option>
-                                        </select>
+                                    <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-primary focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all outline-none text-[15px] font-medium text-[#080C1A] appearance-none cursor-pointer pr-10">
+                                        <option value="">Pilih Jurusan</option>
+                                        <option>Rekayasa Perangkat Lunak (RPL)</option>
+                                        <option>Teknik Komputer & Jaringan (TKJ)</option>
+                                        <option>Multimedia / Desain Komunikasi Visual</option>
+                                        <option>Akuntansi & Keuangan Lembaga</option>
+                                        <option>Teknik Kendaraan Ringan Otomotif (TKRO)</option>
+                                    </select>
 
                                 </div>
                             </div>

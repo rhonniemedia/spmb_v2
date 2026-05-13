@@ -72,18 +72,23 @@
         @endphp
 
         <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
-            {{-- Tombol "Semua" tetap ada secara manual atau statis --}}
-            @foreach($categories as $cat)
-            <button type="button" onclick="filterCat('{{ $cat->slug }}')" data-cat="{{ $cat->slug }}"
-                class="cat-card flex flex-col items-center gap-2 bg-white border border-gray-200 rounded-[16px] px-2 py-3.5 text-center transition-all hover:-translate-y-px">
-                <div class="cat-icon-wrap w-9 h-9 rounded-[10px] bg-[rgba(255,20,67,.08)] flex items-center justify-center">
-                    <i class="fa-solid {{ $cat->icon }} text-[#FF1443] text-[15px]"></i>
+            @foreach($cats as $cat)
+            <button
+                type="button"
+                onclick="filterCat('{{ $cat['key'] }}')"
+                data-cat="{{ $cat['key'] }}"
+                class="cat-card flex flex-col items-center gap-2 bg-white border rounded-[16px] px-2 py-3.5 text-center transition-all hover:-translate-y-px
+                    {{ $loop->first ? 'border-[#FF1443] bg-[rgba(255,20,67,.04)] shadow-[0_0_0_3px_rgba(255,20,67,.07)]' : 'border-gray-200 hover:border-[#FF1443] hover:shadow-[0_0_0_3px_rgba(255,20,67,.07)]' }}">
+                <div class="cat-icon-wrap w-9 h-9 rounded-[10px] flex items-center justify-center
+                    {{ $loop->first ? 'bg-[rgba(255,20,67,.15)]' : 'bg-[rgba(255,20,67,.08)]' }}">
+                    <i class="fa-solid {{ $cat['icon'] }} text-[#FF1443] text-[15px]"></i>
                 </div>
                 <div>
-                    <div class="cat-title text-[12px] font-bold leading-tight text-[#080C1A]">
-                        {{ $cat->name }}
+                    <div class="cat-title text-[12px] font-bold leading-tight
+                        {{ $loop->first ? 'text-[#FF1443]' : 'text-[#080C1A]' }}">
+                        {{ $cat['label'] }}
                     </div>
-                    <div class="text-[11px] text-[#6A7686]">{{ $cat->faqs_count }} FAQ</div>
+                    <div class="text-[11px] text-[#6A7686]">{{ $cat['count'] }} FAQ</div>
                 </div>
             </button>
             @endforeach
@@ -101,29 +106,121 @@
             <p class="text-[13px] text-[#6A7686]">Coba kata kunci lain, atau hubungi panitia langsung via WhatsApp.</p>
         </div>
 
-        @foreach($categories as $group)
-        <div class="faq-section-block mb-4" data-cat="{{ $group->slug }}">
+        @php
+        $faqGroups = [
+        [
+        'cat' => 'pendaftaran',
+        'icon' => 'fa-user-plus',
+        'title' => 'Pendaftaran',
+        'items' => [
+        ['q' => 'Siapa saja yang bisa mendaftar SPMB?',
+        'a' => 'Calon peserta didik yang telah lulus atau sedang menempuh kelas 9 SMP/MTs/sederajat dengan nilai rapor memenuhi syarat minimum. Usia maksimal <strong>21 tahun</strong> per 1 Juli tahun ajaran baru.'],
+        ['q' => 'Bagaimana cara membuat akun pendaftaran?',
+        'a' => 'Kunjungi halaman utama SPMB, klik <strong>Daftar Sekarang</strong>, masukkan nomor NISN dan tanggal lahir. Sistem akan mengirimkan kode OTP ke nomor HP yang terdaftar di Data Pokok Pendidikan (Dapodik).'],
+        ['q' => 'Berapa jurusan yang bisa dipilih?',
+        'a' => 'Setiap calon peserta dapat memilih <strong>maksimal 2 jurusan</strong>. Pastikan pilihan pertama adalah jurusan yang paling diminati karena seleksi diprioritaskan berdasarkan pilihan pertama.'],
+        ['q' => 'Apakah pendaftaran dikenakan biaya?',
+        'a' => 'Pendaftaran <strong>tidak dipungut biaya apapun (gratis)</strong>. Jika ada pihak yang meminta pembayaran di luar ketentuan resmi, segera laporkan ke panitia SPMB.'],
+        ['q' => 'Kapan batas akhir pendaftaran?',
+        'a' => 'Pendaftaran dibuka <strong>1–31 Mei 2026</strong>. Setelah tanggal tersebut sistem otomatis menutup dan tidak ada perpanjangan. Pastikan semua data terisi sebelum batas waktu.'],
+        ],
+        ],
+        [
+        'cat' => 'biodata',
+        'icon' => 'fa-id-card',
+        'title' => 'Pengisian Biodata',
+        'items' => [
+        ['q' => 'Dokumen apa saja yang harus diunggah?',
+        'a' => 'Lima dokumen wajib: <strong>Akta Kelahiran</strong>, <strong>Ijazah/SKL SMP</strong>, <strong>Rapor semester 1–5</strong>, <strong>Pas foto terbaru</strong> (3×4, latar merah), dan <strong>sertifikat prestasi</strong> (jika ada). Format: JPG/PNG/PDF, maks 2 MB per file.'],
+        ['q' => 'Bolehkah data biodata diedit setelah disimpan?',
+        'a' => 'Data dapat diedit <strong>selama status masih "Draft"</strong>. Setelah kamu klik <em>Kirim Biodata</em>, data terkunci dan hanya bisa diubah dengan menghubungi panitia secara langsung.'],
+        ['q' => 'Bagaimana jika upload dokumen gagal terus?',
+        'a' => 'Pastikan ukuran file <strong>di bawah 2 MB</strong> dan format JPG, PNG, atau PDF. Kompres gambar menggunakan tools seperti ilovepdf.com atau squoosh.app, lalu coba unggah kembali.'],
+        ['q' => 'Apa fungsi tombol "Simpan Draft"?',
+        'a' => 'Tombol Simpan Draft menyimpan progres pengisian <strong>tanpa mengirimkan data</strong> ke panitia. Data akan tersimpan dan bisa dilanjutkan kapan saja sebelum batas waktu pendaftaran.'],
+        ],
+        ],
+        [
+        'cat' => 'seleksi',
+        'icon' => 'fa-ranking-star',
+        'title' => 'Proses Seleksi',
+        'items' => [
+        ['q' => 'Apa saja kriteria seleksi penerimaan?',
+        'a' => 'Seleksi menggunakan 3 komponen: <strong>nilai rapor rata-rata (60%)</strong>, <strong>tes akademik online (30%)</strong>, dan <strong>prestasi/sertifikat (10%)</strong>. Peserta dengan nilai tertinggi diterima sesuai kuota jurusan.'],
+        ['q' => 'Kapan jadwal tes seleksi dilaksanakan?',
+        'a' => 'Tes seleksi akademik dijadwalkan pada <strong>5–7 Juni 2026</strong> secara online melalui sistem SPMB. Peserta akan mendapatkan notifikasi jadwal dan token tes melalui email dan dashboard.'],
+        ['q' => 'Kapan pengumuman hasil seleksi?',
+        'a' => 'Hasil seleksi diumumkan pada <strong>10 Juni 2026 pukul 08.00 WIB</strong> melalui dashboard peserta. Peserta diterima akan mendapat notifikasi untuk melanjutkan proses daftar ulang.'],
+        ['q' => 'Apakah ada jalur khusus atau beasiswa?',
+        'a' => 'Ada <strong>Jalur Prestasi</strong> untuk calon peserta dengan piagam kejuaraan tingkat kabupaten/kota ke atas, dan <strong>Jalur Afirmasi</strong> untuk peserta dari keluarga kurang mampu (dilengkapi DTKS atau SKTM).'],
+        ],
+        ],
+        [
+        'cat' => 'daftarulang',
+        'icon' => 'fa-rotate-right',
+        'title' => 'Daftar Ulang',
+        'items' => [
+        ['q' => 'Apa saja tahapan dalam proses daftar ulang?',
+        'a' => 'Ada 5 tahap: <strong>(1)</strong> Konfirmasi kehadiran, <strong>(2)</strong> Pemilihan seragam, <strong>(3)</strong> Pembayaran biaya daftar ulang, <strong>(4)</strong> Pilih jadwal kehadiran ke sekolah, <strong>(5)</strong> Tanda tangan pernyataan &amp; kirim. Semua dilakukan secara online.'],
+        ['q' => 'Batas waktu daftar ulang sampai kapan?',
+        'a' => 'Daftar ulang harus diselesaikan paling lambat <strong>15 Juni 2026</strong>. Peserta yang tidak menyelesaikan tepat waktu dianggap mengundurkan diri dan kursi diberikan ke peserta cadangan.'],
+        ['q' => 'Apa yang terjadi jika tidak bisa hadir pada jadwal yang dipilih?',
+        'a' => 'Perubahan jadwal bisa dilakukan <strong>maksimal H-1 sebelum jadwal</strong> dengan menghubungi panitia via WhatsApp. Di luar itu, hubungi operator sekolah langsung untuk konfirmasi ulang.'],
+        ['q' => 'Dokumen apa yang dibawa saat hadir ke sekolah?',
+        'a' => 'Bawa dokumen asli: <strong>Ijazah/SKL</strong>, <strong>Akta Kelahiran</strong>, <strong>Kartu Keluarga</strong>, <strong>pas foto 3×4 (5 lembar, latar merah)</strong>, dan <strong>bukti pembayaran daftar ulang</strong> yang sudah dicetak.'],
+        ['q' => 'Apakah orang tua wajib hadir saat daftar ulang?',
+        'a' => '<strong>Ya, wajib.</strong> Setidaknya salah satu orang tua atau wali yang terdaftar di biodata harus hadir untuk menandatangani surat pernyataan orang tua/wali di hadapan panitia.'],
+        ],
+        ],
+        [
+        'cat' => 'pembayaran',
+        'icon' => 'fa-credit-card',
+        'title' => 'Pembayaran',
+        'items' => [
+        ['q' => 'Metode pembayaran apa yang tersedia?',
+        'a' => 'Tersedia 3 metode: <strong>Transfer Bank</strong> (BNI/BRI/Mandiri/BCA), <strong>QRIS</strong> (scan dari semua e-wallet), dan <strong>Virtual Account</strong> otomatis yang digenerate sistem. Bukti transfer wajib diunggah.'],
+        ['q' => 'Berapa total biaya yang harus dibayar?',
+        'a' => 'Rincian biaya: Daftar ulang <strong>Rp 250.000</strong>, Seragam wajib <strong>Rp 650.000</strong>, Perlengkapan <strong>±Rp 145.000</strong>, SPP pertama <strong>Rp 200.000</strong>. <strong>Total estimasi Rp 1.245.000</strong> (bisa berbeda sesuai pilihan seragam).'],
+        ['q' => 'Bagaimana jika bukti pembayaran hilang atau tidak tersimpan?',
+        'a' => 'Hubungi panitia via WhatsApp dengan menyertakan <strong>nomor peserta</strong> dan <strong>tanggal transaksi</strong>. Panitia akan memverifikasi pembayaran melalui rekening koran sekolah.'],
+        ['q' => 'Apakah ada cicilan atau keringanan biaya?',
+        'a' => 'Peserta dari keluarga tidak mampu (pemegang KIP/DTKS) dapat mengajukan <strong>keringanan biaya</strong> dengan menyerahkan surat permohonan ke TU sekolah. Keputusan keringanan ditentukan kepala sekolah.'],
+        ],
+        ],
+        ];
+        @endphp
+
+        @foreach($faqGroups as $group)
+        <div class="faq-section-block mb-4" data-cat="{{ $group['cat'] }}">
             <div class="bg-white border border-gray-200 rounded-[20px] overflow-hidden shadow-sm">
-                {{-- Header Kategori --}}
-                <div class="px-5 py-4 flex items-center gap-2.5" style="background: linear-gradient(135deg, #FF1443, #D90F38);">
-                    <i class="fa-solid {{ $group->icon }} text-white text-[14px]"></i>
-                    <span class="text-[14px] font-black text-white">{{ $group->name }}</span>
+
+                {{-- Group header --}}
+                <div class="px-5 py-4 flex items-center gap-2.5"
+                    style="background: linear-gradient(135deg, #FF1443, #D90F38);">
+                    <i class="fa-solid {{ $group['icon'] }} text-white text-[14px]"></i>
+                    <span class="text-[14px] font-black text-white">{{ $group['title'] }}</span>
                 </div>
 
-                {{-- Looping Isi FAQ --}}
-                @foreach($group->faqs as $item)
-                <div class="faq-item border-t border-gray-100" data-q="{{ strtolower($item->question) }}">
-                    <button type="button" class="faq-btn w-full flex items-start justify-between gap-3 px-5 py-4 text-left text-[13.5px] font-bold text-[#080C1A]" onclick="toggleFaq(this)">
-                        <span>{{ $item->question }}</span>
-                        <i class="fa-solid fa-chevron-down text-[#6A7686] text-[12px] mt-[3px]"></i>
+                {{-- FAQ items --}}
+                @foreach($group['items'] as $item)
+                <div class="faq-item border-t border-gray-100"
+                    data-q="{{ strtolower($item['q']) }} {{ strtolower(strip_tags($item['a'])) }}">
+                    <button
+                        type="button"
+                        class="faq-btn w-full flex items-start justify-between gap-3 px-5 py-4 text-left text-[13.5px] font-bold text-[#080C1A] hover:bg-gray-50/70 transition-colors"
+                        onclick="toggleFaq(this)"
+                        aria-expanded="false">
+                        <span class="leading-snug">{{ $item['q'] }}</span>
+                        <i class="fa-solid fa-chevron-down text-[#6A7686] text-[12px] mt-[3px] flex-shrink-0 transition-transform duration-200"></i>
                     </button>
-                    <div class="faq-answer overflow-hidden" style="max-height:0;">
+                    <div class="faq-answer overflow-hidden" style="max-height:0; transition: max-height .3s ease;">
                         <div class="px-5 pb-4 pt-3 text-[13px] text-[#6A7686] leading-[1.75] border-t border-gray-100">
-                            {!! $item->answer !!}
+                            {!! $item['a'] !!}
                         </div>
                     </div>
                 </div>
                 @endforeach
+
             </div>
         </div>
         @endforeach
@@ -134,27 +231,68 @@
         <p class="text-[11px] font-bold text-[#6A7686] uppercase tracking-[.06em] mb-3 mt-7">Alur tahapan SPMB 2026</p>
         <div class="bg-white border border-gray-200 rounded-[20px] shadow-sm px-6 py-6">
 
+            @php
+            $steps = [
+            ['no' => 1, 'status' => 'done', 'title' => 'Pendaftaran Akun', 'desc' => 'Buat akun dengan NISN + verifikasi OTP. Pilih jurusan 1 & 2.', 'period' => '1 – 31 Mei 2026', 'badge' => 'Selesai'],
+            ['no' => 2, 'status' => 'done', 'title' => 'Pengisian Biodata', 'desc' => 'Isi 6 langkah data diri, orang tua, riwayat pendidikan & unggah dokumen.', 'period' => 'S.d. 31 Mei 2026', 'badge' => 'Selesai'],
+            ['no' => 3, 'status' => 'active', 'title' => 'Seleksi Akademik', 'desc' => 'Tes online berbasis nilai rapor dan soal akademik secara daring.', 'period' => '5 – 7 Juni 2026', 'badge' => 'Sedang berlangsung'],
+            ['no' => 4, 'status' => 'pending', 'title' => 'Pengumuman Hasil', 'desc' => 'Cek status diterima/tidak langsung di dashboard peserta.', 'period' => '10 Juni 2026', 'badge' => 'Menunggu'],
+            ['no' => 5, 'status' => 'pending', 'title' => 'Daftar Ulang', 'desc' => 'Bayar biaya, pilih seragam, dan tentukan jadwal hadir ke sekolah.', 'period' => '11 – 15 Juni 2026', 'badge' => 'Menunggu'],
+            ];
+            @endphp
+
             @foreach($steps as $step)
             <div class="flex gap-4 relative {{ !$loop->last ? 'pb-5' : '' }}">
-                {{-- Garis konektor --}}
-                @if(!$loop->last) <div class="absolute left-[15px] top-[36px] bottom-0 w-0.5 bg-gray-200"></div> @endif
 
-                {{-- Ikon Status (Logika warna berdasarkan $step->status) --}}
-                <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center z-10 
-                    {{ $step->status === 'done' ? 'bg-green-100 border-green-500' : ($step->status === 'active' ? 'bg-primary text-white' : 'bg-gray-100') }}">
-                    @if($step->status === 'done') <i class="fa-solid fa-check text-green-600"></i> @else {{ $step->step_order }} @endif
+                {{-- Connector line --}}
+                @if(!$loop->last)
+                <div class="absolute left-[15px] top-[36px] bottom-0 w-0.5 bg-gray-200"></div>
+                @endif
+
+                {{-- Dot --}}
+                @if($step['status'] === 'done')
+                <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center z-10 bg-green-100 border-2 border-green-500">
+                    <i class="fa-solid fa-check text-green-600 text-[11px]"></i>
                 </div>
+                @elseif($step['status'] === 'active')
+                <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center z-10 text-white text-[13px] font-black"
+                    style="background: linear-gradient(135deg,#FF1443,#D90F38)">
+                    {{ $step['no'] }}
+                </div>
+                @else
+                <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center z-10 bg-gray-100 border-2 border-gray-200 text-[#6A7686] text-[13px] font-black">
+                    {{ $step['no'] }}
+                </div>
+                @endif
 
+                {{-- Content --}}
                 <div class="flex-1 pt-0.5">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-0.5">
-                        <span class="text-[14px] font-black">{{ $step->title }}</span>
-                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold {{ $step->status === 'active' ? 'bg-red-100 text-primary' : 'bg-gray-100' }}">
-                            {{ $step->status === 'active' ? 'Sedang Berlangsung' : ($step->status === 'done' ? 'Selesai' : 'Menunggu') }}
+                        <span class="text-[14px] font-black {{ $step['status'] === 'active' ? 'text-[#FF1443]' : 'text-[#080C1A]' }}">
+                            {{ $step['title'] }}
                         </span>
+                        @if($step['status'] === 'done')
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-green-50 text-green-700">
+                            <i class="fa-solid fa-check text-[9px]"></i> {{ $step['badge'] }}
+                        </span>
+                        @elseif($step['status'] === 'active')
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-[#FF1443]"
+                            style="background:rgba(255,20,67,.1)">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#FF1443] animate-pulse inline-block"></span>
+                            {{ $step['badge'] }}
+                        </span>
+                        @else
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 text-[#6A7686]">
+                            {{ $step['badge'] }}
+                        </span>
+                        @endif
                     </div>
-                    <p class="text-[12.5px] text-[#6A7686]">{{ $step->description }}</p>
-                    <span class="text-[11px] font-semibold text-[#9CA3AF]"><i class="fa-regular fa-calendar mr-1"></i>{{ $step->period_text }}</span>
+                    <p class="text-[12.5px] text-[#6A7686] leading-relaxed mb-0.5">{{ $step['desc'] }}</p>
+                    <span class="text-[11px] font-semibold text-[#9CA3AF]">
+                        <i class="fa-regular fa-calendar mr-1"></i>{{ $step['period'] }}
+                    </span>
                 </div>
+
             </div>
             @endforeach
 
@@ -176,8 +314,7 @@
                     @foreach($cats as $cat)
                     <button
                         type="button"
-                        data-category="{{ $cat['key'] }}"
-                        onclick="filterCat(this.dataset.category)"
+                        onclick="filterCat('{{ $cat['key'] }}')"
                         class="w-full flex justify-between items-center py-2.5 text-left transition-colors hover:text-primary">
                         <span class="text-sm font-semibold text-[#6A7686]">
                             <i class="fa-solid {{ $cat['icon'] }} text-[#FF1443] mr-1.5"></i>
@@ -208,20 +345,12 @@
                     </a>
                 </div>
                 <div class="border-t border-gray-100 bg-gray-50/50 px-[18px] py-3">
-                    <p class="flex items-center gap-1 text-sm font-semibold text-[#080C1A]">
-                        <i class="fa-regular fa-clock text-[#FF1443]"></i>
-                        Jam Operasional
+                    <p class="text-sm text-[#6A7686] leading-relaxed">
+                        <i class="fa-regular fa-clock text-[#FF1443] mr-1"></i>
+                        <strong class="text-[#080C1A]">Jam Operasional:</strong><br>
+                        Senin–Jumat 08:00–16:00 WIB<br>
+                        Sabtu 08:00–12:00 WIB · Libur: Tutup
                     </p>
-
-                    <div class="mt-1 space-y-0.5">
-                        <p class="text-xs text-[#6A7686]">
-                            Senin–Jumat 08:00–16:00 WIB
-                        </p>
-
-                        <p class="text-xs text-red-500 font-medium">
-                            Sabtu & Minggu: Tutup
-                        </p>
-                    </div>
                 </div>
             </div>
 

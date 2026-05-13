@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\FaqController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -38,10 +39,10 @@ Route::prefix('verifikasi')->name('verifikasi.')->group(function () {
 });
 
 Route::view('/user/dashboard', 'pages.user.dashboard')->name('dashboard');
-Route::view('/user/pengumuman', 'pages.user.pengumuman')->name('pengumuman');
-Route::view('/user/biodata', 'pages.user.biodata')->name('biodata');
-Route::view('/user/daftar-ulang', 'pages.user.daftar-ulang')->name('daftar-ulang');
-Route::view('/user/bantuan', 'pages.user.bantuan')->name('bantuan');
+Route::view('/user/announcements', 'pages.user.pengumuman')->name('pengumuman');
+Route::view('/user/personal-data', 'pages.user.biodata')->name('biodata');
+Route::view('/user/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang');
+Route::get('/user/support', [FaqController::class, 'index'])->name('bantuan');
 
 // --- LOGOUT ---
 Route::post('/logout', [RegisteredUserController::class, 'destroy'])->name('logout');
