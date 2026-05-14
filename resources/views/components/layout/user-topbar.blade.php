@@ -1,5 +1,5 @@
 <nav class="bg-white border-b border-gray-200 sticky top-0 z-[200] shadow-sm">
-    <div class="max-w-[1400px] mx-auto px-6 h-[60px] flex items-center">
+    <div class="max-w-[1200px] mx-auto px-6 h-[60px] flex items-center">
 
         <a href="{{ url('/') }}" class="flex items-center gap-[10px] no-underline flex-shrink-0 mr-8">
             <div class="w-9 h-9 rounded-[10px] bg-primary flex items-center justify-center shadow-primary-sm">

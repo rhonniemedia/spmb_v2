@@ -53,7 +53,7 @@
 
     @include('components.layout.user-topbar')
 
-    <main class="max-w-[1400px] mx-auto p-6">
+    <main class="max-w-[1200px] mx-auto p-6">
         @yield('content')
     </main>
 

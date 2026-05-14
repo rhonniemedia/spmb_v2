@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name'); // Nama Konsentrasi Keahlian
             $table->string('alias')->unique(); // Singkatan (misal: TKJ, AKL)
             $table->string('code')->unique(); // Kode program keahlian
+            $table->integer('quota');
             $table->enum('status', ['active', 'archived'])->default('active');
             $table->timestamps();
         });

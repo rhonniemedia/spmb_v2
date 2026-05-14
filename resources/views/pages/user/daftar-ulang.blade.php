@@ -63,7 +63,7 @@
     {{-- ══════════════════════════════════════════
             GRID DUA KOLOM
     ══════════════════════════════════════════ --}}
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start w-full" id="mainWrapper">
+    <div class="grid grid-cols-1 gap-6 items-start w-full" id="mainWrapper">
 
         {{-- ── KOLOM KIRI ── --}}
         <div id="formCol">
