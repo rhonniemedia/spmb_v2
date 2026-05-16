@@ -46,10 +46,26 @@
             <div class="relative" x-data="{ profileOpen: false }">
                 <div @click="profileOpen = !profileOpen"
                     class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full py-1 pl-1 pr-3 cursor-pointer hover:border-primary transition-all">
+
                     <div class="w-[26px] h-[26px] rounded-full flex items-center justify-center font-black text-white text-[11px] flex-shrink-0"
-                        style="background: linear-gradient(135deg, #FF1443, #FF6B8A);">AF</div>
-                    <span class="hidden sm:inline text-[13px] font-bold text-[#080C1A] whitespace-nowrap">Ahmad Fauzi</span>
-                    <i class="fa-solid fa-chevron-down text-[10px] text-[#6A7686] transition-transform" :class="profileOpen ? 'rotate-180' : ''"></i>
+                        style="background: linear-gradient(135deg, #FF1443, #FF6B8A);">
+                        {{-- Logika mengambil inisial dari nama user --}}
+                        @php
+                        $name = Auth::user()->name;
+                        $initials = collect(explode(' ', $name))
+                        ->map(fn($segment) => mb_substr($segment, 0, 1))
+                        ->take(2)
+                        ->join('');
+                        @endphp
+                        {{ strtoupper($initials) }}
+                    </div>
+
+                    <span class="hidden sm:inline text-[13px] font-bold text-[#080C1A] whitespace-nowrap">
+                        {{ Auth::user()->name }}
+                    </span>
+
+                    <i class="fa-solid fa-chevron-down text-[10px] text-[#6A7686] transition-transform"
+                        :class="profileOpen ? 'rotate-180' : ''"></i>
                 </div>
 
                 <div x-show="profileOpen"

@@ -8,13 +8,14 @@
 @source '../**/*.js';
 
 @theme {
-    /* Font Settings */
+    /* Menimpa default font-sans Tailwind v4 agar otomatis pakai Plus Jakarta Sans */
+    --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui;
     --font-admin: "Sora", ui-sans-serif, system-ui;
-    --font-user: "Plus Jakarta Sans", ui-sans-serif, system-ui;
 
-    /* Brand Colors */
+    /* Brand Colors (Menyelaraskan hex dari config lama Anda) */
     --color-primary: #ff1443;
     --color-primary-hover: #d90f38;
+    --color-primary-light: rgba(255, 20, 67, 0.08);
     --color-foreground: #080c1a;
     --color-secondary: #6a7686;
     --color-muted: #eff2f7;
@@ -28,9 +29,10 @@
     --color-warning: #f59e0b;
     --color-warning-light: #fffbeb;
 
-    /* Custom Variables */
+    /* Custom Variables & Radius dari config lama */
     --color-card-grey: #f1f3f6;
     --radius-card: 20px;
+    --radius-btn: 50px;
 }
 
 /* --- BASE STYLES (Berlaku Global) --- */
@@ -65,7 +67,6 @@
 @layer components {
     /* Scoped untuk Dashboard User */
     .user-dashboard {
-        font-family: var(--font-user);
         background-color: #f8fafc; /* Warna background kalem untuk user */
 
         .pulse-dot {
@@ -90,7 +91,6 @@
     /* Scoped untuk Dashboard Admin */
     .admin-dashboard {
         font-family: var(--font-admin);
-        /* Tambahkan kustomisasi khusus admin di sini jika ada */
     }
 }
 
@@ -128,3 +128,40 @@
         transform: translateY(0);
     }
 }
+
+/* --- HTMX Global Indicators --- */
+
+/* 1. Sembunyikan indikator secara default */
+.htmx-indicator {
+    display: none;
+}
+
+/* 2. Tampilkan saat request sedang berjalan */
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+    display: flex !important;
+    align-items: center;
+}
+
+/* 3. Sembunyikan elemen dengan atribut hx-dis-indicator saat loading */
+.htmx-request [hx-dis-indicator] {
+    display: none;
+}
+
+/* 4. Mencegah klik ganda dan memberi feedback visual pada tombol */
+button.htmx-request {
+    pointer-events: none;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* 5. Animasi Spinner (Jika menggunakan FontAwesome fa-spin) */
+.fa-spin {
+    animation: spin 1s steps(8, end) infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+/* Membuang kurung kurawal penutup liar yang ada di sini sebelumnya */

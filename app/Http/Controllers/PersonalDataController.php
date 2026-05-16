@@ -23,13 +23,13 @@ class PersonalDataController extends Controller
 
         // Jika sudah final, tampilkan view read-only (opsional: redirect dashboard)
         if ($personalData && $personalData->isFinal()) {
-            return view('biodata', [
+            return view('pages.user.biodata', [
                 'personalData' => $personalData,
                 'isFinal'      => true,
             ]);
         }
 
-        return view('biodata', [
+        return view('pages.user.biodata', [
             'personalData' => $personalData,
             'isFinal'      => false,
         ]);
@@ -44,7 +44,7 @@ class PersonalDataController extends Controller
     */
     public function saveStep1(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        $rules = [
             'nik'                    => 'required|digits:16',
             'nisn'                   => 'required|digits:10',
             'full_name'              => 'required|string|max:255',
@@ -59,7 +59,31 @@ class PersonalDataController extends Controller
             'is_special_condition'   => 'required|in:yes,no',
             'special_condition_type' => 'nullable|string|max:100',
             'condition_description'  => 'nullable|string|max:500',
-        ]);
+        ];
+
+        // Tulis pesan langsung menyebutkan nama aliasnya agar key JSON yang return tetap aman (nik, nisn, full_name)
+        $messages = [
+            'nik.required'                    => 'Kolom NIK wajib diisi.',
+            'nik.digits'                      => 'Kolom NIK harus berupa angka sebanyak 16 digit.',
+            'nisn.required'                   => 'Kolom NISN wajib diisi.',
+            'nisn.digits'                     => 'Kolom NISN harus berupa angka sebanyak 10 digit.',
+            'full_name.required'              => 'Kolom Nama Lengkap wajib diisi.',
+            'pob.required'                    => 'Kolom Tempat Lahir wajib diisi.',
+            'dob.required'                    => 'Format tanggal pada Tanggal Lahir tidak valid.',
+            'gender.required'                 => 'Pilihan pada kolom Jenis Kelamin tidak valid.',
+            'religion.required'               => 'Kolom Agama wajib diisi.',
+            'child_order.required'            => 'Kolom Anak Ke- wajib diisi.',
+            'child_order.min'                 => 'Kolom Anak Ke- minimal bernilai 1.',
+            'number_of_siblings.required'     => 'Kolom Jumlah Saudara wajib diisi.',
+            'is_special_condition.required'   => 'Pilihan pada kolom Kondisi Khusus tidak valid.',
+
+            // Pesan umum untuk string/max jika ada yang terlewat
+            'string'                          => 'Kolom harus berupa teks.',
+            'max'                             => 'Kolom tidak boleh lebih dari :max karakter.',
+        ];
+
+        // JANGAN masukkan parameter ketiga ($attributes) agar key JSON tidak berubah menjadi kapital/spasi
+        $validated = $request->validate($rules, $messages);
 
         // Ambil atau buat record
         $personal = PersonalData::firstOrNew(['user_id' => Auth::id()]);
@@ -99,21 +123,43 @@ class PersonalDataController extends Controller
     */
     public function saveStep2(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'address'           => 'required|string|max:500',
-            'rt'                => 'nullable|string|max:5',
-            'rw'                => 'nullable|string|max:5',
-            'village'           => 'nullable|string|max:100',
-            'district'          => 'required|string|max:100',
-            'regency'           => 'required|string|max:100',
-            'province'          => 'required|string|max:100',
-            'postal_code'       => 'nullable|string|max:10',
-            'phone_number'      => 'nullable|string|max:20',
-            'email'             => 'nullable|email|max:255',
-            'residence_type'    => 'nullable|string|max:50',
-            'transportation'    => 'nullable|string|max:50',
+        $rules = [
+            'address'            => 'required|string|max:500',
+            'rt'                 => 'nullable|string|max:5',
+            'rw'                 => 'nullable|string|max:5',
+            'village'            => 'nullable|string|max:100',
+            'district'           => 'required|string|max:100',
+            'regency'            => 'required|string|max:100',
+            'province'           => 'required|string|max:100',
+            'postal_code'        => 'nullable|string|max:10',
+            'phone_number'       => 'nullable|string|max:20',
+            'email'              => 'nullable|email|max:255',
+            'residence_type'     => 'nullable|string|max:50',
+            'transportation'     => 'nullable|string|max:50',
             'distance_to_school' => 'nullable|string|max:50',
-        ]);
+        ];
+
+        // Pesan langsung menyebutkan nama alias agar struktur key JSON aman (tetap snake_case)
+        $messages = [
+            // --- Address ---
+            'address.required'            => 'Kolom Alamat wajib diisi.',
+            'address.max'                 => 'Kolom Alamat tidak boleh lebih dari 500 karakter.',
+
+            // --- Wilayah ---
+            'district.required'           => 'Kolom Kecamatan wajib diisi.',
+            'regency.required'            => 'Kolom Kabupaten/Kota wajib diisi.',
+            'province.required'           => 'Kolom Provinsi wajib diisi.',
+
+            // --- Kontak & Email ---
+            'email.email'                 => 'Format email pada kolom Email tidak valid.',
+
+            // --- Format Batasan Karakter Umum (Fallback) ---
+            'string'                      => 'Kolom :attribute harus berupa teks.',
+            'max'                         => 'Kolom :attribute tidak boleh lebih dari :max karakter.',
+        ];
+
+        // JANGAN masukkan parameter ketiga ($attributes) agar key JSON tidak berubah menjadi spasi/kapital
+        $validated = $request->validate($rules, $messages);
 
         $personal = PersonalData::where('user_id', Auth::id())->firstOrFail();
 
@@ -148,15 +194,36 @@ class PersonalDataController extends Controller
     */
     public function saveStep4(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'previous_school'                 => 'nullable|string|max:255',
-            'previous_school_npsn'            => 'nullable|string|max:20',
-            'previous_school_status'          => 'nullable|string|max:50',
-            'previous_school_city'            => 'nullable|string|max:100',
-            'previous_school_province'        => 'nullable|string|max:100',
-            'graduation_certificate_number'   => 'nullable|string|max:100',
-            'graduation_year'                 => 'nullable|digits:4',
-        ]);
+        $rules = [
+            'previous_school'               => 'required|string|max:255',
+            'previous_school_npsn'          => 'nullable|string|max:20',
+            'previous_school_status'        => 'required|string|max:50',
+            'previous_school_city'          => 'required|string|max:100',
+            'previous_school_province'      => 'required|string|max:100',
+            'graduation_certificate_number' => 'nullable|string|max:100',
+            'graduation_year'               => 'required|digits:4',
+        ];
+
+        // Pesan langsung menyebutkan nama alias eksplisit agar ramah saat dibaca di Error Summary Box Alpine.js
+        $messages = [
+            // --- Nama Sekolah Asal ---
+            'previous_school.required'               => 'Kolom Nama Sekolah Asal wajib diisi.',
+            'previous_school.max'                    => 'Nama Sekolah Asal tidak boleh lebih dari 255 karakter.',
+            'previous_school_npsn.max'               => 'NPSN Sekolah Asal tidak boleh lebih dari 20 karakter.',
+            'previous_school_status.required'        => 'Kolom Status Sekolah (Negeri/Swasta) wajib diisi.',
+            'previous_school_city.required'          => 'Kolom Kabupaten/Kota Sekolah Asal wajib diisi.',
+            'previous_school_province.required'      => 'Kolom Provinsi Sekolah Asal wajib diisi.',
+            'graduation_certificate_number.max'     => 'Nomor Ijazah tidak boleh lebih dari 100 karakter.',
+            'graduation_year.required'               => 'Kolom Tahun Lulus wajib diisi.',
+            'graduation_year.digits'                 => 'Kolom Tahun Lulus harus berupa angka sebanyak 4 digit.',
+
+            // --- Fallback Global (Antisipasi jika ada yang terlewat) ---
+            'string'                                 => 'Kolom ini harus berupa teks.',
+            'max'                                    => 'Kolom ini tidak boleh lebih dari :max karakter.',
+        ];
+
+        // Eksekusi validasi tanpa parameter ketiga ($attributes) agar key JSON tetap asli (snake_case)
+        $validated = $request->validate($rules, $messages);
 
         $personal = PersonalData::where('user_id', Auth::id())->firstOrFail();
 
@@ -184,22 +251,47 @@ class PersonalDataController extends Controller
     */
     public function saveStep5(Request $request): JsonResponse
     {
-        $request->validate([
-            'photo' => 'required|image|mimes:jpg,jpeg,png|max:1024',
-        ]);
-
+        // 1. Ambil data personal atau gagalkan jika user tidak ditemukan
         $personal = PersonalData::where('user_id', Auth::id())->firstOrFail();
 
-        // Hapus foto lama jika ada
-        if ($personal->photo && Storage::disk('public')->exists($personal->photo)) {
-            Storage::disk('public')->delete($personal->photo);
+        // 2. Tentukan rule secara dinamis berdasarkan kondisi foto di database
+        // Jika kolom photo di DB kosong/null, gunakan 'required'. Jika sudah ada, gunakan 'nullable'
+        $photoRule = empty($personal->photo)
+            ? 'required|image|mimes:jpg,jpeg,png|max:1024'
+            : 'nullable|image|mimes:jpg,jpeg,png|max:1024';
+
+        $rules = [
+            'photo' => $photoRule,
+        ];
+
+        $messages = [
+            'photo.required' => 'Pas foto wajib diunggah karena Anda belum memiliki foto.',
+            'photo.image'    => 'Berkas yang diunggah harus berupa gambar.',
+            'photo.mimes'    => 'Format gambar harus berupa: :values.',
+            'photo.max'      => 'Ukuran foto maksimal adalah 1 MB (1024 KB).',
+        ];
+
+        // 3. Jalankan Validasi
+        $request->validate($rules, $messages);
+
+        // 4. Cek apakah pengguna mengunggah berkas baru
+        if ($request->hasFile('photo')) {
+
+            // Hapus foto lama dari storage jika sebelumnya sudah ada foto
+            if ($personal->photo && Storage::disk('public')->exists($personal->photo)) {
+                Storage::disk('public')->delete($personal->photo);
+            }
+
+            // Simpan foto yang baru diunggah
+            $path = $request->file('photo')->store('photos/biodata', 'public');
+            $personal->photo = $path;
+            $personal->save();
         }
+        // Jika di DB sudah ada foto DAN user tidak mengunggah foto baru,
+        // blok IF di atas akan dilewati dengan aman tanpa mengubah data lama.
 
-        $path = $request->file('photo')->store('photos/biodata', 'public');
-        $personal->photo = $path;
-        $personal->save();
-
-        return response()->json(['success' => true, 'step' => 6]);
+        return response()->json(['success' => true, 'step' => 6])
+            ->header('HX-Trigger', 'refreshResume');
     }
 
     /*
@@ -215,7 +307,7 @@ class PersonalDataController extends Controller
             ->with(['parents'])
             ->firstOrFail();
 
-        return view('partials.biodata-summary', compact('personal'));
+        return view('pages.user.partials.biodata._summary', ['personalData' => $personal]);
     }
 
     /*

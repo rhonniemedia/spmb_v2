@@ -6,43 +6,39 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('registration_data', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('personal_data_id')->constrained('personal_data')->onDelete('cascade');
+            $table->foreignUuid('admission_path_id')->nullable()->constrained('admission_paths');
 
-            // --- GROUP 1: ADMISSION PATH ---
-            $table->foreignUuid('admission_path_id')->constrained('admission_paths');
+            // --- PILIHAN JURUSAN (PILIHAN 1, 2, 3) ---
+            $table->foreignUuid('choice_1')->nullable()->constrained('concentrations');
+            $table->foreignUuid('choice_2')->nullable()->constrained('concentrations');
+            $table->foreignUuid('choice_3')->nullable()->constrained('concentrations');
 
-            // --- GROUP 2: DOCUMENTS ---
+            // --- BERKAS UMUM FISIK (SCAN) ---
             $table->string('diploma_file')->nullable();
             $table->string('graduation_letter_file')->nullable();
             $table->string('report_card_file')->nullable();
             $table->string('birth_certificate_file')->nullable();
 
-            // --- GROUP 3: MAJOR CHOICES ---
-            $table->foreignUuid('choice_1')->constrained('concentrations');
-            $table->foreignUuid('choice_2')->constrained('concentrations');
-            $table->foreignUuid('choice_3')->constrained('concentrations');
+            // --- DATA NILAI (DARI STEP 1: NILAI & TKA) ---
+            // Nilai Rapor Per Semester (Menggunakan decimal agar presisi)
+            $table->decimal('report_sem_1', 5, 2)->nullable();
+            $table->decimal('report_sem_2', 5, 2)->nullable();
+            $table->decimal('report_sem_3', 5, 2)->nullable();
+            $table->decimal('report_sem_4', 5, 2)->nullable();
+            $table->decimal('report_sem_5', 5, 2)->nullable();
+            $table->decimal('report_average', 5, 2)->nullable();
 
-            // --- NEW GROUP: ACHIEVEMENTS ---
-            $table->enum('achievement_level', [
-                'internasional',
-                'nasional',
-                'provinsi',
-                'kabupaten'
-            ])->nullable();
+            // Nilai Tes Kemampuan Akademik (TKA)
+            $table->decimal('tka_math', 5, 2)->nullable();
+            $table->decimal('tka_indonesian', 5, 2)->nullable();
+            $table->decimal('tka_average', 5, 2)->nullable();
 
-            $table->enum('curation_type', [
-                'puspresnas', // Refers to SIMT/Puspresnas
-                'dikbud' // Refers to Dikbudprov
-            ])->nullable();
-
-            // --- GROUP 4: VERIFICATION (GATE 1) ---
+            // --- VERIFIKASI PANITIA ---
             $table->enum('verification_status', ['pending', 'verified', 'rejected'])->default('pending');
             $table->text('verification_notes')->nullable();
             $table->foreignUuid('verified_by')->nullable()->constrained('users')->onDelete('set null');
@@ -52,9 +48,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('registration_data');

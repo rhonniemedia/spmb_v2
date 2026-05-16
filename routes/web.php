@@ -7,7 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\ParentDataController;
 use App\Http\Controllers\PersonalDataController;
-use App\Models\Announcement;
+use App\Http\Controllers\RegistrationDataController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -42,40 +42,51 @@ Route::prefix('verifikasi')->name('verifikasi.')->group(function () {
     Route::post('/{noPendaftaran}/dokumen/{dokId}', [VerifikasiController::class, 'updateDokumen'])->name('dokumen.update');
 });
 
-Route::view('/user/dashboard', 'pages.user.dashboard')->name('dashboard');
-Route::view('/user/personal-data', 'pages.user.biodata')->name('biodata');
-Route::view('/user/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang');
-Route::get('/user/support', [FaqController::class, 'index'])->name('bantuan');
-Route::get('/user/announcements', [AnnouncementController::class, 'index'])->name('pengumuman');
+Route::middleware(['auth', 'verified'])->group(function () {
 
-Route::middleware(['auth', 'verified'])->prefix('biodata')->name('biodata.')->group(function () {
+    // --- KELOMPOK USER ---
+    Route::prefix('user')->group(function () {
+        Route::view('/dashboard', 'pages.user.dashboard')->name('dashboard');
 
-    // ④  Halaman utama biodata (load form + prefill jika ada data lama)
-    Route::get('/', [PersonalDataController::class, 'index'])->name('index');
+        // Halaman Utama Biodata (Tampilan Form)
+        Route::get('/biodata', [PersonalDataController::class, 'index'])->name('biodata');
 
-    // ⑤  Step 1 — Data Pribadi (identitas + keluarga + kondisi khusus)
-    Route::post('/step/1', [PersonalDataController::class, 'saveStep1'])->name('step1');
+        // --- SUB-KELOMPOK PROSES BIODATA (POST & DATA) ---
+        // Semua URL di bawah ini akan menjadi: /user/biodata/step/1, dst.
+        Route::prefix('biodata')->name('biodata.')->group(function () {
+            Route::post('/step/1', [PersonalDataController::class, 'saveStep1'])->name('step1');
+            Route::post('/step/2', [PersonalDataController::class, 'saveStep2'])->name('step2');
+            Route::post('/step/3', [ParentDataController::class, 'saveStep3'])->name('step3');
+            Route::post('/step/4', [PersonalDataController::class, 'saveStep4'])->name('step4');
+            Route::post('/step/5', [PersonalDataController::class, 'saveStep5'])->name('step5');
 
-    // ⑥  Step 2 — Alamat + Kontak + Transportasi
-    Route::post('/step/2', [PersonalDataController::class, 'saveStep2'])->name('step2');
+            Route::get('/summary', [PersonalDataController::class, 'summary'])->name('summary');
+            Route::post('/draft', [PersonalDataController::class, 'saveDraft'])->name('draft');
+            Route::post('/submit', [PersonalDataController::class, 'submit'])->name('submit');
+        });
 
-    // ⑦  Step 3 — Data Orang Tua / Wali
-    Route::post('/step/3', [ParentDataController::class, 'saveStep3'])->name('step3');
+        // Halaman Utama Biodata (Tampilan Form)
+        Route::get('/registration', [RegistrationDataController::class, 'index'])->name('registration');
 
-    // ⑧  Step 4 — Riwayat Pendidikan
-    Route::post('/step/4', [PersonalDataController::class, 'saveStep4'])->name('step4');
+        // --- SUB-KELOMPOK PROSES PENDAFTARAN (POST & DATA) ---
+        // Semua URL di bawah ini akan menjadi: /user/pendaftaran/step/1, dst.
+        Route::prefix('registration')->name('registration.')->group(function () {
+            Route::post('/step/1', [RegistrationDataController::class, 'saveStep1'])->name('step1');
+            Route::post('/step/2', [RegistrationDataController::class, 'saveStep2'])->name('step2');
+            Route::post('/step/3', [ParentDataController::class, 'saveStep3'])->name('step3');
+            Route::post('/step/4', [RegistrationDataController::class, 'saveStep4'])->name('step4');
+            Route::post('/step/5', [RegistrationDataController::class, 'saveStep5'])->name('step5');
+            Route::post('/zoning/distance-calculation', [RegistrationDataController::class, 'hitungJarak'])->name('zonasi.hitung');
 
-    // ⑨  Step 5 — Upload Pas Foto
-    Route::post('/step/5', [PersonalDataController::class, 'saveStep5'])->name('step5');
+            Route::get('/summary', [RegistrationDataController::class, 'summary'])->name('summary');
+            Route::post('/draft', [RegistrationDataController::class, 'saveDraft'])->name('draft');
+            Route::post('/submit', [RegistrationDataController::class, 'submit'])->name('submit');
+        });
 
-    // ⑩  Summary — Partial HTML untuk step 6 (HTMX GET, swap #summary-container)
-    Route::get('/summary', [PersonalDataController::class, 'summary'])->name('summary');
-
-    // Simpan Draft — partial save tanpa validasi ketat (dari tombol "Simpan Draft")
-    Route::post('/draft', [PersonalDataController::class, 'saveDraft'])->name('draft');
-
-    // ⑪  Submit Final — ubah profile_status → final
-    Route::post('/submit', [PersonalDataController::class, 'submit'])->name('submit');
+        Route::view('/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang');
+        Route::get('/support', [FaqController::class, 'index'])->name('bantuan');
+        Route::get('/announcements', [AnnouncementController::class, 'index'])->name('pengumuman');
+    });
 });
 
 // --- LOGOUT ---

@@ -123,6 +123,11 @@ class PersonalData extends Model
             ->where('relationship', 'guardian');
     }
 
+    public function registrationData(): HasMany
+    {
+        return $this->hasMany(RegistrationData::class, 'personal_data_id');
+    }
+
     /*
     |==========================================================================
     | HELPER — STATUS

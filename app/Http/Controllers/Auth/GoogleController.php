@@ -31,7 +31,7 @@ class GoogleController extends Controller
             ]);
 
             Auth::login($user);
-            return redirect()->intended('/dashboard');
+            return redirect()->intended('/user/dashboard');
         } catch (\Exception $e) {
             return redirect('/register')->with('error', 'Gagal login Google.');
         }

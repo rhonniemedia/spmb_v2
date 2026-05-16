@@ -24,41 +24,87 @@ class ParentDataController extends Controller
     */
     public function saveStep3(Request $request): JsonResponse
     {
-        // ── Validasi Ayah ────────────────────────────────────────────────
-        $validated = $request->validate([
-            // Ayah
+        // ── Aturan Validasi (Rules) ──────────────────────────────────────
+        $rules = [
+            // --- Validasi Ayah ---
             'ayah_name'       => 'required|string|max:255',
             'ayah_status'     => 'required|in:alive,deceased',
-            'ayah_nik'        => 'nullable|digits:16',
-            'ayah_birth_year' => 'nullable|digits:4',
-            'ayah_education'  => 'nullable|string|max:50',
-            'ayah_job'        => 'nullable|string|max:100',
-            'ayah_income'     => 'nullable|string|max:100',
-            'ayah_phone'      => 'nullable|string|max:20',
-            'ayah_address'    => 'nullable|string|max:500',
+            'ayah_nik'        => 'required_if:ayah_status,alive|nullable|digits:16',
+            'ayah_birth_year' => 'required_if:ayah_status,alive|nullable|digits:4',
+            'ayah_education'  => 'required_if:ayah_status,alive|nullable|string|max:50',
+            'ayah_job'        => 'required_if:ayah_status,alive|nullable|string|max:100',
+            'ayah_income'     => 'required_if:ayah_status,alive|nullable|string|max:100',
+            'ayah_phone'      => 'required_if:ayah_status,alive|nullable|string|max:20',
+            'ayah_address'    => 'required_if:ayah_status,alive|nullable|string|max:500',
 
-            // Ibu
+            // --- Validasi Ibu ---
             'ibu_name'        => 'required|string|max:255',
             'ibu_status'      => 'required|in:alive,deceased',
-            'ibu_nik'         => 'nullable|digits:16',
-            'ibu_birth_year'  => 'nullable|digits:4',
-            'ibu_education'   => 'nullable|string|max:50',
-            'ibu_job'         => 'nullable|string|max:100',
-            'ibu_income'      => 'nullable|string|max:100',
-            'ibu_phone'       => 'nullable|string|max:20',
-            'ibu_address'     => 'nullable|string|max:500',
+            'ibu_nik'         => 'required_if:ibu_status,alive|nullable|digits:16',
+            'ibu_birth_year'  => 'required_if:ibu_status,alive|nullable|digits:4',
+            'ibu_education'   => 'required_if:ibu_status,alive|nullable|string|max:50',
+            'ibu_job'         => 'required_if:ibu_status,alive|nullable|string|max:100',
+            'ibu_income'      => 'required_if:ibu_status,alive|nullable|string|max:100',
+            'ibu_phone'       => 'required_if:ibu_status,alive|nullable|string|max:20',
+            'ibu_address'     => 'required_if:ibu_status,alive|nullable|string|max:500',
 
-            // Wali (opsional — hanya jika dikirim)
+            // --- Validasi Wali (Opsional & Wajib Hidup) ---
             'wali_name'       => 'nullable|string|max:255',
-            'wali_status'     => 'nullable|in:alive,deceased',
-            'wali_nik'        => 'nullable|digits:16',
-            'wali_birth_year' => 'nullable|digits:4',
-            'wali_education'  => 'nullable|string|max:50',
-            'wali_job'        => 'nullable|string|max:100',
-            'wali_income'     => 'nullable|string|max:100',
-            'wali_phone'      => 'nullable|string|max:20',
-            'wali_address'    => 'nullable|string|max:500',
-        ]);
+            'wali_nik'        => 'required_with:wali_name|nullable|digits:16',
+            'wali_birth_year' => 'required_with:wali_name|nullable|digits:4',
+            'wali_education'  => 'required_with:wali_name|nullable|string|max:50',
+            'wali_job'        => 'required_with:wali_name|nullable|string|max:100',
+            'wali_income'     => 'required_with:wali_name|nullable|string|max:100',
+            'wali_phone'      => 'required_with:wali_name|nullable|string|max:20',
+            'wali_address'    => 'required_with:wali_name|nullable|string|max:500',
+        ];
+
+        // Pesan langsung dipetakan ke field agar key JSON aman
+        $messages = [
+            // --- Ayah ---
+            'ayah_name.required'       => 'Kolom Nama Ayah wajib diisi.',
+            'ayah_status.required'     => 'Kolom Status Ayah wajib diisi.',
+            'ayah_nik.required_if'     => 'Kolom NIK Ayah wajib diisi jika status masih hidup.',
+            'ayah_nik.digits'          => 'Kolom NIK Ayah harus berupa angka sebanyak 16 digit.',
+            'ayah_birth_year.required_if' => 'Kolom Tahun Lahir Ayah wajib diisi jika status masih hidup.',
+            'ayah_birth_year.digits'   => 'Kolom Tahun Lahir Ayah harus berupa angka sebanyak 4 digit.',
+            'ayah_education.required_if'  => 'Kolom Pendidikan Terakhir Ayah wajib diisi jika status masih hidup.',
+            'ayah_job.required_if'     => 'Kolom Pekerjaan Ayah wajib diisi jika status masih hidup.',
+            'ayah_income.required_if'  => 'Kolom Penghasilan Ayah wajib diisi jika status masih hidup.',
+            'ayah_phone.required_if'   => 'Kolom Nomor Telepon Ayah wajib diisi jika status masih hidup.',
+            'ayah_address.required_if' => 'Kolom Alamat Ayah wajib diisi jika status masih hidup.',
+
+            // --- Ibu ---
+            'ibu_name.required'        => 'Kolom Nama Ibu wajib diisi.',
+            'ibu_status.required'      => 'Kolom Status Ibu wajib diisi.',
+            'ibu_nik.required_if'      => 'Kolom NIK Ibu wajib diisi jika status masih hidup.',
+            'ibu_nik.digits'           => 'Kolom NIK Ibu harus berupa angka sebanyak 16 digit.',
+            'ibu_birth_year.required_if'  => 'Kolom Tahun Lahir Ibu wajib diisi jika status masih hidup.',
+            'ibu_birth_year.digits'    => 'Kolom Tahun Lahir Ibu harus berupa angka sebanyak 4 digit.',
+            'ibu_education.required_if'   => 'Kolom Pendidikan Terakhir Ibu wajib diisi jika status masih hidup.',
+            'ibu_job.required_if'      => 'Kolom Pekerjaan Ibu wajib diisi jika status masih hidup.',
+            'ibu_income.required_if'   => 'Kolom Penghasilan Ibu wajib diisi jika status masih hidup.',
+            'ibu_phone.required_if'    => 'Kolom Nomor Telepon Ibu wajib diisi jika status masih hidup.',
+            'ibu_address.required_if'  => 'Kolom Alamat Ibu wajib diisi jika status masih hidup.',
+
+            // --- Wali ---
+            'wali_nik.required_with'   => 'Kolom NIK Wali wajib diisi jika data Wali dicantumkan.',
+            'wali_nik.digits'          => 'Kolom NIK Wali harus berupa angka sebanyak 16 digit.',
+            'wali_birth_year.required_with' => 'Kolom Tahun Lahir Wali wajib diisi jika data Wali dicantumkan.',
+            'wali_birth_year.digits'   => 'Kolom Tahun Lahir Wali harus berupa angka sebanyak 4 digit.',
+            'wali_education.required_with'  => 'Kolom Pendidikan Terakhir Wali wajib diisi jika data Wali dicantumkan.',
+            'wali_job.required_with'   => 'Kolom Pekerjaan Wali wajib diisi jika data Wali dicantumkan.',
+            'wali_income.required_with' => 'Kolom Penghasilan Wali wajib diisi jika data Wali dicantumkan.',
+            'wali_phone.required_with' => 'Kolom Nomor Telepon Wali wajib diisi jika data Wali dicantumkan.',
+            'wali_address.required_with' => 'Kolom Alamat Wali wajib diisi jika data Wali dicantumkan.',
+
+            // --- Fallback Aturan Umum ---
+            'string'                   => 'Kolom harus berupa teks.',
+            'max'                      => 'Kolom tidak boleh lebih dari :max karakter.',
+        ];
+
+        // Jalankan tanpa parameter ketiga ($attributes)
+        $validated = $request->validate($rules, $messages);
 
         $personal = PersonalData::where('user_id', Auth::id())->firstOrFail();
 
