@@ -151,11 +151,6 @@
         </button>
 
         <div class="flex items-center gap-3">
-            <button type="button" onclick="saveDraft()"
-                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-[#6A7686] border border-gray-200 rounded-full hover:border-[#080C1A] hover:text-[#080C1A] transition-all">
-                <i class="fa-solid fa-floppy-disk"></i> Simpan Draft
-            </button>
-
             <button type="button"
                 hx-post="{{ route('registration.step4') }}"
                 hx-include="[name='pilihan_jurusan_1'], [name='pilihan_jurusan_2'], [name='pilihan_jurusan_3']"

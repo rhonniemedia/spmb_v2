@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('registration_zonasis', function (Blueprint $table) {
+        Schema::create('registration_zones', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('registration_data_id')->constrained('registration_data')->onDelete('cascade');
 
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('registration_zonasis');
+        Schema::dropIfExists('registration_zones');
     }
 };

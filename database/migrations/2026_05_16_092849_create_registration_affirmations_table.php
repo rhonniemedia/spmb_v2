@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('registration_afirmasis', function (Blueprint $table) {
+        Schema::create('registration_affirmations', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('registration_data_id')->constrained('registration_data')->onDelete('cascade');
 
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('registration_afirmasis');
+        Schema::dropIfExists('registration_affirmations');
     }
 };

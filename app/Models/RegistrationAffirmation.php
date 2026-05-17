@@ -6,18 +6,16 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class RegistrationZonasi extends Model
+class RegistrationAffirmation extends Model
 {
     use HasUuids;
 
-    protected $table = 'registration_zonasis';
+    protected $table = 'registration_affirmations';
 
     protected $guarded = ['id'];
 
     protected $casts = [
-        'house_latitude' => 'float',
-        'house_longitude' => 'float',
-        'calculated_distance_meters' => 'double',
+        'has_social_card' => 'boolean', // Otomatis cast 1/0 dari view ke true/false
     ];
 
     /**

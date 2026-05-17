@@ -3,17 +3,16 @@
 |==========================================================================
 | STEP PRESTASI — JENIS & DATA PRESTASI
 |==========================================================================
-| Hanya muncul jika jalur === 'prestasi' (dikontrol stepMap di parent).
+| Hanya muncul jika currentStepId === 'prestasi' (dikontrol stepMap di parent).
 |
 | Arsitektur v2 — sistem pilih satu jenis (card list, radio):
-|   1. Kejuaraan → pilih tingkat (kab/prov/nas/int) + kurasi
-|   2. Tahfiz    → pilih lembaga kurasi
-|   3. Kepemimpinan → pilih jabatan dari daftar + info SK
-|   Semua jenis → verifikasi dokumen dilakukan langsung oleh panitia (tidak ada upload).
-|   Tombol Lanjut aktif setelah jenis + detail selesai dipilih.
+|   1. Kejuaraan     → pilih tingkat (kab/prov/nas/int) + kurasi
+|   2. Tahfiz        → pilih lembaga kurasi
+|   3. Kepemimpinan  → pilih jabatan dari daftar + info SK
 |
-| State lokal (x-data di div ini — tidak perlu di parent):
-|   jenis, tingkat, kurasi, jabatan
+| Pola submit: HTMX hx-post → saveStepPrestasi → JSON {success, nextStep}
+|   → window.dispatchEvent('pindah-step') → Alpine navigasi ke 'jurusan'
+|   (identik dengan pola _step_jalur.blade.php)
 |==========================================================================
 --}}
 
@@ -147,6 +146,7 @@
                                     </div>
                                     <input type="hidden" name="prestasi_tingkat" :value="tingkat">
                                 </div>
+
                                 {{-- Baris 2: Jenis Kurasi (muncul setelah tingkat dipilih) --}}
                                 <template x-if="tingkat !== ''">
                                     <div class="space-y-4">
@@ -246,7 +246,7 @@
                             </div>
                         </div>
 
-                        {{-- Detail lembaga kurasi langsung di dalam card --}}
+                        {{-- Detail lembaga kurasi inline di dalam card --}}
                         <template x-if="jenis === 'tahfiz'">
                             <div class="mt-4 pt-3 border-t border-amber-100 space-y-4">
                                 <div>
@@ -350,7 +350,7 @@
                             </div>
                         </div>
 
-                        {{-- Detail jabatan langsung di dalam card --}}
+                        {{-- Detail jabatan inline di dalam card --}}
                         <template x-if="jenis === 'kepemimpinan'">
                             <div class="mt-4 pt-3 border-t border-amber-100 space-y-4">
                                 <div>
@@ -397,7 +397,7 @@
                                     <input type="hidden" name="prestasi_jabatan" :value="jabatan">
                                 </div>
 
-                                {{-- Penegasan Dokumen Kepemimpinan (Ikon Dirapikan Berkotak) --}}
+                                {{-- Penegasan Dokumen Kepemimpinan --}}
                                 <div class="flex gap-3 items-center bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
                                     <div class="w-7 h-7 rounded-lg bg-red-200 flex items-center justify-center flex-shrink-0">
                                         <i class="fa-solid fa-file-signature text-red-600 text-[11px]"></i>
@@ -434,18 +434,24 @@
             class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-[#6A7686] border border-gray-200 rounded-full hover:border-[#080C1A] hover:text-[#080C1A] transition-all">
             <i class="fa-solid fa-arrow-left"></i> Kembali
         </button>
+
         <div class="flex items-center gap-3">
-            <button type="button" onclick="saveDraft()"
-                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-[#6A7686] border border-gray-200 rounded-full hover:border-[#080C1A] hover:text-[#080C1A] transition-all">
-                <i class="fa-solid fa-floppy-disk"></i> Simpan Draft
-            </button>
             <button type="button"
-                @click="step++"
+                hx-post="{{ route('registration.prestasi') }}"
+                hx-include="[name='prestasi_jenis'], [name='prestasi_tingkat'], [name='prestasi_kurasi'], [name='prestasi_jabatan']"
+                hx-target="this"
+                hx-swap="none"
+                hx-indicator="#loading-prestasi"
+                hx-on::after-request="
+                    const res = JSON.parse(event.detail.xhr.responseText);
+                    if (res.success) window.dispatchEvent(new CustomEvent('pindah-step', { detail: { nextStep: res.nextStep } }))
+                "
                 :disabled="!detailLengkap"
                 :class="detailLengkap
                     ? 'bg-[#FF1443] hover:bg-[#D90F38] hover:-translate-y-px shadow-lg shadow-red-500/30 cursor-pointer'
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
                 class="inline-flex items-center gap-2 px-8 py-2.5 text-white text-sm font-black rounded-full transition-all">
+                <span id="loading-prestasi" class="htmx-indicator mr-1"><i class="fa-solid fa-circle-notch animate-spin"></i></span>
                 Lanjut <i class="fa-solid fa-arrow-right"></i>
             </button>
         </div>

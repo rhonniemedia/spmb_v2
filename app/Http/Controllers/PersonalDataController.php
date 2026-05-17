@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PersonalData;
+use App\Models\SpmbStep;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,18 +18,42 @@ class PersonalDataController extends Controller
     */
     public function index()
     {
+        // ── 1. Ambil Biodata pribadi dengan eager load relasi 'parents' ──
         $personalData = PersonalData::where('user_id', Auth::id())
             ->with(['parents'])
             ->first();
 
-        // Jika sudah final, tampilkan view read-only (opsional: redirect dashboard)
+        // ── 2. Jika biodata sudah final, tampilkan halaman resume pendaftaran ──
         if ($personalData && $personalData->isFinal()) {
-            return view('pages.user.biodata', [
+
+            // Ambil data orang tua dari relasi 'parents' (jika null, kembalikan koleksi kosong)
+            $parentData = $personalData->parents ?? collect();
+
+            // Ambil step "Pendaftaran SPMB" dari tabel SpmbStep berdasarkan slug alur tunggal yang baru
+            $spmbStep = SpmbStep::where('slug', 'pendaftaran-spmb')->first();
+
+            // Definisikan $isSchedule berdasarkan start_date & end_date
+            $isSchedule = isset($spmbStep)
+                && $spmbStep->start_date !== null
+                && now()->between($spmbStep->start_date, $spmbStep->end_date);
+
+            // dd([
+            //     'now'        => now()->toDateTimeString(),
+            //     'start_date' => $spmbStep->start_date,
+            //     'end_date'   => $spmbStep->end_date,
+            //     'isSchedule' => $isSchedule,
+            // ]);
+
+            return view('pages.user.resume-biodata', [
                 'personalData' => $personalData,
+                'parentData'   => $parentData,
+                'spmbStep'     => $spmbStep,
                 'isFinal'      => true,
+                'isSchedule'   => $isSchedule,
             ]);
         }
 
+        // ── 3. Jika biodata belum final, tampilkan halaman form biodata ──
         return view('pages.user.biodata', [
             'personalData' => $personalData,
             'isFinal'      => false,

@@ -14,39 +14,58 @@ class SpmbStepSeeder extends Seeder
     {
         $steps = [
             [
-                'title' => 'Pendaftaran Akun',
-                'description' => 'Buat akun dengan NISN + verifikasi OTP. Pilih jurusan 1 & 2.',
-                'period_text' => '1 – 31 Mei 2026',
-                'status' => 'done',
-                'step_order' => 1
+                'title'       => 'Pendaftaran dan Aktivasi Akun',
+                'slug'        => 'pendaftaran-akun',
+                'description' => 'Buat akun menggunakan NISN dan lakukan verifikasi aktivasi akun.',
+                'period_text' => '1 Mei – 30 Juni 2026',
+                'start_date'  => '2026-05-01 00:00:00',
+                'end_date'    => '2026-06-30 23:59:59',
+                'step_order'  => 1
             ],
             [
-                'title' => 'Pengisian Biodata',
-                'description' => 'Isi 6 langkah data diri, orang tua, riwayat pendidikan & unggah dokumen.',
-                'period_text' => 'S.d. 31 Mei 2026',
-                'status' => 'done',
-                'step_order' => 2
+                'title'       => 'Pengisian Biodata',
+                'slug'        => 'pengisian-biodata',
+                'description' => 'Lengkapi data diri, alamat, riwayat pendidikan, serta data orang tua/wali.',
+                'period_text' => '1 Mei – 30 Juni 2026',
+                'start_date'  => '2026-05-01 00:00:00',
+                'end_date'    => '2026-06-30 23:59:59',
+                'step_order'  => 2
             ],
             [
-                'title' => 'Seleksi Akademik',
-                'description' => 'Tes online berbasis nilai rapor dan soal akademik secara daring.',
-                'period_text' => '5 – 7 Juni 2026',
-                'status' => 'active',
-                'step_order' => 3
+                'title'       => 'Pendaftaran SPMB',
+                'slug'        => 'pendaftaran-spmb',
+                'description' => 'Kunci biodata (finalisasi) dan pilih kompetensi keahlian/jurusan pendaftaran.',
+                'period_text' => '1 Mei – 30 Juni 2026',
+                'start_date'  => '2026-05-01 00:00:00',
+                'end_date'    => '2026-06-30 23:59:59',
+                'step_order'  => 3
             ],
             [
-                'title' => 'Pengumuman Hasil',
-                'description' => 'Cek status diterima/tidak langsung di dashboard peserta.',
-                'period_text' => '10 Juni 2026',
-                'status' => 'pending',
-                'step_order' => 4
+                'title'       => 'Seleksi Minat dan Bakat',
+                'slug'        => 'seleksi-minat-bakat',
+                'description' => 'Pelaksanaan tes seleksi minat dan bakat bagi calon peserta didik.',
+                'period_text' => '2 – 24 Juni 2026 (s.d Pukul 15.00 WIB)',
+                'start_date'  => '2026-06-02 00:00:00',
+                'end_date'    => '2026-06-24 15:00:00',
+                'step_order'  => 4
             ],
             [
-                'title' => 'Daftar Ulang',
-                'description' => 'Bayar biaya, pilih seragam, dan tentukan jadwal hadir ke sekolah.',
-                'period_text' => '11 – 15 Juni 2026',
-                'status' => 'pending',
-                'step_order' => 5
+                'title'       => 'Pengumuman Hasil',
+                'slug'        => 'pengumuman-hasil',
+                'description' => 'Melihat hasil seleksi kelulusan akhir langsung melalui dashboard.',
+                'period_text' => '25 Juni 2026 (Pukul 12.00 WIB)',
+                'start_date'  => '2026-06-25 12:00:00',
+                'end_date'    => '2026-06-25 23:59:59',
+                'step_order'  => 5
+            ],
+            [
+                'title'       => 'Daftar Ulang',
+                'slug'        => 'daftar-ulang',
+                'description' => 'Proses registrasi ulang, verifikasi berkas fisik, dan administrasi seragam.',
+                'period_text' => '26 – 27 Juni 2026 (s.d Pukul 16.00 WIB)',
+                'start_date'  => '2026-06-26 00:00:00',
+                'end_date'    => '2026-06-27 16:00:00',
+                'step_order'  => 6
             ],
         ];
 

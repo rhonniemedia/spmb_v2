@@ -32,9 +32,9 @@
     // ── STEPPER MAP LOGIC ──
     get stepMap() {
         const byJalur = {
-            zonasi:   [{ id: 'zonasi_jarak', label: 'Cek Domisili',    icon: 'fa-location-dot' }],
+            zonasi:   [{ id: 'zonasi', label: 'Cek Domisili',    icon: 'fa-location-dot' }],
             prestasi: [{ id: 'prestasi',     label: 'Data Prestasi',   icon: 'fa-award' }],
-            afirmasi: [{ id: 'afirmasi_dok', label: 'Dok. Afirmasi',   icon: 'fa-file-shield' }],
+            afirmasi: [{ id: 'afirmasi', label: 'Dok. Afirmasi',   icon: 'fa-file-shield' }],
             reguler:  [],
         };
         return [
@@ -169,8 +169,8 @@
                 @include('pages.user.partials.pendaftaran._step_nilai')
                 @include('pages.user.partials.pendaftaran._step_jalur')
                 @include('pages.user.partials.pendaftaran._step_prestasi')
-                @include('pages.user.partials.pendaftaran._step_zonasi_jarak')
-                @include('pages.user.partials.pendaftaran._step_afirmasi_dok')
+                @include('pages.user.partials.pendaftaran._step_zonasi')
+                @include('pages.user.partials.pendaftaran._step_afirmasi')
                 @include('pages.user.partials.pendaftaran._step_jurusan')
                 @include('pages.user.partials.pendaftaran._step_konfirmasi')
 

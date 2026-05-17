@@ -1,4 +1,4 @@
-{{-- _step_afirmasi_dok.blade.php --}}
+{{-- _step_afirmasi.blade.php --}}
 {{--
 |==========================================================================
 | STEP AFIRMASI — DOKUMEN AFIRMASI
@@ -18,7 +18,7 @@
 |==========================================================================
 --}}
 
-<div x-show="currentStepId === 'afirmasi_dok'"
+<div x-show="currentStepId === 'afirmasi'"
     x-data="{
         nomorSktm: '',
         pakaiKartu: false,
@@ -199,19 +199,23 @@
         </button>
 
         <div class="flex items-center gap-3">
-            <button type="button" onclick="saveDraft()"
-                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-[#6A7686] border border-gray-200 rounded-full hover:border-[#080C1A] hover:text-[#080C1A] transition-all">
-                <i class="fa-solid fa-floppy-disk"></i> Simpan Draft
-            </button>
-
             {{-- Disabled sampai nomor SKTM diisi --}}
             <button type="button"
-                @click="step++"
+                hx-post="{{ route('registration.afirmasi') }}"
+                hx-include="[name='nomor_sktm'], [name='pakai_kartu'], [name='jenis_kartu'], [name='nomor_kartu']"
+                hx-target="this"
+                hx-swap="none"
+                hx-indicator="#loading-afirmasi"
+                hx-on::after-request="
+                    const res = JSON.parse(event.detail.xhr.responseText);
+                    if (res.success) window.dispatchEvent(new CustomEvent('pindah-step', { detail: { nextStep: res.nextStep } }))
+                "
                 :disabled="!bolehLanjut"
                 :class="bolehLanjut
                     ? 'bg-[#FF1443] hover:bg-[#D90F38] hover:-translate-y-px shadow-lg shadow-red-500/30 cursor-pointer'
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
                 class="inline-flex items-center gap-2 px-8 py-2.5 text-white text-sm font-black rounded-full transition-all">
+                <span id="loading-afirmasi" class="htmx-indicator mr-1"><i class="fa-solid fa-circle-notch animate-spin"></i></span>
                 Lanjut <i class="fa-solid fa-arrow-right"></i>
             </button>
         </div>

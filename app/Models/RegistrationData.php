@@ -47,7 +47,7 @@ class RegistrationData extends Model
      */
     public function afirmasi(): HasOne
     {
-        return $this->hasOne(RegistrationAfirmasi::class, 'registration_data_id');
+        return $this->hasOne(RegistrationAffirmation::class, 'registration_data_id');
     }
 
     /**
@@ -55,7 +55,7 @@ class RegistrationData extends Model
      */
     public function zonasi(): HasOne
     {
-        return $this->hasOne(RegistrationZonasi::class, 'registration_data_id');
+        return $this->hasOne(RegistrationZone::class, 'registration_data_id');
     }
 
     /**

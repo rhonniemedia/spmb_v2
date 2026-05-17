@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('spmb_steps', function (Blueprint $col) {
             $col->uuid('id')->primary();
             $col->string('title');
+            $col->string('slug');
             $col->text('description');
             $col->string('period_text');
-            $col->date('start_date')->nullable();
-            $col->date('end_date')->nullable();
-            $col->enum('status', ['done', 'active', 'pending'])->default('pending');
+            $col->dateTime('start_date')->nullable(); // Diubah ke dateTime
+            $col->dateTime('end_date')->nullable();   // Diubah ke dateTime
             $col->integer('step_order')->default(1);
             $col->timestamps();
         });

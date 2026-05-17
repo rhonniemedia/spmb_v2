@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\AdmissionPath;
 use App\Models\Concentration;
 use App\Models\PersonalData;
+use App\Models\RegistrationAchievement;
+use App\Models\RegistrationAffirmation;
 use App\Models\RegistrationData;
-use App\Models\RegistrationZonasi;
+use App\Models\RegistrationZone;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -61,7 +63,7 @@ class RegistrationDataController extends Controller
      * Menerima data nilai rapor & TKA (Step Nilai)
      * Return  : JSON {success, step} — Alpine akan step++
      */
-    public function saveStep1(Request $request): JsonResponse
+    public function saveStepNilai(Request $request): JsonResponse
     {
         // 1. Aturan Validasi (Key disesuaikan dengan atribut name pada form input)
         $rules = [
@@ -70,8 +72,8 @@ class RegistrationDataController extends Controller
             'rapor_sem3' => 'required|numeric|between:0,100',
             'rapor_sem4' => 'required|numeric|between:0,100',
             'rapor_sem5' => 'required|numeric|between:0,100',
-            'tka_mtk'    => 'required|numeric|between:0,100',
-            'tka_bind'   => 'required|numeric|between:0,100',
+            'tka_mtk'    => 'nullable|numeric|between:0,100',
+            'tka_bind'   => 'nullable|numeric|between:0,100',
         ];
 
         // 2. Pesan Validasi Eksplisit (Mengikuti pola PersonalDataController)
@@ -98,11 +100,9 @@ class RegistrationDataController extends Controller
             'rapor_sem5.between'  => 'Rata-rata Rapor Semester 5 harus berada di antara 0 dan 100.',
 
             // --- Nilai TKA ---
-            'tka_mtk.required'    => 'Kolom Nilai TKA Matematika wajib diisi.',
             'tka_mtk.numeric'     => 'Nilai TKA Matematika harus berupa angka.',
             'tka_mtk.between'     => 'Nilai TKA Matematika harus berada di antara 0 dan 100.',
 
-            'tka_bind.required'   => 'Kolom Nilai TKA Bahasa Indonesia wajib diisi.',
             'tka_bind.numeric'    => 'Nilai TKA Bahasa Indonesia harus berupa angka.',
             'tka_bind.between'    => 'Nilai TKA Bahasa Indonesia harus berada di antara 0 dan 100.',
         ];
@@ -149,7 +149,7 @@ class RegistrationDataController extends Controller
         return response()->json(['success' => true, 'step' => 2]);
     }
 
-    public function saveStep2(Request $request): JsonResponse
+    public function saveStepJalur(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'jalur_pendaftaran' => 'required|string',
@@ -173,9 +173,9 @@ class RegistrationDataController extends Controller
         $registration->save();
 
         $nextStep = match ($slug) {
-            'zonasi'   => 'zonasi_jarak',
+            'zonasi'   => 'zonasi',
             'prestasi' => 'prestasi',
-            'afirmasi' => 'afirmasi_dok',
+            'afirmasi' => 'afirmasi',
             default    => 'jurusan',
         };
 
@@ -212,7 +212,7 @@ class RegistrationDataController extends Controller
         return $R * 2 * atan2(sqrt($a), sqrt(1 - $a));
     }
 
-    public function saveStep3(Request $request): JsonResponse
+    public function saveStepZonasi(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'rumah_lat'    => 'required|numeric',
@@ -241,7 +241,7 @@ class RegistrationDataController extends Controller
         $registration = RegistrationData::firstOrNew(['personal_data_id' => $personalData->id]);
         $registration->save();
 
-        RegistrationZonasi::updateOrCreate(
+        RegistrationZone::updateOrCreate(
             ['registration_data_id' => $registration->id],
             [
                 'house_latitude'             => $validated['rumah_lat'],
@@ -257,7 +257,7 @@ class RegistrationDataController extends Controller
         return response()->json(['success' => true, 'nextStep' => 'jurusan']);
     }
 
-    public function saveStep4(Request $request): JsonResponse
+    public function saveStepJurusan(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'pilihan_jurusan_1' => 'required|uuid|exists:concentrations,id',
@@ -291,6 +291,117 @@ class RegistrationDataController extends Controller
             'personalData',
             'registration'
         ));
+    }
+
+    public function saveStepPrestasi(Request $request): JsonResponse
+    {
+        // ── 1. Validasi Jenis (selalu wajib) ─────────────────────────────────
+        $rules = [
+            'prestasi_jenis' => 'required|in:kejuaraan,tahfiz,kepemimpinan',
+        ];
+
+        $messages = [
+            'prestasi_jenis.required' => 'Jenis prestasi wajib dipilih.',
+            'prestasi_jenis.in'       => 'Jenis prestasi yang dipilih tidak valid.',
+        ];
+
+        // ── 2. Validasi Conditional Berdasarkan Jenis ─────────────────────────
+        $jenis = $request->input('prestasi_jenis');
+
+        if ($jenis === 'kejuaraan') {
+            $rules['prestasi_tingkat'] = 'required|in:kabupaten,provinsi,nasional,internasional';
+            $rules['prestasi_kurasi']  = 'required|in:simt_pusprenas,dikbudprov';
+
+            $messages['prestasi_tingkat.required'] = 'Tingkat kejuaraan wajib dipilih.';
+            $messages['prestasi_tingkat.in']       = 'Tingkat kejuaraan yang dipilih tidak valid.';
+            $messages['prestasi_kurasi.required']  = 'Lembaga kurasi wajib dipilih untuk jalur kejuaraan.';
+            $messages['prestasi_kurasi.in']        = 'Lembaga kurasi yang dipilih tidak valid.';
+        }
+
+        if ($jenis === 'tahfiz') {
+            $rules['prestasi_kurasi'] = 'required|in:simt_pusprenas,dikbudprov';
+
+            $messages['prestasi_kurasi.required'] = 'Lembaga kurasi wajib dipilih untuk jalur tahfiz.';
+            $messages['prestasi_kurasi.in']       = 'Lembaga kurasi yang dipilih tidak valid.';
+        }
+
+        if ($jenis === 'kepemimpinan') {
+            $rules['prestasi_jabatan'] = 'required|in:ketua_osis,ketua_osim,ketua_mpk,ketua_pramuka,ketua_ambalan,ketua_bes';
+
+            $messages['prestasi_jabatan.required'] = 'Jabatan organisasi wajib dipilih untuk jalur kepemimpinan.';
+            $messages['prestasi_jabatan.in']       = 'Jabatan yang dipilih tidak valid.';
+        }
+
+        // ── 3. Eksekusi Validasi ──────────────────────────────────────────────
+        $validated = $request->validate($rules, $messages);
+
+        // ── 4. Ambil Registration terkait user yang sedang login ──────────────
+        $personalData = PersonalData::where('user_id', Auth::id())->firstOrFail();
+        $registration = RegistrationData::firstOrNew(['personal_data_id' => $personalData->id]);
+        $registration->save(); // pastikan record ada sebelum relasi disimpan
+
+        // ── 5. Upsert ke tabel registration_achievements ─────────────────────
+        // Mapping nama input form → nama kolom di tabel (sesuai migration)
+        RegistrationAchievement::updateOrCreate(
+            ['registration_data_id' => $registration->id],
+            [
+                'achievement_type'    => $validated['prestasi_jenis'],
+                'level'               => $validated['prestasi_tingkat'] ?? null,
+                'curation_type'       => $validated['prestasi_kurasi']  ?? null,
+                'leadership_position' => $validated['prestasi_jabatan'] ?? null,
+            ]
+        );
+
+        // ── 6. Return — Alpine navigasi ke step jurusan ───────────────────────
+        return response()->json(['success' => true, 'nextStep' => 'jurusan']);
+    }
+
+    public function saveStepAfirmasi(Request $request): JsonResponse
+    {
+        // ── 1. Aturan Validasi (Sesuai dengan atribut name di form input) ──
+        $rules = [
+            'nomor_sktm'   => 'required|string|max:100',
+            'pakai_kartu'  => 'required|boolean',
+        ];
+
+        $messages = [
+            'nomor_sktm.required' => 'Nomor Surat Keterangan Tidak Mampu (SKTM) wajib diisi.',
+            'nomor_sktm.string'   => 'Format nomor SKTM tidak valid.',
+            'nomor_sktm.max'      => 'Nomor SKTM terlalu panjang (maksimal 100 karakter).',
+        ];
+
+        // ── 2. Validasi Bersyarat (Conditional Validation) ──
+        // Jika toggle 'pakai_kartu' bernilai true (1), jenis dan nomor kartu wajib diisi
+        if ($request->input('pakai_kartu') == 1) {
+            $rules['jenis_kartu'] = 'required|in:pkh,kip,kps,dtks,lain';
+            $rules['nomor_kartu'] = 'required|string|max:100';
+
+            $messages['jenis_kartu.required'] = 'Jenis kartu bantuan sosial wajib dipilih.';
+            $messages['jenis_kartu.in']       = 'Jenis kartu yang dipilih tidak valid.';
+            $messages['nomor_kartu.required'] = 'Nomor kartu bantuan sosial wajib diisi.';
+        }
+
+        // Eksekusi validasi
+        $validated = $request->validate($rules, $messages);
+
+        // ── 3. Ambil Personal Data & Registration Data User login ──
+        $personalData = PersonalData::where('user_id', Auth::id())->firstOrFail();
+        $registration = RegistrationData::firstOrNew(['personal_data_id' => $personalData->id]);
+        $registration->save(); // Memastikan ID registrasi terbentuk
+
+        // ── 4. Upsert ke Tabel Relasi Dokumen Afirmasi ──
+        RegistrationAffirmation::updateOrCreate(
+            ['registration_data_id' => $registration->id],
+            [
+                'sktm_number'   => $validated['nomor_sktm'],
+                'has_social_card'      => $validated['pakai_kartu'],
+                'card_type'     => $validated['pakai_kartu'] ? $validated['jenis_kartu'] : null,
+                'card_number'   => $validated['pakai_kartu'] ? $validated['nomor_kartu'] : null,
+            ]
+        );
+
+        // ── 5. Return JSON Response — Mengarahkan Alpine.js ke step 'jurusan' ──
+        return response()->json(['success' => true, 'nextStep' => 'jurusan']);
     }
 
     public function submit(): JsonResponse

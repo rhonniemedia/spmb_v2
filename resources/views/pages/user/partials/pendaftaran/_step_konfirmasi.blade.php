@@ -107,7 +107,7 @@
             </div>
         </div>
 
-        {{-- ── RINGKASAN PRESTASI (kondisional: hanya jalur prestasi) ── --}}
+        <!-- {{-- ── RINGKASAN PRESTASI (kondisional: hanya jalur prestasi) ── --}}
         <div x-show="jalur === 'prestasi'" class="border border-gray-200 rounded-2xl overflow-hidden">
             <div class="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center gap-2">
                 <i class="fa-solid fa-award text-amber-500 text-[12px]"></i>
@@ -134,7 +134,7 @@
                     </div>
                 </template>
             </div>
-        </div>
+        </div> -->
 
         {{-- ── SUMMARY NILAI RAPOR & TKA (dari server via HTMX) ── --}}
         {{--

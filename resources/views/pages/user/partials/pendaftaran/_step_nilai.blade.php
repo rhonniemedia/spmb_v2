@@ -1,9 +1,12 @@
 {{-- _step_nilai.blade.php --}}
+{{-- _step_nilai.blade.php --}}
 <div x-show="currentStepId === 'nilai'"
+    x-data="{ isNilaiLengkap: false }" {{-- 1. Tambahkan state lokal untuk mendeteksi kelengkapan --}}
     x-init="
         $nextTick(() => {
             const raporFields = ['rapor_sem1','rapor_sem2','rapor_sem3','rapor_sem4','rapor_sem5'];
             const tkaFields   = ['tka_mtk','tka_bind'];
+            const allFields   = [...raporFields, ...tkaFields]; {{-- Gabungan semua field --}}
 
             function calcAvg(ids, targetId) {
                 const vals = ids.map(id => parseFloat(document.getElementById(id)?.value) || 0);
@@ -12,23 +15,26 @@
                 
                 const formattedAvg = avg > 0 ? avg.toFixed(2) : '';
                 
-                // 1. Tetap isi element fisik input (agar form submit Laravel tidak kosong)
                 const el = document.getElementById(targetId);
                 if (el) el.value = formattedAvg;
                 
-                // 2. 🌟 SINKRONISASI KE ALPINE: Isi state global agar langsung live ke sidebar
                 if (targetId === 'rata_rapor') {
                     $data.rataRapor = formattedAvg;
                 } else if (targetId === 'rata_tka') {
                     $data.rataTka = formattedAvg;
                 }
+
+                {{-- 2. 🌟 VALIDASI LIVE: Cek apakah ke-7 field sudah terisi semua dengan nilai > 0 --}}
+                const raporFilled = raporFields.map(id => parseFloat(document.getElementById(id)?.value) || 0).filter(v => v > 0);
+                isNilaiLengkap = raporFilled.length === raporFields.length;
             }
 
-            raporFields.forEach(id => {
-                document.getElementById(id)?.addEventListener('input', () => calcAvg(raporFields, 'rata_rapor'));
-            });
-            tkaFields.forEach(id => {
-                document.getElementById(id)?.addEventListener('input', () => calcAvg(tkaFields, 'rata_tka'));
+            {{-- Daftarkan event listener ke semua input --}}
+            allFields.forEach(id => {
+                document.getElementById(id)?.addEventListener('input', () => {
+                    calcAvg(raporFields, 'rata_rapor');
+                    calcAvg(tkaFields, 'rata_tka');
+                });
             });
 
             // Jalankan kalkulasi awal jika data lama sudah ada (prefilled)
@@ -185,13 +191,8 @@
     </div>
 
     {{-- ── FOOTER NAV ── --}}
-    <div class="px-8 py-5 border-t border-gray-200 bg-gray-50/50 flex items-center justify-between rounded-b-[20px]">
-        <button type="button" onclick="saveDraft()"
-            class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-[#6A7686] border border-gray-200 rounded-full hover:border-[#080C1A] hover:text-[#080C1A] transition-all">
-            <i class="fa-solid fa-floppy-disk"></i> Simpan Draft
-        </button>
-
-        {{-- 🌟 INTEGRASI HTMX: Mengirimkan data nilai ke rute step1 --}}
+    <div class="px-8 py-5 border-t border-gray-200 bg-gray-50/50 flex items-center justify-end rounded-b-[20px]">
+        {{-- 🌟 INTEGRASI HTMX & ALPINE: Mengontrol state tombol berdasarkan kelengkapan nilai --}}
         <button type="button"
             hx-post="{{ route('registration.step1') }}"
             hx-include="#rapor_sem1, #rapor_sem2, #rapor_sem3, #rapor_sem4, #rapor_sem5, #tka_mtk, #tka_bind"
@@ -202,7 +203,11 @@
                 const res = JSON.parse(event.detail.xhr.responseText);
                 if (res.success) window.dispatchEvent(new CustomEvent('pindah-step', { detail: { nextStep: 'jalur' } }))
             "
-            class="inline-flex items-center gap-2 px-8 py-2.5 bg-[#FF1443] text-white text-sm font-black rounded-full hover:bg-[#D90F38] hover:-translate-y-px transition-all shadow-lg shadow-red-500/30">
+            :disabled="!isNilaiLengkap"
+            :class="isNilaiLengkap 
+                ? 'bg-[#FF1443] hover:bg-[#D90F38] hover:-translate-y-px shadow-lg shadow-red-500/30 cursor-pointer' 
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
+            class="inline-flex items-center gap-2 px-8 py-2.5 text-white text-sm font-black rounded-full transition-all">
 
             {{-- Loading Spinner khusus HTMX --}}
             <span id="loading-spinner" class="htmx-indicator mr-1">

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RegistrationAfirmasi;
+use App\Models\RegistrationAffirmation;
 use Illuminate\Http\Request;
 
-class RegistrationAfirmasiController extends Controller
+class RegistrationAffirmationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class RegistrationAfirmasiController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(RegistrationAfirmasi $registrationAfirmasi)
+    public function show(RegistrationAffirmation $registrationAfirmasi)
     {
         //
     }
@@ -42,7 +42,7 @@ class RegistrationAfirmasiController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(RegistrationAfirmasi $registrationAfirmasi)
+    public function edit(RegistrationAffirmation $registrationAfirmasi)
     {
         //
     }
@@ -50,7 +50,7 @@ class RegistrationAfirmasiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, RegistrationAfirmasi $registrationAfirmasi)
+    public function update(Request $request, RegistrationAffirmation $registrationAfirmasi)
     {
         //
     }
@@ -58,7 +58,7 @@ class RegistrationAfirmasiController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(RegistrationAfirmasi $registrationAfirmasi)
+    public function destroy(RegistrationAffirmation $registrationAfirmasi)
     {
         //
     }
