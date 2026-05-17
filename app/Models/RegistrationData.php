@@ -65,4 +65,19 @@ class RegistrationData extends Model
     {
         return $this->hasOne(RegistrationAchievement::class, 'registration_data_id');
     }
+
+    public function choice1(): BelongsTo
+    {
+        return $this->belongsTo(Concentration::class, 'choice_1');
+    }
+
+    public function choice2(): BelongsTo
+    {
+        return $this->belongsTo(Concentration::class, 'choice_2');
+    }
+
+    public function choice3(): BelongsTo
+    {
+        return $this->belongsTo(Concentration::class, 'choice_3');
+    }
 }

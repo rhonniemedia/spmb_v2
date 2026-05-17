@@ -73,7 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('registration')->name('registration.')->group(function () {
             Route::post('/step/1', [RegistrationDataController::class, 'saveStep1'])->name('step1');
             Route::post('/step/2', [RegistrationDataController::class, 'saveStep2'])->name('step2');
-            Route::post('/step/3', [ParentDataController::class, 'saveStep3'])->name('step3');
+            Route::post('/step/3', [RegistrationDataController::class, 'saveStep3'])->name('step3');
             Route::post('/step/4', [RegistrationDataController::class, 'saveStep4'])->name('step4');
             Route::post('/step/5', [RegistrationDataController::class, 'saveStep5'])->name('step5');
             Route::post('/zoning/distance-calculation', [RegistrationDataController::class, 'hitungJarak'])->name('zonasi.hitung');
@@ -81,6 +81,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/summary', [RegistrationDataController::class, 'summary'])->name('summary');
             Route::post('/draft', [RegistrationDataController::class, 'saveDraft'])->name('draft');
             Route::post('/submit', [RegistrationDataController::class, 'submit'])->name('submit');
+            Route::get('/success', [RegistrationDataController::class, 'successScreen'])->name('success');
         });
 
         Route::view('/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang');

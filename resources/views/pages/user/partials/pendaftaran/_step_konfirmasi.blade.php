@@ -25,6 +25,7 @@
 <div x-show="currentStepId === 'konfirmasi'"
     x-data="{
         ck1: false, ck2: false, ck3: false,
+        summaryLoaded: false,
         get semuaSetuju() { return this.ck1 && this.ck2 && this.ck3; },
 
         jalurLabel: {
@@ -39,7 +40,7 @@
         Saat masuk ke konfirmasi → dispatch event HTMX untuk load summary nilai.
         Menggunakan $dispatch agar tidak ada polling; hanya trigger sekali saat tiba.
     --}}
-    x-effect="if (currentStepId === 'konfirmasi') { $nextTick(() => htmx.trigger('#pendaftaran-summary', 'loadSummary')) }"
+    x-effect="if (currentStepId === 'konfirmasi' && !summaryLoaded) { summaryLoaded = true; $nextTick(() => htmx.trigger('#pendaftaran-summary', 'loadSummary')) }"
     class="bg-white border border-gray-200 rounded-[20px] shadow-sm overflow-hidden">
 
     {{-- ── HEADER ── --}}
@@ -165,19 +166,19 @@
             <div class="grid grid-cols-2 gap-3 px-5 py-4">
                 <div>
                     <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-1">Nama Lengkap</div>
-                    <div class="text-[13px] font-bold text-[#080C1A]">{{ $peserta->nama_lengkap ?? '—' }}</div>
+                    <div class="text-[13px] font-bold text-[#080C1A]">{{ $personalData->full_name ?? '—' }}</div>
                 </div>
                 <div>
-                    <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-1">No. Peserta</div>
-                    <div class="text-[13px] font-bold text-[#080C1A]">{{ $peserta->no_peserta ?? '—' }}</div>
+                    <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-1">NIK</div>
+                    <div class="text-[13px] font-bold text-[#080C1A]">{{ $personalData->nik ?? '—' }}</div>
                 </div>
                 <div>
                     <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-1">NISN</div>
-                    <div class="text-[13px] font-bold text-[#080C1A]">{{ $peserta->nisn ?? '—' }}</div>
+                    <div class="text-[13px] font-bold text-[#080C1A]">{{ $personalData->nisn ?? '—' }}</div>
                 </div>
                 <div>
                     <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-1">Asal Sekolah</div>
-                    <div class="text-[13px] font-bold text-[#080C1A]">{{ $peserta->asal_sekolah ?? '—' }}</div>
+                    <div class="text-[13px] font-bold text-[#080C1A]">{{ $personalData->previous_school ?? '—' }}</div>
                 </div>
             </div>
         </div>
@@ -223,25 +224,37 @@
             <i class="fa-solid fa-arrow-left"></i> Kembali
         </button>
 
-        {{-- Disabled sampai ketiga checkbox dicentang --}}
+        {{-- Tombol Kirim Formulir Pendaftaran dengan Loading Spinner ala Step Jalur --}}
         <button type="button"
-            :disabled="!semuaSetuju"
+            :disabled="!semuaSetuju || isSubmitted"
             hx-post="{{ route('registration.submit') }}"
-            hx-indicator="#pendaftaran-form"
+            hx-indicator="#loading-submit-pendaftaran"
             hx-swap="none"
-            @htmx:after-request="if($event.detail.successful){
-                let r = JSON.parse($event.detail.xhr.response);
-                if(r.success) isSubmitted = true;
-            }"
-            :class="semuaSetuju
-                ? 'bg-green-600 hover:bg-green-700 hover:-translate-y-px shadow-lg shadow-green-500/30 cursor-pointer'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
+            @htmx:after-request="
+                if ($event.detail.successful) {
+                    let r = JSON.parse($event.detail.xhr.response);
+                    if (r.success) {
+                        submitResult = r;
+                        isSubmitted = true;
+                    }
+                }
+            "
+            :class="semuaSetuju && !isSubmitted
+            ? 'bg-green-600 hover:bg-green-700 hover:-translate-y-px shadow-lg shadow-green-500/30 cursor-pointer'
+            : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
             class="inline-flex items-center gap-2 px-8 py-2.5 text-white text-sm font-black rounded-full transition-all">
-            <span x-show="!$el.classList.contains('htmx-request')" class="inline-flex items-center gap-2">
+
+            {{-- Spinner Loading (Mengikuti struktur _step_jalur.blade.php) --}}
+            <span id="loading-submit-pendaftaran" class="htmx-indicator mr-1">
+                <i class="fa-solid fa-circle-notch animate-spin text-[13px]"></i>
+            </span>
+
+            {{-- Label Teks Dinamis Berdasarkan State Pengiriman --}}
+            <span x-show="!isSubmitted" class="inline-flex items-center gap-2">
                 <i class="fa-solid fa-paper-plane text-[12px]"></i> Kirim Formulir Pendaftaran
             </span>
-            <span x-show="$el.classList.contains('htmx-request')" class="inline-flex items-center gap-2">
-                <i class="fa-solid fa-circle-notch fa-spin text-[12px]"></i> Mengirim...
+            <span x-show="isSubmitted" class="inline-flex items-center gap-2" x-cloak>
+                Mengunci & Mengalihkan...
             </span>
         </button>
     </div>

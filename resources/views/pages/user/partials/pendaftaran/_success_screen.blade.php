@@ -20,7 +20,7 @@
     class="flex flex-col items-center py-6">
 
     {{-- ── HERO SUCCESS CARD ── --}}
-    <div class="w-full max-w-[640px] bg-white border border-gray-200 rounded-[24px] shadow-xl overflow-hidden">
+    <div class="w-full max-w-[768px] bg-white border border-gray-200 rounded-[24px] shadow-xl overflow-hidden">
 
         {{-- Top banner --}}
         <div class="relative px-8 py-10 flex flex-col items-center text-center overflow-hidden"
@@ -47,7 +47,7 @@
             {{-- Nomor pendaftaran --}}
             <div class="relative z-10 mt-6 bg-white/10 border border-white/20 rounded-[16px] px-6 py-4 backdrop-blur-sm w-full max-w-sm">
                 <div class="text-[11px] text-white/60 font-bold uppercase tracking-widest mb-1">Nomor Pendaftaran</div>
-                <div class="text-[22px] font-black text-white tracking-wider">SPMB-2026-004821</div>
+                <div class="text-[22px] font-black text-white tracking-wider" x-text="submitResult.noPeserta"></div>
                 <div class="text-[11px] text-white/60 mt-1">Simpan nomor ini untuk keperluan verifikasi</div>
             </div>
         </div>
@@ -100,15 +100,29 @@
                     <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-2 flex items-center gap-1.5">
                         <i class="fa-solid fa-road text-sky-400 text-[10px]"></i> Jalur Dipilih
                     </div>
-                    <div class="text-[14px] font-black text-[#080C1A]">—</div>
+                    <div class="text-[14px] font-black text-[#080C1A]" x-text="submitResult.jalur ?? '—'"></div>
                     <div class="text-[11px] text-[#6A7686] mt-0.5">Menunggu verifikasi</div>
                 </div>
                 <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
                     <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-2 flex items-center gap-1.5">
                         <i class="fa-solid fa-building-columns text-violet-400 text-[10px]"></i> Pilihan 1
                     </div>
-                    <div class="text-[14px] font-black text-[#080C1A]">—</div>
+                    <div class="text-[14px] font-black text-[#080C1A]" x-text="submitResult.pilihan1 ?? '—'"></div>
                     <div class="text-[11px] text-[#6A7686] mt-0.5">Jurusan prioritas utama</div>
+                </div>
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                    <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-building-columns text-indigo-400 text-[10px]"></i> Pilihan 2
+                    </div>
+                    <div class="text-[14px] font-black text-[#080C1A]" x-text="submitResult.pilihan2 ?? '—'"></div>
+                    <div class="text-[11px] text-[#6A7686] mt-0.5">Jurusan prioritas kedua</div>
+                </div>
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                    <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-building-columns text-purple-400 text-[10px]"></i> Pilihan 3
+                    </div>
+                    <div class="text-[14px] font-black text-[#080C1A]" x-text="submitResult.pilihan3 ?? '—'"></div>
+                    <div class="text-[11px] text-[#6A7686] mt-0.5">Jurusan prioritas ketiga</div>
                 </div>
             </div>
 

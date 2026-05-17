@@ -18,12 +18,6 @@
 
 {{-- Tambahkan x-data dan listener event di tag pembungkus utama ini --}}
 <div x-show="currentStepId === 'zonasi_jarak'"
-    x-data="{ 
-        jarakSudahDicek: false, 
-        sedangCek: false, 
-        alamatManual: false 
-    }"
-    @jarak-dihitung.window="jarakSudahDicek = true"
     x-effect="if (currentStepId === 'zonasi_jarak') { 
         setTimeout(() => { 
             if (!mapZonasiUtama) { 
@@ -73,12 +67,6 @@
                         </div>
                         <h3 class="text-[15px] font-black text-[#080C1A]">Informasi Alamat Tertulis</h3>
                     </div>
-                    <button type="button"
-                        @click="alamatManual = !alamatManual"
-                        class="text-[12px] font-bold text-emerald-600 hover:text-emerald-800 transition-colors flex items-center gap-1.5">
-                        <i class="fa-solid fa-pen-to-square text-[11px]"></i>
-                        <span x-text="alamatManual ? 'Gunakan data biodata' : 'Ubah alamat manual'"></span>
-                    </button>
                 </div>
 
                 {{-- Alamat otomatis dari biodata --}}
@@ -94,60 +82,28 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-1">Jalan / Nomor Rumah</div>
-                                <div class="text-[14px] font-bold text-[#080C1A]">{{ $peserta->alamat_jalan ?? '—' }}</div>
+                                <div class="text-[14px] font-bold text-[#080C1A]">{{ $personalData->address ?? '—' }}</div>
                             </div>
                             <div>
                                 <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-1">RT / RW</div>
-                                <div class="text-[14px] font-bold text-[#080C1A]">RT {{ $peserta->rt ?? '—' }} / RW {{ $peserta->rw ?? '—' }}</div>
+                                <div class="text-[14px] font-bold text-[#080C1A]">
+                                    RT {{ $personalData->rt ?? '—' }} / RW {{ $personalData->rw ?? '—' }}
+                                </div>
                             </div>
                             <div>
                                 <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-1">Kelurahan</div>
-                                <div class="text-[14px] font-bold text-[#080C1A]">{{ $peserta->kelurahan ?? '—' }}</div>
+                                <div class="text-[14px] font-bold text-[#080C1A]">{{ $personalData->village ?? '—' }}</div>
                             </div>
                             <div>
                                 <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-1">Kecamatan</div>
-                                <div class="text-[14px] font-bold text-[#080C1A]">{{ $peserta->kecamatan ?? '—' }}</div>
+                                <div class="text-[14px] font-bold text-[#080C1A]">{{ $personalData->district ?? '—' }}</div>
                             </div>
                         </div>
-                        <input type="hidden" name="alamat_jalan" value="{{ $peserta->alamat_jalan ?? '' }}">
-                        <input type="hidden" name="kelurahan" value="{{ $peserta->kelurahan ?? '' }}">
-                        <input type="hidden" name="kecamatan" value="{{ $peserta->kecamatan ?? '' }}">
-                        <input type="hidden" name="kota" value="{{ $peserta->kota ?? '' }}">
-                    </div>
-                </div>
 
-                {{-- Input manual jika diubah --}}
-                <div x-show="alamatManual"
-                    x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 translate-y-1"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    class="border border-amber-200 rounded-2xl overflow-hidden">
-                    <div class="px-5 py-3 bg-amber-50 border-b border-amber-100 flex items-center gap-2">
-                        <i class="fa-solid fa-pen-to-square text-amber-500 text-[12px]"></i>
-                        <span class="text-[12px] font-black text-amber-700 uppercase tracking-widest">Input Manual</span>
-                        <span class="ml-auto text-[11px] text-amber-600 font-medium">Pastikan sesuai dengan KK</span>
-                    </div>
-                    <div class="px-5 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="sm:col-span-2">
-                            <label class="block text-[12px] font-black uppercase tracking-widest text-[#6A7686] mb-2">Jalan / Nomor Rumah</label>
-                            <input type="text" name="alamat_jalan" placeholder="cth: Jl. Merdeka No. 12"
-                                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-[14px] text-[#080C1A] focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-[12px] font-black uppercase tracking-widest text-[#6A7686] mb-2">Kelurahan</label>
-                            <input type="text" name="kelurahan" placeholder="cth: Sukarami"
-                                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-[14px] text-[#080C1A] focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-[12px] font-black uppercase tracking-widest text-[#6A7686] mb-2">Kecamatan</label>
-                            <input type="text" name="kecamatan" placeholder="cth: Ilir Barat I"
-                                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-[14px] text-[#080C1A] focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-[12px] font-black uppercase tracking-widest text-[#6A7686] mb-2">Kota / Kabupaten</label>
-                            <input type="text" name="kota" placeholder="cth: Palembang"
-                                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-[14px] text-[#080C1A] focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400 transition-all">
-                        </div>
+                        <input type="hidden" name="address" value="{{ $personalData->address ?? '' }}">
+                        <input type="hidden" name="village" value="{{ $personalData->village ?? '' }}">
+                        <input type="hidden" name="district" value="{{ $personalData->district ?? '' }}">
+                        <input type="hidden" name="regency" value="{{ $personalData->regency ?? '' }}">
                     </div>
                 </div>
             </div>
@@ -185,16 +141,22 @@
                 hx-include="[name='rumah_lat'], [name='rumah_lng'], [name='alamat_jalan'], [name='kelurahan'], [name='kecamatan'], [name='kota']"
                 hx-target="#hasil-jarak"
                 hx-swap="innerHTML"
-                hx-on::before-request="sedangCek = true"
+                hx-indicator="#loading-kalkulasi"
+                hx-on::before-request="sedangCek = true; document.getElementById('error-zonasi').classList.add('hidden');"
                 hx-on::after-request="sedangCek = false"
                 :disabled="sedangCek"
                 class="w-full inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[14px] font-black rounded-2xl transition-all shadow-lg shadow-emerald-500/25 hover:-translate-y-px disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+
+                {{-- Spinner Loading (Otomatis muncul saat HTMX request aktif) --}}
+                <span id="loading-kalkulasi" class="htmx-indicator">
+                    <i class="fa-solid fa-circle-notch fa-spin text-[13px] mr-1"></i>
+                </span>
+
                 <span x-show="!sedangCek" class="inline-flex items-center gap-2.5">
                     <i class="fa-solid fa-calculator text-[13px]"></i>
                     Kalkulasi Jarak Sekarang
                 </span>
                 <span x-show="sedangCek" class="inline-flex items-center gap-2.5" x-cloak>
-                    <i class="fa-solid fa-circle-notch fa-spin text-[13px]"></i>
                     Memproses Perhitungan & Mengunci Koordinat...
                 </span>
             </button>
@@ -203,6 +165,16 @@
         {{-- ── KONTEN DYNAMIC RESPONSE DARI BACKEND ── --}}
         <div id="hasil-jarak">
             {{-- Bagian ini akan di-swap oleh HTMX membawa data jarak, label zona, dan pemicu garis polyline --}}
+        </div>
+
+        {{-- ── WADAH ERROR VALIDATION / ZONASI ── --}}
+        <div id="error-zonasi" class="hidden flex gap-3 items-start bg-red-50 border border-red-200 rounded-2xl px-4 py-3.5 mb-4">
+            <i class="fa-solid fa-circle-xmark text-red-600 text-base mt-0.5 flex-shrink-0"></i>
+            <div>
+                <h4 class="text-sm font-black text-red-900">Gagal Memproses Lokasi</h4>
+                <p id="error-zonasi-pesan" class="text-xs font-medium text-red-700 leading-relaxed mt-0.5">
+                </p>
+            </div>
         </div>
 
     </div>
@@ -220,19 +192,31 @@
                 <i class="fa-solid fa-floppy-disk"></i> Simpan Draft
             </button>
 
+            {{-- ── TOMBOL NAVIGASI LANJUT DENGAN SPINNER ── --}}
             <button type="button"
                 hx-post="{{ route('registration.step3') }}"
                 hx-include="[name='rumah_lat'], [name='rumah_lng'], [name='alamat_jalan'], [name='kelurahan'], [name='kecamatan'], [name='kota']"
                 hx-target="this"
                 hx-swap="none"
+                hx-indicator="#loading-lanjut-zonasi"
+                hx-on::before-request="document.getElementById('error-zonasi').classList.add('hidden');"
                 hx-on::after-request="
-                    const res = JSON.parse(event.detail.xhr.responseText);
-                    if (res.success) window.dispatchEvent(new CustomEvent('pindah-step', { detail: { nextStep: 'jurusan' } }))
+                    if (event.detail.successful) {
+                        const res = JSON.parse(event.detail.xhr.responseText);
+                        if (res.success) window.dispatchEvent(new CustomEvent('pindah-step', { detail: { nextStep: 'jurusan' } }))
+                    }
                 "
                 :disabled="!jarakSudahDicek"
                 :class="jarakSudahDicek ? 'bg-[#FF1443] hover:bg-[#D90F38] hover:-translate-y-px shadow-lg shadow-red-500/30 cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
                 class="inline-flex items-center gap-2 px-8 py-2.5 text-white text-sm font-black rounded-full transition-all">
-                Lanjut <i class="fa-solid fa-arrow-right"></i>
+
+                {{-- Spinner Loading untuk Tombol Lanjut --}}
+                <span id="loading-lanjut-zonasi" class="htmx-indicator">
+                    <i class="fa-solid fa-circle-notch fa-spin text-sm mr-1"></i>
+                </span>
+
+                <span>Lanjut</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
             </button>
         </div>
     </div>
@@ -319,11 +303,8 @@
             polylineRuteHubung = null;
         }
 
-        // Ambil elemen scope Alpine dan kembalikan state ke false karena posisi pin berubah
-        const kepinganAlpine = document.querySelector('[x-show="currentStepId === \'zonasi_jarak\'"]');
-        if (kepinganAlpine && kepinganAlpine.__x) {
-            kepinganAlpine.__x.$data.jarakSudahDicek = false;
-        }
+        // Reset state jarakSudahDicek ke root Alpine
+        window.dispatchEvent(new CustomEvent('jarak-direset'));
     }
 
     // Fungsi mengambil koordinat sensor GPS dari perangkat
@@ -394,12 +375,48 @@
                 padding: [40, 40]
             });
         }
+
+        // Dispatch event ke root Alpine setelah swap selesai
+        window.dispatchEvent(new CustomEvent('jarak-dihitung'));
     });
 
-    document.body.addEventListener('htmx:afterSwap', function(e) {
-        if (e.detail.target.id === 'hasil-jarak') {
-            window.dispatchEvent(new CustomEvent('jarak-dihitung'));
+    // EVENT HTMX: Menangkap response error (seperti HTTP 422 dari validasi backend)
+    document.body.addEventListener('htmx:responseError', function(e) {
+        // Pastikan error berasal dari request zonasi hitung atau saveStep3
+        if (e.detail.xhr.status === 422) {
+            try {
+                const response = JSON.parse(e.detail.xhr.responseText);
+                let pesanError = response.message || "Terjadi kesalahan validasi pada data lokasi Anda.";
+
+                // Jika ada detail error validasi Laravel form (object errors)
+                if (response.errors) {
+                    pesanError = Object.values(response.errors).flat().join(' ');
+                }
+
+                // Tampilkan pesan error ke komponen blade
+                const errorContainer = document.getElementById('error-zonasi');
+                const errorText = document.getElementById('error-zonasi-pesan');
+
+                if (errorContainer && errorText) {
+                    errorText.innerText = pesanError;
+                    errorContainer.classList.remove('hidden');
+
+                    // Scroll otomatis ke arah teks error agar pendaftar langsung melihatnya
+                    errorContainer.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            } catch (err) {
+                console.error("Gagal membaca JSON error", err);
+            }
         }
+    });
+
+    // Sembunyikan error secara otomatis jika user menggeser ulang map atau memanggil GPS baru
+    window.addEventListener('jarak-direset', function() {
+        const errorContainer = document.getElementById('error-zonasi');
+        if (errorContainer) errorContainer.classList.add('hidden');
     });
 </script>
 @endpush

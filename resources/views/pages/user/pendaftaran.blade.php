@@ -14,6 +14,7 @@
 
     rataRapor: '',
     rataTka: '',
+    submitResult: {},
 
     // State pilihan jurusan (Wajib ada secara global)
     pil1: '',
@@ -93,7 +94,8 @@
     const idx = stepMap.findIndex(s => s.id === nextId);
     if (idx !== -1) step = idx + 1;
     "
-    @jarak-dihitung.window="jarakSudahDicek = true">
+    @jarak-dihitung.window="jarakSudahDicek = true"
+    @jarak-direset.window="jarakSudahDicek = false">
 
     {{-- ══════════════════════════════════════════
             BREADCRUMB

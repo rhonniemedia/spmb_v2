@@ -217,10 +217,10 @@ class RegistrationDataController extends Controller
         $validated = $request->validate([
             'rumah_lat'    => 'required|numeric',
             'rumah_lng'    => 'required|numeric',
-            'alamat_jalan' => 'nullable|string',
-            'kelurahan'    => 'nullable|string',
-            'kecamatan'    => 'nullable|string',
-            'kota'         => 'nullable|string',
+            'address' => 'nullable|string',
+            'village'    => 'nullable|string',
+            'district'    => 'nullable|string',
+            'regency'         => 'nullable|string',
         ]);
 
         // 1. Hitung jarak terlebih dahulu
@@ -247,10 +247,10 @@ class RegistrationDataController extends Controller
                 'house_latitude'             => $validated['rumah_lat'],
                 'house_longitude'            => $validated['rumah_lng'],
                 'calculated_distance_meters' => $jarak,
-                'address_street'             => $validated['alamat_jalan'],
-                'village'                    => $validated['kelurahan'],
-                'subdistrict'                => $validated['kecamatan'],
-                'city'                       => $validated['kota'],
+                'address_street'             => $validated['address'],
+                'village'                    => $validated['village'],
+                'subdistrict'                => $validated['district'],
+                'city'                       => $validated['regency'],
             ]
         );
 
@@ -282,35 +282,59 @@ class RegistrationDataController extends Controller
         return response()->json(['success' => true, 'nextStep' => 'konfirmasi']);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(RegistrationData $registrationData)
+    public function summary()
     {
-        //
+        $personalData = PersonalData::where('user_id', Auth::id())->firstOrFail();
+        $registration = RegistrationData::where('personal_data_id', $personalData->id)->first();
+
+        return view('pages.user.partials.pendaftaran._summary_content', compact(
+            'personalData',
+            'registration'
+        ));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(RegistrationData $registrationData)
+    public function submit(): JsonResponse
     {
-        //
+        $personalData = PersonalData::where('user_id', Auth::id())->firstOrFail();
+        $registration = RegistrationData::where('personal_data_id', $personalData->id)
+            ->with(['admissionPath', 'choice1', 'choice2', 'choice3'])
+            ->firstOrFail();
+
+        if ($registration->submitted_at !== null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Formulir pendaftaran Anda sudah dikirim sebelumnya dan status data telah dikunci.'
+            ], 422);
+        }
+
+        $registration->submitted_at        = now();
+        $registration->verification_status = 'pending';
+        $registration->save();
+
+        return response()->json([
+            'success'          => true,
+            'nama'             => $personalData->full_name,
+            'noPeserta'        => $personalData->registration_number ?? 'SPMB-2026-' . str_pad($personalData->id, 6, '0', STR_PAD_LEFT),
+            'jalur'            => $registration->admissionPath?->name ?? '—',
+            'pilihan1'         => $registration->choice1?->name ?? '—',
+            'pilihan2'         => $registration->choice2?->name ?? '—',
+            'pilihan3'         => $registration->choice3?->name ?? '—',
+            'submittedAt'      => $registration->submitted_at->format('d M Y'),
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, RegistrationData $registrationData)
+    public function successScreen()
     {
-        //
-    }
+        $personalData = PersonalData::where('user_id', Auth::id())->firstOrFail();
+        $registration = RegistrationData::where('personal_data_id', $personalData->id)->firstOrFail();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(RegistrationData $registrationData)
-    {
-        //
+        // Proteksi: Jika pendaftar nakal mencoba bypass URL sukses langsung sebelum submit
+        if ($registration->submitted_at === null) {
+            return redirect()->route('registration.index')
+                ->with('error', 'Silakan selesaikan dan kirim formulir pendaftaran Anda terlebih dahulu.');
+        }
+
+        // Return view diletakkan secara bersih lewat request halaman (GET)
+        return view('pages.user.partials.pendaftaran._success_screen', compact('personalData', 'registration'));
     }
 }
