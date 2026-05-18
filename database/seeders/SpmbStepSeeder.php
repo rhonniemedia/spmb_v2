@@ -20,7 +20,9 @@ class SpmbStepSeeder extends Seeder
                 'period_text' => '1 Mei – 30 Juni 2026',
                 'start_date'  => '2026-05-01 00:00:00',
                 'end_date'    => '2026-06-30 23:59:59',
-                'step_order'  => 1
+                'step_order'  => 1,
+                'icon'        => 'fa-user-plus',
+                'color'       => 'cyan',
             ],
             [
                 'title'       => 'Pengisian Biodata',
@@ -29,7 +31,9 @@ class SpmbStepSeeder extends Seeder
                 'period_text' => '1 Mei – 30 Juni 2026',
                 'start_date'  => '2026-05-01 00:00:00',
                 'end_date'    => '2026-06-30 23:59:59',
-                'step_order'  => 2
+                'step_order'  => 2,
+                'icon'        => 'fa-file-signature',
+                'color'       => 'blue',
             ],
             [
                 'title'       => 'Pendaftaran SPMB',
@@ -38,7 +42,20 @@ class SpmbStepSeeder extends Seeder
                 'period_text' => '1 Mei – 30 Juni 2026',
                 'start_date'  => '2026-05-01 00:00:00',
                 'end_date'    => '2026-06-30 23:59:59',
-                'step_order'  => 3
+                'step_order'  => 3,
+                'icon'        => 'fa-id-card',
+                'color'       => 'purple',
+            ],
+            [
+                'title'       => 'Verifikasi Berkas Online',
+                'slug'        => 'verifikasi-berkas',
+                'description' => 'Tim panitia melakukan pengecekan keabsahan dokumen pendaftaran secara digital.',
+                'period_text' => '2 Mei – 1 Juli 2026',
+                'start_date'  => '2026-05-02 00:00:00',
+                'end_date'    => '2026-07-01 23:59:59',
+                'step_order'  => 4,
+                'icon'        => 'fa-user-check',
+                'color'       => 'indigo',
             ],
             [
                 'title'       => 'Seleksi Minat dan Bakat',
@@ -47,7 +64,9 @@ class SpmbStepSeeder extends Seeder
                 'period_text' => '2 – 24 Juni 2026 (s.d Pukul 15.00 WIB)',
                 'start_date'  => '2026-06-02 00:00:00',
                 'end_date'    => '2026-06-24 15:00:00',
-                'step_order'  => 4
+                'step_order'  => 5,
+                'icon'        => 'fa-laptop-code',
+                'color'       => 'amber',
             ],
             [
                 'title'       => 'Pengumuman Hasil',
@@ -56,7 +75,9 @@ class SpmbStepSeeder extends Seeder
                 'period_text' => '25 Juni 2026 (Pukul 12.00 WIB)',
                 'start_date'  => '2026-06-25 12:00:00',
                 'end_date'    => '2026-06-25 23:59:59',
-                'step_order'  => 5
+                'step_order'  => 6,
+                'icon'        => 'fa-bullhorn',
+                'color'       => 'emerald',
             ],
             [
                 'title'       => 'Daftar Ulang',
@@ -65,7 +86,9 @@ class SpmbStepSeeder extends Seeder
                 'period_text' => '26 – 27 Juni 2026 (s.d Pukul 16.00 WIB)',
                 'start_date'  => '2026-06-26 00:00:00',
                 'end_date'    => '2026-06-27 16:00:00',
-                'step_order'  => 6
+                'step_order'  => 7,
+                'icon'        => 'fa-flag-checkered',
+                'color'       => 'rose',
             ],
         ];
 

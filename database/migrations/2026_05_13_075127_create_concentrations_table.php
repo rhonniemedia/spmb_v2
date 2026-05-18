@@ -12,10 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('concentrations', function (Blueprint $table) {
-            $table->uuid('id')->primary(); // UUID untuk keamanan data sekolah
-            $table->string('name'); // Nama Konsentrasi Keahlian
-            $table->string('alias')->unique(); // Singkatan (misal: TKJ, AKL)
-            $table->string('code')->unique(); // Kode program keahlian
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->string('alias')->unique();
+            $table->string('code')->unique();
+            $table->string('icon');
+            $table->text('description');
+            $table->json('tags')->nullable();
+            $table->string('color')->nullable();
             $table->integer('quota');
             $table->enum('status', ['active', 'archived'])->default('active');
             $table->timestamps();

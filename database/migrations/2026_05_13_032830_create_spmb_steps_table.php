@@ -17,9 +17,11 @@ return new class extends Migration
             $col->string('slug');
             $col->text('description');
             $col->string('period_text');
-            $col->dateTime('start_date')->nullable(); // Diubah ke dateTime
-            $col->dateTime('end_date')->nullable();   // Diubah ke dateTime
+            $col->dateTime('start_date')->nullable();
+            $col->dateTime('end_date')->nullable();
             $col->integer('step_order')->default(1);
+            $col->string('icon')->nullable();
+            $col->string('color')->nullable();
             $col->timestamps();
         });
     }

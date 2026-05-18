@@ -5,6 +5,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\ParentDataController;
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\RegistrationDataController;
@@ -28,7 +29,7 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 // --- DASHBOARD ---
-Route::get('/dashboard', fn() => view('dashboard'))->middleware(['auth', 'verified'])->name('user.dashboard');
+Route::get('/', [LandingPageController::class, 'index'])->name('index');
 
 // ADMIN DASHBOARD
 Route::get('/admin/dashboard', fn() => view('pages.admin.dashboard'))->name('admin.dashboard');

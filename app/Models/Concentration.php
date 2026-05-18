@@ -16,4 +16,8 @@ class Concentration extends Model
     protected $keyType = 'string';
 
     protected $guarded = ['id'];
+
+    protected $casts = [
+        'tags' => 'array',
+    ];
 }
