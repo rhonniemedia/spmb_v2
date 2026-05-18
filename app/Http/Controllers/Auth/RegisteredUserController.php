@@ -36,6 +36,8 @@ class RegisteredUserController extends Controller
     public function destroy()
     {
         Auth::logout();
-        return redirect('/register');
+
+        // Mengarahkan ke nama route 'home'
+        return redirect()->route('home');
     }
 }

@@ -1,0 +1,678 @@
+/* ════════════════════════════════════════════════════
+       SPMB SMK — Design System ala Shayna (Light Mode)
+       Token warna, tipografi, komponen dari dashboardshayna
+    ════════════════════════════════════════════════════ */
+
+:root {
+    /* Token utama Shayna */
+    --primary: #ff1443;
+    --primary-hover: #d90f38;
+    --foreground: #080c1a;
+    --secondary: #6a7686;
+    --muted: #eff2f7;
+    --border: #f3f4f3;
+    --card-bg: #ffffff;
+    --success: #30b22d;
+    --success-light: #dcfce7;
+    --success-dark: #166534;
+    --error: #ed6b60;
+    --warning: #f59e0b;
+    --warning-dark: #854d0e;
+    --gray-50: #f9fafb;
+    --gray-100: #f1f3f6;
+    --gray-200: #e5e7eb;
+    --gray-500: #6a7686;
+
+    /* Border radius ala Shayna */
+    --radius-card: 24px;
+    --radius-xl: 16px;
+    --radius-button: 50px;
+    --radius-icon: 12px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* ── BODY — putih bersih seperti Shayna ── */
+body {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    background-color: var(--gray-50);
+    color: var(--foreground);
+    overflow-x: hidden;
+}
+
+/* ── SCROLLBAR ala Shayna ── */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 3px;
+}
+
+/* ── NAVBAR ── */
+#navbar {
+    transition: all 0.3s ease;
+}
+
+#navbar.scrolled {
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* ── HERO BG — putih dengan aksen merah tipis ── */
+.hero-bg {
+    background:
+        radial-gradient(
+            ellipse 70% 50% at 50% -5%,
+            rgba(255, 20, 67, 0.08) 0%,
+            transparent 60%
+        ),
+        radial-gradient(
+            ellipse 40% 40% at 85% 60%,
+            rgba(245, 158, 11, 0.06) 0%,
+            transparent 50%
+        ),
+        linear-gradient(180deg, #ffffff 0%, #f9fafb 60%, #f1f3f6 100%);
+}
+
+/* ── GLOW ORBS — sangat halus di light mode ── */
+.glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+}
+
+.orb-cyan {
+    background: rgba(255, 20, 67, 0.06);
+}
+
+.orb-gold {
+    background: rgba(245, 158, 11, 0.06);
+}
+
+/* ── GRID PATTERN — sangat tipis ── */
+.grid-pattern {
+    background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+}
+
+/* ── CARD / GLASS — style Shayna: putih, border tipis, shadow ringan ── */
+.glass {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+}
+
+.glass-gold {
+    background: var(--card-bg);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    box-shadow: 0 1px 8px rgba(245, 158, 11, 0.06);
+}
+
+/* ── GRADIENT TEXT — merah Shayna ── */
+.text-gradient-cyan {
+    background: linear-gradient(135deg, #ff1443 0%, #d90f38 60%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-gradient-gold {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ── BUTTON PRIMARY — merah Shayna, pill rounded ── */
+.btn-primary {
+    background: var(--primary);
+    color: #ffffff;
+    font-weight: 700;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(255, 20, 67, 0.3);
+    border-radius: var(--radius-button);
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 20, 67, 0.4);
+}
+
+/* ── BUTTON OUTLINE — border tipis ala Shayna ── */
+.btn-outline {
+    border: 1.5px solid var(--border);
+    color: var(--foreground);
+    transition: all 0.25s ease;
+    border-radius: var(--radius-button);
+    font-weight: 600;
+}
+
+.btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+/* ── COUNTER ── */
+.counter {
+    font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+/* ── JURUSAN CARD ── */
+.jurusan-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+}
+
+.jurusan-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255, 20, 67, 0.35);
+    box-shadow: 0 16px 48px rgba(255, 20, 67, 0.1);
+}
+
+/* ── TIMELINE ── */
+.timeline-line {
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        var(--primary) 20%,
+        var(--primary) 80%,
+        transparent 100%
+    );
+}
+
+.step-card {
+    background: var(--card-bg);
+    border: 1.5px solid rgba(255, 20, 67, 0.18);
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius-xl);
+    transition: all 0.25s ease;
+    box-shadow:
+        0 2px 12px rgba(255, 20, 67, 0.07),
+        0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.step-card:hover {
+    transform: translateX(6px);
+    border-color: rgba(255, 20, 67, 0.55);
+    border-left-color: var(--primary);
+    box-shadow: 0 8px 28px rgba(255, 20, 67, 0.15);
+}
+
+/* Step 9 (glass-gold) left border kuning */
+.step-card.glass-gold {
+    border: 1.5px solid rgba(245, 158, 11, 0.3);
+    border-left: 4px solid #f59e0b;
+    box-shadow:
+        0 2px 12px rgba(245, 158, 11, 0.09),
+        0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.step-card.glass-gold:hover {
+    border-color: rgba(245, 158, 11, 0.55);
+    border-left-color: #f59e0b;
+    box-shadow: 0 8px 28px rgba(245, 158, 11, 0.18);
+}
+
+/* ── JADWAL TABLE ── */
+.jadwal-row:hover {
+    background: rgba(255, 20, 67, 0.04);
+}
+
+/* ── FASILITAS ── */
+.fasilitas-item {
+    transition: all 0.4s ease;
+    overflow: hidden;
+}
+
+.fasilitas-item:hover .fasilitas-overlay {
+    opacity: 1;
+}
+
+.fasilitas-overlay {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* ── TESTIMONIAL ── */
+.testi-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+}
+
+.testi-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 20, 67, 0.3);
+    box-shadow: 0 12px 36px rgba(255, 20, 67, 0.08);
+}
+
+/* ── FAQ ACCORDION ── */
+.faq-content {
+    max-height: 0;
+    overflow: hidden;
+    transition:
+        max-height 0.4s ease,
+        padding 0.3s ease;
+}
+
+.faq-content.open {
+    max-height: 300px;
+}
+
+.faq-icon {
+    transition: transform 0.3s ease;
+}
+
+.faq-item.open .faq-icon {
+    transform: rotate(45deg);
+}
+
+/* ── FADE IN ANIMATIONS ── */
+.fade-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+.fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-left {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+.fade-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.fade-right {
+    opacity: 0;
+    transform: translateX(40px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+.fade-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.delay-100 {
+    transition-delay: 0.1s;
+}
+
+.delay-200 {
+    transition-delay: 0.2s;
+}
+
+.delay-300 {
+    transition-delay: 0.3s;
+}
+
+.delay-400 {
+    transition-delay: 0.4s;
+}
+
+.delay-500 {
+    transition-delay: 0.5s;
+}
+
+/* ── PARALLAX ── */
+.parallax-hero {
+    will-change: transform;
+}
+
+/* ── BADGE ala Shayna ── */
+.badge-lulus {
+    background: var(--success-light);
+    color: var(--success-dark);
+    border: 1px solid rgba(48, 178, 45, 0.25);
+}
+
+.badge-cadangan {
+    background: #fef3c7;
+    color: var(--warning-dark);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.badge-tidak {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid rgba(237, 107, 96, 0.25);
+}
+
+/* ── LOADING SCREEN ── */
+#loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.6s ease;
+}
+
+.loader-bar {
+    width: 200px;
+    height: 3px;
+    background: #e5e7eb; /* Mengganti var(--gray-200) dengan warna solid Hex agar aman */
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 16px;
+    margin-left: auto; /* Memastikan bar berada di tengah secara horizontal */
+    margin-right: auto; /* Memastikan bar berada di tengah secara horizontal */
+}
+
+.loader-fill {
+    height: 100%;
+    /* Mengganti var(--warning) dengan kode warna kuning/orange (#F59E0B) agar gradien tidak rusak */
+    background: linear-gradient(90deg, var(--primary), #f59e0b);
+    border-radius: 2px;
+    animation: loaderAnim 1.4s ease forwards;
+}
+
+@keyframes loaderAnim {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+.loader-pulse {
+    width: 50px;
+    height: 50px;
+    border: 2px solid rgba(255, 20, 67, 0.15);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── PARTICLES — merah halus ── */
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 20, 67, 0.35);
+    border-radius: 50%;
+    animation: float linear infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-100px) scale(1);
+        opacity: 0;
+    }
+}
+
+/* ── MOBILE NAV ── */
+#mobile-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+#mobile-menu.open {
+    max-height: 500px;
+}
+
+/* ── HERO ILLUSTRATION ── */
+.hero-illustration {
+    animation: floatY 4s ease-in-out infinite;
+}
+
+@keyframes floatY {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-16px);
+    }
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+    animation: progressAnim 2s ease-in-out infinite;
+}
+
+@keyframes progressAnim {
+    0% {
+        width: 0%;
+    }
+
+    70% {
+        width: 85%;
+    }
+
+    100% {
+        width: 85%;
+    }
+}
+
+/* ── SECTION DIVIDER ── */
+.section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* ── SLIDER ── */
+#testi-track {
+    transition: transform 0.5s ease;
+}
+
+/* ══════════════════════════════════════════════
+       OVERRIDE TAILWIND COLOR CLASSES
+       Sesuaikan semua warna dalam HTML ke palet Shayna
+    ══════════════════════════════════════════════ */
+
+/* Background & teks dasar */
+body {
+    background-color: #f9fafb;
+    color: var(--foreground);
+}
+
+/* text-white → hitam Shayna */
+.text-white {
+    color: var(--foreground) !important;
+}
+
+/* Teks abu → sekunder Shayna */
+.text-slate-300 {
+    color: var(--secondary) !important;
+}
+
+.text-slate-400 {
+    color: var(--secondary) !important;
+}
+
+.text-slate-500 {
+    color: var(--gray-500) !important;
+}
+
+/* Cyan accent → merah primary Shayna */
+.text-cyan-400 {
+    color: var(--primary) !important;
+}
+
+.text-cyan-400\/70 {
+    color: rgba(255, 20, 67, 0.7) !important;
+}
+
+.hover\:text-cyan-400:hover {
+    color: var(--primary) !important;
+}
+
+/* Border cyan → border Shayna */
+.border-cyan-400\/20 {
+    border-color: rgba(255, 20, 67, 0.15) !important;
+}
+
+.border-cyan-400\/30 {
+    border-color: rgba(255, 20, 67, 0.22) !important;
+}
+
+.border-green-500\/20 {
+    border-color: rgba(48, 178, 45, 0.2) !important;
+}
+
+.border-gold-500\/20 {
+    border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+/* BG transparan ala Shayna */
+.bg-white\/5 {
+    background: rgba(255, 20, 67, 0.04) !important;
+}
+
+.bg-white\/10 {
+    background: rgba(255, 20, 67, 0.07) !important;
+}
+
+.hover\:bg-white\/5:hover {
+    background: var(--muted) !important;
+}
+
+/* Hover nav mobile */
+.hover\:bg-white\/5:hover {
+    background: var(--muted) !important;
+}
+
+/* Icon bg accent */
+.bg-cyan-400\/10 {
+    background: rgba(255, 20, 67, 0.08) !important;
+}
+
+.bg-cyan-400\/20 {
+    background: rgba(255, 20, 67, 0.14) !important;
+}
+
+.hover\:bg-cyan-400\/20:hover {
+    background: rgba(255, 20, 67, 0.18) !important;
+}
+
+/* Navbar logo icon bg */
+.from-cyan-400 {
+    --tw-gradient-from: #ff1443 !important;
+}
+
+.to-cyan-600 {
+    --tw-gradient-to: #d90f38 !important;
+}
+
+/* Logo icon text (graduation cap) */
+.text-navy-950 {
+    color: #ffffff !important;
+}
+
+/* Shadow cyan → merah */
+.shadow-cyan-500\/30 {
+    --tw-shadow-color: rgba(255, 20, 67, 0.25) !important;
+}
+
+.shadow-cyan-500\/10 {
+    --tw-shadow-color: rgba(255, 20, 67, 0.08) !important;
+}
+
+/* Navbar scrolled backdrop */
+#navbar.scrolled {
+    background: rgba(255, 255, 255, 0.97);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* Section bg alternating ala Shayna */
+section:nth-child(even) {
+    background-color: var(--gray-50);
+}
+
+section:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Footer → warna gelap ala Shayna primary */
+footer {
+    background: #080c1a !important;
+}
+
+footer .text-white {
+    color: #ffffff !important;
+}
+
+footer .text-slate-400 {
+    color: #9ca3af !important;
+}
+
+footer .text-slate-600 {
+    color: #6b7280 !important;
+}
+
+footer .text-cyan-400 {
+    color: var(--primary) !important;
+}
+
+footer .hover\:text-cyan-400:hover {
+    color: var(--primary) !important;
+}
+
+footer .border-white\/5 {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+footer .bg-cyan-400\/10 {
+    background: rgba(255, 20, 67, 0.1) !important;
+}

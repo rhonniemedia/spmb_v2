@@ -18,7 +18,8 @@ Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.l
 Route::get('auth/google/callback', [GoogleController::class, 'callback']);
 
 // --- REGISTRASI MANUAL ---
-Route::get('/register', fn() => view('pages.auth.register'))->name('register');
+Route::get('/auth/login', fn() => view('pages.auth.login'))->name('login');
+Route::get('/auth/register', fn() => view('pages.auth.register'))->name('register');
 Route::post('/register', [RegisteredUserController::class, 'store']);
 
 // --- VERIFIKASI EMAIL ---
@@ -29,7 +30,7 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 // --- DASHBOARD ---
-Route::get('/', [LandingPageController::class, 'index'])->name('index');
+Route::get('/', [LandingPageController::class, 'index'])->name('home');
 
 // ADMIN DASHBOARD
 Route::get('/admin/dashboard', fn() => view('pages.admin.dashboard'))->name('admin.dashboard');
@@ -37,7 +38,7 @@ Route::get('/admin/verification', fn() => view('pages.admin.verifikasi'))->name(
 Route::get('/admin/announcement', fn() => view('pages.admin.pengumuman'))->name('admin.pengumuman');
 
 Route::prefix('verifikasi')->name('verifikasi.')->group(function () {
-    Route::get('/', [VerifikasiController::class, 'index'])->name('index');
+    // Route::get('/', [VerifikasiController::class, 'index'])->name('index');
     Route::get('/{noPendaftaran}', [VerifikasiController::class, 'show'])->name('show');
     Route::post('/{noPendaftaran}/keputusan', [VerifikasiController::class, 'keputusan'])->name('keputusan');
     Route::post('/{noPendaftaran}/dokumen/{dokId}', [VerifikasiController::class, 'updateDokumen'])->name('dokumen.update');
