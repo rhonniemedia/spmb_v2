@@ -5,7 +5,7 @@
 @section('content')
 
 <div class="flex-1 flex items-center justify-center p-6 py-12">
-    <div class="w-full" style="max-width: 780px;">
+    <div class="w-full" style="max-width: 640px;">
 
         <!-- Mobile logo -->
         <div class="flex justify-center mb-8 lg:hidden fade-up">

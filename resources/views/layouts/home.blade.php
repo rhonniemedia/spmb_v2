@@ -12,48 +12,7 @@
     <link rel="stylesheet" href="{{ asset('css/home.css') }}" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        display: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: {
-                            DEFAULT: '#FF1443',
-                            hover: '#D90F38',
-                        },
-                        foreground: '#080C1A',
-                        secondary: '#6A7686',
-                        muted: '#EFF2F7',
-                        border: '#F3F4F3',
-                        /* navy tetap untuk footer */
-                        navy: {
-                            950: '#020B18',
-                            900: '#040F1F',
-                            800: '#071526',
-                        },
-                        gold: {
-                            300: '#FDE68A',
-                            400: '#FBBF24',
-                            500: '#F59E0B',
-                            600: '#D97706',
-                        },
-                        /* cyan dialihkan ke merah Shayna agar class lama tetap jalan */
-                        cyan: {
-                            400: '#FF1443',
-                            500: '#D90F38',
-                            600: '#B50D2F',
-                        },
-                    },
-                },
-            },
-        };
-    </script>
+    
 </head>
 
 <body class="antialiased">
@@ -182,37 +141,6 @@
                 content.classList.add('open');
             }
         }
-
-        // ── TESTIMONIAL SLIDER ──
-        let testiIndex = 0;
-        const cardWidth = () => {
-            const track = document.getElementById('testi-track');
-            const card = track.querySelector('.testi-card');
-            return card ? card.offsetWidth + 24 : 400; // 24 = gap
-        };
-
-        function updateTesti() {
-            const track = document.getElementById('testi-track');
-            const dots = document.querySelectorAll('#testi-dots span');
-            track.style.transform = `translateX(-${testiIndex * cardWidth()}px)`;
-            dots.forEach((d, i) => {
-                d.className = i === testiIndex ? 'w-2 h-2 rounded-full bg-red-500 cursor-pointer' : 'w-2 h-2 rounded-full bg-gray-300 cursor-pointer';
-            });
-        }
-
-        function slideTesti(dir) {
-            const total = document.querySelectorAll('.testi-card').length;
-            testiIndex = (testiIndex + dir + total) % total;
-            updateTesti();
-        }
-
-        function goTesti(i) {
-            testiIndex = i;
-            updateTesti();
-        }
-
-        // auto slide
-        setInterval(() => slideTesti(1), 5000);
 
         // ── PARALLAX HERO ──
         window.addEventListener('scroll', () => {

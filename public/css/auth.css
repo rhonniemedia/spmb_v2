@@ -369,7 +369,13 @@ body {
     left: 0;
     bottom: 0;
     width: 45%; /* Lebar disamakan dengan lg:w-[45%] di Blade */
-    overflow: hidden; /* Potong orb yang meluber keluar */
+    /* overflow: hidden; Potong orb yang meluber keluar */
+}
+
+@media (min-width: 1280px) {
+    .left-panel {
+        width: 42%;
+    }
 }
 
 /* Checkbox */

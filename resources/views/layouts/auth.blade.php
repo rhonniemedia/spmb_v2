@@ -13,27 +13,6 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif']
-                    },
-                    colors: {
-                        primary: {
-                            DEFAULT: '#FF1443',
-                            hover: '#D90F38'
-                        },
-                        foreground: '#080C1A',
-                        secondary: '#6A7686',
-                        muted: '#EFF2F7',
-                        border: '#F3F4F3',
-                    },
-                },
-            },
-        };
-    </script>
 </head>
 
 <body class="auth-bg">
@@ -83,7 +62,7 @@
         <!-- Right Panel — Form -->
 
         <!-- Content -->
-        <div class="w-full lg:w-[55%] xl:w-[58%] lg:ml-[45%] xl:ml-[42%] flex flex-col">
+        <div class="w-full lg:w-[55%] xl:w-[58%] lg:ml-[45%] xl:ml-[42%] flex flex-col overflow-x-hidden">
             @yield('content')
         </div>
 
