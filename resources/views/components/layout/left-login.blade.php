@@ -1,6 +1,6 @@
 <!-- Logo & Brand -->
 <div class="relative z-10">
-    <a href="index.html" class="flex items-center gap-3 mb-16">
+    <a href="index.html" class="flex items-center gap-3 mb-10">
         <div class="logo-badge"><i class="fa-solid fa-graduation-cap text-white text-xl"></i></div>
         <div>
             <p style="font-weight:800;font-size:0.95rem;color:#FFFFFF;line-height:1.2;">SMK Negeri 1</p>
