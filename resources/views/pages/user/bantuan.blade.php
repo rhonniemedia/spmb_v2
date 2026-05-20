@@ -73,6 +73,19 @@
 
         <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
             {{-- Tombol "Semua" tetap ada secara manual atau statis --}}
+            {{-- Tombol "Semua" secara Statis --}}
+            <button type="button" onclick="filterCat('all')" data-cat="all"
+                class="cat-card border-[#FF1443] bg-[rgba(255,20,67,.04)] shadow-[0_0_0_3px_rgba(255,20,67,.07)] flex flex-col items-center gap-2 border rounded-[16px] px-2 py-3.5 text-center transition-all hover:-translate-y-px">
+                <div class="cat-icon-wrap w-9 h-9 rounded-[10px] bg-[rgba(255,20,67,.15)] flex items-center justify-center">
+                    <i class="fa-solid fa-layer-group text-[#FF1443] text-[15px]"></i>
+                </div>
+                <div>
+                    <div class="cat-title text-[12px] font-bold leading-tight text-[#FF1443]">
+                        Semua
+                    </div>
+                    <div class="text-[11px] text-[#6A7686]">Pusat FAQ</div>
+                </div>
+            </button>
             @foreach($categories as $cat)
             <button type="button" onclick="filterCat('{{ $cat->slug }}')" data-cat="{{ $cat->slug }}"
                 class="cat-card flex flex-col items-center gap-2 bg-white border border-gray-200 rounded-[16px] px-2 py-3.5 text-center transition-all hover:-translate-y-px">
@@ -195,7 +208,7 @@
                     <p class="text-[14px] font-bold mb-2 flex items-center gap-[6px]">
                         <i class="fa-solid fa-circle-question text-[14px] text-[#FF1443]"></i> Butuh Bantuan Langsung?
                     </p>
-                    <p class="text-[13px] text-[#6A7686] leading-relaxed mb-3">
+                    <p class="text-[13px] text-[#6A7686] text-center leading-relaxed mb-3">
                         Panitia SPMB siap membantu selama jam kerja <strong class="text-[#080C1A]">08:00–16:00 WIB</strong>.
                     </p>
                     <a href="https://wa.me/6281234567890" target="_blank"
@@ -207,15 +220,15 @@
                         <i class="fa-solid fa-envelope text-[13px]"></i> Kirim Email Panitia
                     </a>
                 </div>
-                <div class="border-t border-gray-100 bg-gray-50/50 px-[18px] py-3">
-                    <p class="flex items-center gap-1 text-sm font-semibold text-[#080C1A]">
+                <div class="border-t border-gray-100 bg-gray-50/50 px-[18px] py-3 text-center">
+                    <p class="flex items-center justify-center gap-1 text-sm font-semibold text-[#080C1A]">
                         <i class="fa-regular fa-clock text-[#FF1443]"></i>
                         Jam Operasional
                     </p>
 
                     <div class="mt-1 space-y-0.5">
                         <p class="text-xs text-[#6A7686]">
-                            Senin–Jumat 08:00–16:00 WIB
+                            Senin–Jumat 08:00–12:00 WIB
                         </p>
 
                         <p class="text-xs text-red-500 font-medium">

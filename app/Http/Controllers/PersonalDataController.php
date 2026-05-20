@@ -54,9 +54,13 @@ class PersonalDataController extends Controller
         }
 
         // ── 3. Jika biodata belum final, tampilkan halaman form biodata ──
+        // Ambil jadwal pendaftaran — dibutuhkan oleh _success_screen setelah submit
+        $registrationSchedule = SpmbStep::where('slug', 'pendaftaran-spmb')->first();
+
         return view('pages.user.biodata', [
-            'personalData' => $personalData,
-            'isFinal'      => false,
+            'personalData'         => $personalData,
+            'isFinal'              => false,
+            'registrationSchedule' => $registrationSchedule,
         ]);
     }
 
@@ -353,7 +357,14 @@ class PersonalDataController extends Controller
         $personal->profile_status = 'final';
         $personal->save();
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success'        => true,
+            'profile_status' => $personal->profile_status,
+            'nisn'            => $personal->nisn,
+            'full_name'       => $personal->full_name,
+            'previous_school' => $personal->previous_school,
+            'phone_number'    => $personal->phone_number,
+        ]);
     }
 
     /*

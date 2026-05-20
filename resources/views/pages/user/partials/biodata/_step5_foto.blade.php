@@ -78,7 +78,7 @@
             <i class="fa-solid fa-circle-info text-blue-500 text-base mt-0.5 flex-shrink-0"></i>
             <p class="text-sm font-medium text-blue-800 leading-relaxed">
                 Foto harus berupa foto formal terbaru (maks. 6 bulan terakhir), dengan latar belakang <strong>merah atau biru</strong>.
-                Wajah terlihat jelas, tidak memakai kacamata hitam atau topi.
+                Wajah terlihat jelas, tidak memakai kacamata atau topi.
             </p>
         </div>
 

@@ -1,9 +1,3 @@
-{{--
-                Pendekatan: setiap node dibungkus flex-1, lalu garis antar node
-                dirender sebagai elemen absolut di dalam wrapper node kiri,
-                memanjang dari tengah node kiri ke tengah node kanan (100% parent flex-1).
-                Dengan begitu garis selalu tepat mulai/berakhir di pusat node.
-            --}}
 <div class="bg-white border border-gray-200 rounded-[20px] px-7 py-6 mb-6 shadow-sm">
     <div class="flex items-start justify-between">
         <template x-for="i in totalSteps" :key="i">
@@ -36,15 +30,5 @@
                     x-text="stepLabels[i-1]"></span>
             </div>
         </template>
-    </div>
-
-    <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-        <span class="text-sm font-semibold text-[#6A7686]" x-text="'Langkah ' + step + ' dari ' + totalSteps"></span>
-        <div class="flex-1 h-2 bg-gray-200 rounded-full mx-4 overflow-hidden">
-            <div class="h-full rounded-full transition-all duration-500"
-                style="background: linear-gradient(90deg,#FF1443,#FF6B8A)"
-                :style="'width:' + progressPct + '%'"></div>
-        </div>
-        <span class="text-base font-bold text-primary" x-text="progressPct + '%'"></span>
     </div>
 </div>

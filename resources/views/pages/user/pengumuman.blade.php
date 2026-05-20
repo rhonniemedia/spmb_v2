@@ -72,7 +72,7 @@
     <div class="lg:col-span-2 space-y-5 animate-fade-in">
 
         {{-- Filter & Search --}}
-        <div class="bg-white border border-gray-200 rounded-card shadow-sm p-4 flex flex-col sm:flex-row gap-3">
+        <div class="bg-white border border-gray-200 rounded-[20px] shadow-sm p-4 flex flex-col sm:flex-row gap-3">
             {{-- Search --}}
             <div class="relative flex-1">
                 {{-- Container Ikon --}}
@@ -85,20 +85,21 @@
                     oninput="filterCards()"
                     class="w-full pl-10 pr-4 py-2.5 text-[13px] border border-gray-200 rounded-full focus:outline-none focus:border-primary transition-colors bg-gray-50 placeholder:text-[#B0B8C4]">
             </div>
+
             {{-- Filter pills --}}
             <div class="flex items-center gap-1.5 flex-wrap" id="filterPills">
-                {{-- Tombol "Semua" tetap manual sebagai opsi reset --}}
+                {{-- Tombol "Semua" (Kondisi Awal: Aktif Merah) --}}
                 <button onclick="setFilter('Semua')"
                     data-filter="Semua"
-                    class="filter-pill active text-[12px] font-bold px-3 py-1.5 rounded-full border whitespace-nowrap">
+                    class="filter-pill text-[12px] font-bold px-3 py-1.5 rounded-full border border-[#FF1443] bg-[rgba(255,20,67,.04)] text-[#FF1443] shadow-[0_0_0_1px_rgba(255,20,67,.07)] whitespace-nowrap transition-all">
                     Semua
                 </button>
 
-                {{-- Ambil kategori langsung dari variabel $summary --}}
+                {{-- Ambil kategori langsung dari variabel $summary (Kondisi Awal: Default Abu-abu) --}}
                 @foreach($summary as $s)
                 <button onclick="setFilter('{{ $s['label'] }}')"
                     data-filter="{{ $s['label'] }}"
-                    class="filter-pill bg-gray-50 text-[#6A7686] border border-gray-200 text-[12px] font-bold px-3 py-1.5 rounded-full border whitespace-nowrap">
+                    class="filter-pill bg-gray-50 text-[#6A7686] border border-gray-200 text-[12px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap transition-all hover:bg-gray-100">
                     {{ $s['label'] }}
                 </button>
                 @endforeach
@@ -356,14 +357,20 @@
 
     function setFilter(f) {
         activeFilter = f;
+
         document.querySelectorAll('.filter-pill').forEach(p => {
-            p.classList.toggle('active', p.dataset.filter === f);
-            if (p.dataset.filter !== f) {
-                p.classList.add('bg-gray-50', 'text-[#6A7686]', 'border-gray-200');
+            if (p.dataset.filter === f) {
+                // 1. PASANG CLASS AKTIF (MERAH)
+                p.classList.remove('bg-gray-50', 'text-[#6A7686]', 'border-gray-200', 'hover:bg-gray-100');
+                p.classList.add('border-[#FF1443]', 'bg-[rgba(255,20,67,.04)]', 'text-[#FF1443]', 'shadow-[0_0_0_1px_rgba(255,20,67,.07)]');
             } else {
-                p.classList.remove('bg-gray-50', 'text-[#6A7686]', 'border-gray-200');
+                // 2. KEMBALIKAN KE CLASS TIDAK AKTIF (ABU-ABU)
+                p.classList.remove('border-[#FF1443]', 'bg-[rgba(255,20,67,.04)]', 'text-[#FF1443]', 'shadow-[0_0_0_1px_rgba(255,20,67,.07)]');
+                p.classList.add('bg-gray-50', 'text-[#6A7686]', 'border-gray-200', 'hover:bg-gray-100');
             }
         });
+
+        // Jalankan pencarian & penyaringan kartu
         filterCards();
     }
 
@@ -376,6 +383,7 @@
             const katMatch = activeFilter === 'Semua' || card.dataset.kategori === activeFilter;
             const textMatch = !q || card.dataset.judul.includes(q);
             const show = katMatch && textMatch;
+
             card.style.display = show ? '' : 'none';
             if (show) visible++;
         });

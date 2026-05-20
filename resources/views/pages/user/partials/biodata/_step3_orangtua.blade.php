@@ -177,12 +177,20 @@ $penghasilanOptions = [
                         <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">Tahun Lahir Ayah</label>
                         <input type="text" name="ayah_birth_year" maxlength="4" placeholder="Contoh: 1975"
                             value="{{ old('ayah_birth_year', $father?->birth_year) }}"
-                            :class="err3('ayah_birth_year')
-                                ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-100'
-                                : 'border-gray-200 bg-gray-50 focus:border-blue-400 focus:ring-blue-100'"
+
+                            {{-- 1. Tambahkan attribute disabled dinamis dari Alpine.js --}}
+                            :disabled="ayahStatus === 'deceased'"
+
+                            {{-- 2. Sesuaikan kelas kondisi warna agar berubah abu-abu saat dinonaktifkan --}}
+                            :class="ayahStatus === 'deceased'
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200 focus:ring-0'
+                                    : (err3('ayah_birth_year')
+                                        ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-100'
+                                        : 'border-gray-200 bg-gray-50 focus:border-blue-400 focus:ring-blue-100')"
                             class="w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:bg-white transition-all outline-none text-[14px]">
+
                         <p class="text-[11px] text-red-600 font-semibold mt-1"
-                            x-show="err3('ayah_birth_year')" x-text="err3('ayah_birth_year')">
+                            x-show="err3('ayah_birth_year') && ayahStatus !== 'deceased'" x-text="err3('ayah_birth_year')">
                         </p>
                     </div>
                     <div>
@@ -284,7 +292,7 @@ $penghasilanOptions = [
                     <p class="text-[10px]"
                         x-show="!err3('ayah_address') || ayahStatus === 'deceased'"
                         :class="ayahStatus === 'deceased' ? 'text-gray-300' : 'text-gray-400'">
-                        Kosongkan jika alamat sama dengan alamat domisili siswa
+                        Alamat harus diisi sesui Kartu Keluarga (KK) atau Kartu Tanda Penduduk (KTP)
                     </p>
                     <p class="text-[11px] text-red-600 font-semibold mt-1"
                         x-show="err3('ayah_address') && ayahStatus !== 'deceased'" x-text="err3('ayah_address')">
@@ -376,14 +384,22 @@ $penghasilanOptions = [
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">Tahun Lahir Ibu</label>
-                        <input type="text" name="ibu_birth_year" maxlength="4" placeholder="Contoh: 1978"
-                            value="{{ old('ibu_birth_year', $mother?->birth_year) }}"
-                            :class="err3('ibu_birth_year')
-                                ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-100'
-                                : 'border-gray-200 bg-gray-50 focus:border-pink-400 focus:ring-pink-100'"
+                        <input type="text" name="ibu_birth_year" maxlength="4" placeholder="Contoh: 1975"
+                            value="{{ old('ibu_birth_year', $father?->birth_year) }}"
+
+                            {{-- 1. Tambahkan attribute disabled dinamis dari Alpine.js --}}
+                            :disabled="ibuStatus === 'deceased'"
+
+                            {{-- 2. Sesuaikan kelas kondisi warna agar berubah abu-abu saat dinonaktifkan --}}
+                            :class="ibuStatus === 'deceased'
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200 focus:ring-0'
+                                    : (err3('ibu_birth_year')
+                                        ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-100'
+                                        : 'border-gray-200 bg-gray-50 focus:border-blue-400 focus:ring-blue-100')"
                             class="w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:bg-white transition-all outline-none text-[14px]">
+
                         <p class="text-[11px] text-red-600 font-semibold mt-1"
-                            x-show="err3('ibu_birth_year')" x-text="err3('ibu_birth_year')">
+                            x-show="err3('ibu_birth_year') && ibuStatus !== 'deceased'" x-text="err3('ibu_birth_year')">
                         </p>
                     </div>
                     <div>
@@ -486,7 +502,7 @@ $penghasilanOptions = [
                     <p class="text-[10px]"
                         x-show="!err3('ibu_address') || ibuStatus === 'deceased'"
                         :class="ibuStatus === 'deceased' ? 'text-gray-300' : 'text-gray-400'">
-                        Kosongkan jika alamat sama dengan alamat domisili siswa
+                        Alamat harus diisi sesui Kartu Keluarga (KK) atau Kartu Tanda Penduduk (KTP)
                     </p>
                     <p class="text-[11px] text-red-600 font-semibold mt-1"
                         x-show="err3('ibu_address') && ibuStatus !== 'deceased'" x-text="err3('ibu_address')">
@@ -686,7 +702,7 @@ $penghasilanOptions = [
                     <p class="text-[10px]"
                         x-show="!err3('wali_address') || waliStatus === 'deceased'"
                         :class="waliStatus === 'deceased' ? 'text-gray-300' : 'text-gray-400'">
-                        Kosongkan jika alamat sama dengan alamat domisili siswa
+                        Alamat harus diisi sesui Kartu Keluarga (KK) atau Kartu Tanda Penduduk (KTP)
                     </p>
                     <p class="text-[11px] text-red-600 font-semibold mt-1"
                         x-show="err3('wali_address') && waliStatus !== 'deceased'" x-text="err3('wali_address')">
@@ -713,15 +729,6 @@ $penghasilanOptions = [
             <i class="fa-solid fa-arrow-left"></i> Kembali
         </button>
         <div class="flex items-center gap-3">
-            <button type="button"
-                hx-post="{{ route('biodata.draft') }}"
-                hx-include="#biodata-form"
-                hx-swap="none"
-                @htmx:after-request="saveDraft()"
-                class="text-sm font-semibold text-[#6A7686] flex items-center gap-1.5 hover:text-primary transition-colors">
-                <i class="fa-regular fa-floppy-disk"></i> Simpan Draft
-            </button>
-
             <button type="button"
                 hx-post="{{ route('biodata.step3') }}"
                 hx-indicator="#biodata-form"

@@ -88,7 +88,7 @@
         <div class="flex gap-3 items-start bg-blue-50 border border-blue-200 rounded-2xl px-4 py-3.5">
             <i class="fa-solid fa-circle-info text-blue-500 text-base mt-0.5 flex-shrink-0"></i>
             <p class="text-sm font-medium text-blue-800 leading-relaxed">
-                Isi data sesuai dengan <strong>Kartu Keluarga (KK)</strong> atau <strong>Akta Kelahiran</strong>.
+                Isi data sesuai dengan <strong>Kartu Keluarga (KK)</strong> atau <strong>Akta Kelahiran</strong> atau <strong>Dokumen Kelulusan</strong> pada pendidikan sebelumnya.
                 Pastikan tidak ada kesalahan penulisan nama.
             </p>
         </div>
@@ -115,7 +115,7 @@
 
             <div class="px-6 py-5 space-y-4">
 
-                {{-- NIK & NISN --}}
+                {{-- BARIS 1: NIK & NISN (2 Kolom) --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
@@ -153,23 +153,25 @@
                     </div>
                 </div>
 
-                {{-- Nama Lengkap & Nama Panggilan --}}
+                {{-- BARIS 2: Nama Lengkap (Full 1 Baris) --}}
+                <div>
+                    <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                        Nama Lengkap <span class="text-primary">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="full_name"
+                        placeholder="Sesuai akta kelahiran, tanpa singkatan"
+                        value="{{ old('full_name', $personalData?->full_name) }}"
+                        :class="err1('full_name') ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 bg-white focus:border-gray-400 focus:ring-gray-100'"
+                        class="w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:bg-white transition-all outline-none text-[14px]">
+                    <p class="text-[11px] text-red-600 font-semibold mt-1"
+                        x-show="err1('full_name')" x-text="err1('full_name')">
+                    </p>
+                </div>
+
+                {{-- BARIS 3: Nama Panggilan & Jenis Kelamin (2 Kolom) --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
-                            Nama Lengkap <span class="text-primary">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            name="full_name"
-                            placeholder="Sesuai akta kelahiran, tanpa singkatan"
-                            value="{{ old('full_name', $personalData?->full_name) }}"
-                            :class="err1('full_name') ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 bg-white focus:border-gray-400 focus:ring-gray-100'"
-                            class="w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:bg-white transition-all outline-none text-[14px]">
-                        <p class="text-[11px] text-red-600 font-semibold mt-1"
-                            x-show="err1('full_name')" x-text="err1('full_name')">
-                        </p>
-                    </div>
                     <div>
                         <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
                             Nama Panggilan
@@ -185,9 +187,25 @@
                             x-show="err1('nick_name')" x-text="err1('nick_name')">
                         </p>
                     </div>
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            Jenis Kelamin <span class="text-primary">*</span>
+                        </label>
+                        <select
+                            name="gender"
+                            :class="err1('gender') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Pilih</option>
+                            <option value="L" @selected(old('gender', $personalData?->gender) === 'L')>Laki-laki</option>
+                            <option value="P" @selected(old('gender', $personalData?->gender) === 'P')>Perempuan</option>
+                        </select>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('gender')" x-text="err1('gender')">
+                        </p>
+                    </div>
                 </div>
 
-                {{-- Tempat Lahir & Tanggal Lahir --}}
+                {{-- BARIS 4: Tempat Lahir & Tanggal Lahir (2 Kolom) --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
@@ -220,24 +238,8 @@
                     </div>
                 </div>
 
-                {{-- Jenis Kelamin & Agama --}}
+                {{-- BARIS 5: Agama & Golongan Darah (2 Kolom) --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
-                            Jenis Kelamin <span class="text-primary">*</span>
-                        </label>
-                        <select
-                            name="gender"
-                            :class="err1('gender') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
-                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
-                            <option value="">Pilih</option>
-                            <option value="L" @selected(old('gender', $personalData?->gender) === 'L')>Laki-laki</option>
-                            <option value="P" @selected(old('gender', $personalData?->gender) === 'P')>Perempuan</option>
-                        </select>
-                        <p class="text-[11px] text-red-600 font-semibold mt-1"
-                            x-show="err1('gender')" x-text="err1('gender')">
-                        </p>
-                    </div>
                     <div>
                         <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
                             Agama <span class="text-primary">*</span>
@@ -255,10 +257,6 @@
                             x-show="err1('religion')" x-text="err1('religion')">
                         </p>
                     </div>
-                </div>
-
-                {{-- Golongan Darah --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
                             Golongan Darah
@@ -432,16 +430,7 @@
         - Jika 422 (validasi gagal) → setErrors1(xhr) → Alpine update error binding
         - Jika error lain           → setErrors1(xhr) (errors1 akan kosong)
     --}}
-    <div class="px-8 py-5 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between rounded-b-[20px]">
-        <button type="button"
-            hx-post="{{ route('biodata.draft') }}"
-            hx-include="#biodata-form"
-            hx-swap="none"
-            @htmx:after-request="saveDraft()"
-            class="text-sm font-semibold text-[#6A7686] flex items-center gap-1.5 hover:text-primary transition-colors">
-            <i class="fa-regular fa-floppy-disk"></i> Simpan Draft
-        </button>
-
+    <div class="px-8 py-5 border-t border-gray-100 bg-gray-50/50 flex items-center justify-end rounded-b-[20px]">
         <button type="button"
             hx-post="{{ route('biodata.step1') }}"
             hx-indicator="#biodata-form"

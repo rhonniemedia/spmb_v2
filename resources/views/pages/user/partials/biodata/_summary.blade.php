@@ -83,7 +83,7 @@
             <div class="flex py-4 items-start">
                 <div class="w-1/2 text-[#718096] text-[13px] font-medium">Transportasi / Jarak</div>
                 <div class="w-1/2 space-y-1">
-                    <div class="text-[#2D3748] text-[14px] font-bold">{{ $personalData->transportation }}</div>
+                    <div class="text-[#2D3748] text-[14px] font-bold">{{ ucfirst($personalData->transportation) }}</div>
                     <div class="text-[#718096] text-[12px]">Jarak. {{ $personalData->distance_to_school }} ke sekolah</div>
                 </div>
             </div>

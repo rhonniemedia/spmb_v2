@@ -4,10 +4,77 @@
 
 @section('content')
 
+@push('styles')
+<style>
+    @keyframes ring-expand {
+        0% {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+
+        60% {
+            transform: scale(1.15);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @keyframes check-draw {
+        0% {
+            stroke-dashoffset: 60;
+            opacity: 0;
+        }
+
+        40% {
+            opacity: 1;
+        }
+
+        100% {
+            stroke-dashoffset: 0;
+            opacity: 1;
+        }
+    }
+
+    @keyframes ring-pulse {
+
+        0%,
+        100% {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.25);
+        }
+
+        50% {
+            box-shadow: 0 0 0 14px rgba(34, 197, 94, 0);
+        }
+    }
+
+    @keyframes sparkle-pop {
+        0% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+        }
+
+        60% {
+            transform: scale(1.2) rotate(20deg);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1) rotate(15deg);
+            opacity: 0.85;
+        }
+    }
+</style>
+@endpush
+
 <div x-data="{
     step: 1,
     totalSteps: 6,
     isSubmitted: false,
+    submitResult: {},
     showWali: false,
     sameAddress: false,
     files: { foto: null },

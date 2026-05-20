@@ -519,27 +519,41 @@
                     <h3 class="text-sm font-black">Navigasi Resume</h3>
                     <p class="text-[13px] text-[#6A7686] mt-[2px]">Lompat ke bagian bagian data</p>
                 </div>
-                <div class="flex flex-col">
-                    <a href="#sec-identitas" class="toc-item flex items-center gap-2.5 px-4 py-2.5 no-underline text-[#6A7686] text-[13px] font-semibold border-b border-gray-100 transition-colors hover:bg-[#FFF1F3] hover:text-[#FF1443] [&.active]:bg-[#FFF1F3] [&.active]:text-[#FF1443] active" data-target="sec-identitas">
-                        <div class="w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0"></div>
-                        <i class="fa-solid fa-id-card text-[#FF1443] w-4"></i> Identitas Pribadi
-                    </a>
-                    <a href="#sec-kontak" class="toc-item flex items-center gap-2.5 px-4 py-2.5 no-underline text-[#6A7686] text-[13px] font-semibold border-b border-gray-100 transition-colors hover:bg-[#FFF1F3] hover:text-[#FF1443] [&.active]:bg-[#FFF1F3] [&.active]:text-[#FF1443]" data-target="sec-kontak">
-                        <div class="w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0"></div>
-                        <i class="fa-solid fa-location-dot text-[#3B82F6] w-4"></i> Kontak &amp; Alamat
-                    </a>
-                    <a href="#sec-pendidikan" class="toc-item flex items-center gap-2.5 px-4 py-2.5 no-underline text-[#6A7686] text-[13px] font-semibold border-b border-gray-100 transition-colors hover:bg-[#FFF1F3] hover:text-[#FF1443] [&.active]:bg-[#FFF1F3] [&.active]:text-[#FF1443]" data-target="sec-pendidikan">
-                        <div class="w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0"></div>
-                        <i class="fa-solid fa-graduation-cap text-[#22C55E] w-4"></i> Asal Sekolah
-                    </a>
-                    <a href="#sec-ortu" class="toc-item flex items-center gap-2.5 px-4 py-2.5 no-underline text-[#6A7686] text-[13px] font-semibold border-b border-gray-100 transition-colors hover:bg-[#FFF1F3] hover:text-[#FF1443] [&.active]:bg-[#FFF1F3] [&.active]:text-[#FF1443]" data-target="sec-ortu">
-                        <div class="w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0"></div>
-                        <i class="fa-solid fa-people-roof text-[#F97316] w-4"></i> Orang Tua / Wali
-                    </a>
-                    <a href="#sec-validasi" class="toc-item flex items-center gap-2.5 px-4 py-2.5 no-underline text-[#6A7686] text-[13px] font-semibold transition-colors hover:bg-[#FFF1F3] hover:text-[#FF1443] [&.active]:bg-[#FFF1F3] [&.active]:text-[#FF1443]" data-target="sec-validasi">
-                        <div class="w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0"></div>
-                        <i class="fa-solid fa-clipboard-check text-[#8B5CF6] w-4"></i> Ringkasan Validasi
-                    </a>
+                <div class="flex flex-col" x-data="{
+    // Menentukan item mana yang sedang aktif saat ini
+    activeTarget: 'sec-identitas', 
+    tocItems: [
+        { id: 'sec-identitas', label: 'Identitas Pribadi', icon: 'fa-id-card', color: 'text-[#FF1443]' },
+        { id: 'sec-kontak', label: 'Kontak & Alamat', icon: 'fa-location-dot', color: 'text-[#3B82F6]' },
+        { id: 'sec-pendidikan', label: 'Asal Sekolah', icon: 'fa-graduation-cap', color: 'text-[#22C55E]' },
+        { id: 'sec-ortu', label: 'Orang Tua / Wali', icon: 'fa-people-roof', color: 'text-[#F97316]' },
+        { id: 'sec-validasi', label: 'Ringkasan Validasi', icon: 'fa-clipboard-check', color: 'text-[#8B5CF6]' }
+    ]
+}">
+                    <template x-for="(item, idx) in tocItems" :key="idx">
+                        <a :href="'#' + item.id"
+                            class="toc-item flex items-center gap-3 px-4 py-2.5 no-underline text-[#6A7686] text-[13px] font-semibold border-b border-gray-100 transition-all hover:bg-[#FFF1F3] hover:text-[#FF1443]"
+                            :class="{ 'bg-[#FFF1F3] text-[#FF1443] active': activeTarget === item.id }"
+                            :data-target="item.id"
+                            @click="activeTarget = item.id">
+
+                            {{-- Lingkaran Ikon (w-7 h-7 seperti komponen sebelumnya) --}}
+                            <div :class="activeTarget === item.id ? 'bg-[#FF1443]' : 'bg-gray-100'"
+                                class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300">
+
+                                {{-- Ikon: Jika aktif jadi putih (text-white), jika tidak aktif pakai warna aslinya --}}
+                                <i :class="'fa-solid ' + item.icon + ' text-[11px] ' + (activeTarget === item.id ? 'text-white' : item.color)"></i>
+                            </div>
+
+                            {{-- Label Teks --}}
+                            <div class="flex-1 min-w-0">
+                                <span :class="activeTarget === item.id ? 'text-[#080C1A] font-black' : 'text-[#6A7686] font-semibold'"
+                                    class="text-[13px] block truncate"
+                                    x-text="item.label"></span>
+                            </div>
+
+                        </a>
+                    </template>
                 </div>
             </div>
 

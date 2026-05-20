@@ -401,15 +401,6 @@
         </button>
         <div class="flex items-center gap-3">
             <button type="button"
-                hx-post="{{ route('biodata.draft') }}"
-                hx-include="#biodata-form"
-                hx-swap="none"
-                @htmx:after-request="saveDraft()"
-                class="text-sm font-semibold text-[#6A7686] flex items-center gap-1.5 hover:text-primary transition-colors">
-                <i class="fa-regular fa-floppy-disk"></i> Simpan Draft
-            </button>
-
-            <button type="button"
                 hx-post="{{ route('biodata.step2') }}"
                 hx-indicator="#biodata-form"
                 hx-swap="none"
