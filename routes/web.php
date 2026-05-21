@@ -87,7 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/success', [RegistrationDataController::class, 'successScreen'])->name('success');
         });
 
-        Route::view('/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang');
+        Route::view('/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang')->middleware('check.daftar.ulang');
         Route::get('/support', [FaqController::class, 'index'])->name('bantuan');
         Route::get('/announcements', [AnnouncementController::class, 'index'])->name('pengumuman');
     });

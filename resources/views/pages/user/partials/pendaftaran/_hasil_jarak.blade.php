@@ -12,7 +12,7 @@
         </div>
         <div class="bg-white border border-emerald-100 rounded-xl px-4 py-3">
             <div class="text-[11px] font-black uppercase tracking-widest text-[#6A7686] mb-1">Status Zona</div>
-            @if($jarakMeter <= 2000)
+            @if($jarakMeter <= 1000)
                 <div class="text-[14px] font-black text-emerald-600"><i class="fa-solid fa-circle-check"></i> Dalam Zona
         </div>
         <div class="text-[11px] text-[#6A7686]">Memenuhi syarat jalur zonasi</div>

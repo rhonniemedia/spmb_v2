@@ -16,4 +16,9 @@ class School extends Model
     protected $keyType = 'string';
 
     protected $guarded = ['id'];
+
+    protected $casts = [
+        'whatsapp_numbers' => 'array',
+        'social_media' => 'array',
+    ];
 }

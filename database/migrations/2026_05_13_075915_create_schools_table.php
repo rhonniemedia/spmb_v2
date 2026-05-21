@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('schools', function (Blueprint $table) {
-            $table->uuid('id')->primary(); // Tetap menggunakan UUID untuk konsistensi
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->string('npsn', 8)->unique();
             $table->string('nis')->nullable();
@@ -20,15 +20,20 @@ return new class extends Migration
             $table->string('nds')->nullable();
             $table->text('address');
             $table->string('postal_code', 5);
-            $table->string('village'); // Kelurahan
-            $table->string('district'); // Kecamatan
-            $table->string('city'); // Kota/Kabupaten
+            $table->string('village');
+            $table->string('district');
+            $table->string('city');
             $table->string('province');
             $table->string('phone')->nullable();
             $table->string('website')->nullable();
             $table->string('email')->nullable();
             $table->string('school_logo_path')->nullable();
             $table->string('government_logo_path')->nullable();
+
+            // Tambahkan kolom baru di sini (Menggunakan Pendekatan JSON)
+            $table->json('whatsapp_numbers')->nullable();
+            $table->json('social_media')->nullable();
+
             $table->timestamps();
         });
     }

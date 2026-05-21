@@ -32,19 +32,19 @@
     <div class="inline-flex flex-col gap-2 bg-gray-50 border border-gray-200 rounded-2xl px-8 py-5 mb-8 text-left">
         <div class="flex gap-4 text-sm">
             <span class="text-[#6A7686] font-semibold min-w-[130px]">NISN</span>
-            <span class="font-bold" x-text="submitResult.nisn || '{{ $personalData->nisn }}'"></span>
+            <span class="font-bold" x-text="submitResult.nisn || '{{ $personalData?->nisn ?? '—' }}'"></span>
         </div>
         <div class="flex gap-4 text-sm">
             <span class="text-[#6A7686] font-semibold min-w-[130px]">Nama Lengkap</span>
-            <span class="font-bold uppercase" x-text="submitResult.full_name || '{{ $personalData->full_name }}'"></span>
+            <span class="font-bold uppercase" x-text="submitResult.full_name || '{{ $personalData->full_name ?? '—' }}'"></span>
         </div>
         <div class="flex gap-4 text-sm">
             <span class="text-[#6A7686] font-semibold min-w-[130px]">Sekolah Asal</span>
-            <span class="font-bold uppercase" x-text="submitResult.previous_school || '{{ $personalData->previous_school }}'"></span>
+            <span class="font-bold uppercase" x-text="submitResult.previous_school || '{{ $personalData->previous_school ?? '—' }}'"></span>
         </div>
         <div class="flex gap-4 text-sm">
             <span class="text-[#6A7686] font-semibold min-w-[130px]">No. Telepon</span>
-            <span class="font-bold" x-text="'0' + (submitResult.phone_number || '{{ $personalData->phone_number }}')"></span>
+            <span class="font-bold" x-text="'0' + (submitResult.phone_number || '{{ $personalData->phone_number ?? '—' }}')"></span>
         </div>
         <div class="flex gap-4 text-sm">
             <span class="text-[#6A7686] font-semibold min-w-[130px]">Status</span>

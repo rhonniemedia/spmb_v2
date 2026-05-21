@@ -14,6 +14,10 @@ class RegistrationAchievement extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'class_ranks' => 'array',
+    ];
+
     /**
      * Balikan relasi ke Data Registrasi Utama
      */

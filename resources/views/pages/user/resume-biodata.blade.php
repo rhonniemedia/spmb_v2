@@ -58,10 +58,9 @@
                     class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-[#FF1443] text-[13px] font-black rounded-full no-underline shadow-md">
                     <i class="fa-solid fa-gauge"></i> Kembali ke Dashboard
                 </a>
-                <button onclick="window.print()"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/15 text-white text-[13px] font-bold rounded-full border border-white/30 cursor-pointer hover:bg-white/25 transition-colors">
-                    <i class="fa-solid fa-print"></i> Cetak / PDF
-                </button>
+                <span class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/15 text-white text-[13px] font-bold rounded-full border border-white/25 cursor-default">
+                    <i class="fa-solid fa-id-badge"></i> Akun Terverifikasi: {{ auth()->user()?->email_verified_at?->format('d M Y, H:i') }} WIB
+                </span>
             </div>
         </div>
 
@@ -495,16 +494,16 @@
                     </div>
                     @endif
 
-                    <div class="flex gap-3 items-center flex-wrap">
+                    <div class="flex gap-3 items-center flex-wrap justify-between">
+                        <a href="{{ route('dashboard') }}"
+                            class="inline-flex items-center gap-[7px] px-[22px] py-[11px] rounded-full font-sans text-[13px] font-bold no-underline bg-white text-[#080C1A] border-[1.5px] border-[#E5E7EB] hover:border-[#080C1A] hover:-translate-y-px transition-all">
+                            <i class="fa-solid fa-gauge"></i>Kembali ke Dashboard
+                        </a>
                         <button class="inline-flex items-center gap-[7px] px-[22px] py-[11px] rounded-full font-sans text-[13px] font-bold bg-[#30B22D] text-white shadow-[0_4px_14px_rgba(48,178,45,0.25)] hover:bg-[#27A024] hover:-translate-y-[2px] transition-all cursor-pointer disabled:opacity-[0.45] disabled:cursor-not-allowed disabled:transform-none"
                             id="regBtn" disabled onclick="submitRegistration()"
                             data-can-register="{{ $canRegister ? 'true' : 'false' }}">
                             <i class="fa-solid fa-rotate-right text-[13px]"></i> Lanjut ke Pendaftaran
                         </button>
-                        <a href="{{ route('dashboard') }}"
-                            class="inline-flex items-center gap-[7px] px-[22px] py-[11px] rounded-full font-sans text-[13px] font-bold no-underline bg-white text-[#080C1A] border-[1.5px] border-[#E5E7EB] hover:border-[#080C1A] hover:-translate-y-px transition-all">
-                            Kembali ke Dashboard
-                        </a>
                     </div>
                 </div>
             </div>
@@ -520,16 +519,16 @@
                     <p class="text-[13px] text-[#6A7686] mt-[2px]">Lompat ke bagian bagian data</p>
                 </div>
                 <div class="flex flex-col" x-data="{
-    // Menentukan item mana yang sedang aktif saat ini
-    activeTarget: 'sec-identitas', 
-    tocItems: [
-        { id: 'sec-identitas', label: 'Identitas Pribadi', icon: 'fa-id-card', color: 'text-[#FF1443]' },
-        { id: 'sec-kontak', label: 'Kontak & Alamat', icon: 'fa-location-dot', color: 'text-[#3B82F6]' },
-        { id: 'sec-pendidikan', label: 'Asal Sekolah', icon: 'fa-graduation-cap', color: 'text-[#22C55E]' },
-        { id: 'sec-ortu', label: 'Orang Tua / Wali', icon: 'fa-people-roof', color: 'text-[#F97316]' },
-        { id: 'sec-validasi', label: 'Ringkasan Validasi', icon: 'fa-clipboard-check', color: 'text-[#8B5CF6]' }
-    ]
-}">
+                    // Menentukan item mana yang sedang aktif saat ini
+                    activeTarget: 'sec-identitas', 
+                    tocItems: [
+                        { id: 'sec-identitas', label: 'Identitas Pribadi', icon: 'fa-id-card', color: 'text-[#FF1443]' },
+                        { id: 'sec-kontak', label: 'Kontak & Alamat', icon: 'fa-location-dot', color: 'text-[#3B82F6]' },
+                        { id: 'sec-pendidikan', label: 'Asal Sekolah', icon: 'fa-graduation-cap', color: 'text-[#22C55E]' },
+                        { id: 'sec-ortu', label: 'Orang Tua / Wali', icon: 'fa-people-roof', color: 'text-[#F97316]' },
+                        { id: 'sec-validasi', label: 'Ringkasan Validasi', icon: 'fa-clipboard-check', color: 'text-[#8B5CF6]' }
+                    ]
+                }">
                     <template x-for="(item, idx) in tocItems" :key="idx">
                         <a :href="'#' + item.id"
                             class="toc-item flex items-center gap-3 px-4 py-2.5 no-underline text-[#6A7686] text-[13px] font-semibold border-b border-gray-100 transition-all hover:bg-[#FFF1F3] hover:text-[#FF1443]"

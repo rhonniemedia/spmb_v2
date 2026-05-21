@@ -1,7 +1,13 @@
 {{-- _step_nilai.blade.php --}}
 {{-- _step_nilai.blade.php --}}
 <div x-show="currentStepId === 'nilai'"
-    x-data="{ isNilaiLengkap: false }" {{-- 1. Tambahkan state lokal untuk mendeteksi kelengkapan --}}
+    x-data="{ isNilaiLengkap: @js(
+        !empty($registrationData?->report_sem_1) &&
+        !empty($registrationData?->report_sem_2) &&
+        !empty($registrationData?->report_sem_3) &&
+        !empty($registrationData?->report_sem_4) &&
+        !empty($registrationData?->report_sem_5)
+    ) }" {{-- Prefill dari DB jika data sudah ada --}}
     x-init="
         $nextTick(() => {
             const raporFields = ['rapor_sem1','rapor_sem2','rapor_sem3','rapor_sem4','rapor_sem5'];
@@ -81,11 +87,11 @@
 
                 @php
                 $semesters = [
-                ['label' => 'Semester 1', 'sub' => 'Kelas VII / Ganjil', 'id' => 'rapor_sem1'],
-                ['label' => 'Semester 2', 'sub' => 'Kelas VII / Genap', 'id' => 'rapor_sem2'],
-                ['label' => 'Semester 3', 'sub' => 'Kelas VIII / Ganjil', 'id' => 'rapor_sem3'],
-                ['label' => 'Semester 4', 'sub' => 'Kelas VIII / Genap', 'id' => 'rapor_sem4'],
-                ['label' => 'Semester 5', 'sub' => 'Kelas IX / Ganjil', 'id' => 'rapor_sem5'],
+                ['label' => 'Semester 1', 'sub' => 'Kelas VII / Ganjil', 'id' => 'rapor_sem1', 'col' => 'report_sem_1'],
+                ['label' => 'Semester 2', 'sub' => 'Kelas VII / Genap', 'id' => 'rapor_sem2', 'col' => 'report_sem_2'],
+                ['label' => 'Semester 3', 'sub' => 'Kelas VIII / Ganjil','id' => 'rapor_sem3', 'col' => 'report_sem_3'],
+                ['label' => 'Semester 4', 'sub' => 'Kelas VIII / Genap', 'id' => 'rapor_sem4', 'col' => 'report_sem_4'],
+                ['label' => 'Semester 5', 'sub' => 'Kelas IX / Ganjil', 'id' => 'rapor_sem5', 'col' => 'report_sem_5'],
                 ];
                 @endphp
 
@@ -100,7 +106,7 @@
                             <input type="number"
                                 id="{{ $sem['id'] }}"
                                 name="{{ $sem['id'] }}"
-                                value="{{ old($sem['id'], $registrationData->{$sem['id']} ?? '') }}"
+                                value="{{ old($sem['id'], $registrationData->{$sem['col']} ?? '') }}"
                                 min="0" max="100" step="0.01"
                                 placeholder="0.00"
                                 class="w-[100px] text-right border border-gray-200 rounded-xl px-3 py-2 text-[14px] font-bold text-[#080C1A] focus:outline-none focus:ring-[#FF1443]/30 focus:border-[#FF1443] transition-all">
@@ -119,6 +125,7 @@
                     <div class="flex items-center justify-end gap-2">
                         <input type="text"
                             id="rata_rapor"
+                            value="{{ $registrationData?->report_average ? number_format($registrationData->report_average, 2) : '' }}"
                             readonly
                             placeholder="—"
                             class="w-[100px] text-right bg-white border border-red-200 rounded-xl px-3 py-2 text-[14px] font-black text-[#FF1443] cursor-not-allowed">
@@ -147,8 +154,8 @@
 
                 @php
                 $tka = [
-                ['label' => 'Matematika', 'sub' => 'Penalaran numerik & aljabar', 'id' => 'tka_mtk'],
-                ['label' => 'Bahasa Indonesia', 'sub' => 'Literasi & pemahaman teks', 'id' => 'tka_bind'],
+                ['label' => 'Matematika', 'sub' => 'Penalaran numerik & aljabar', 'id' => 'tka_mtk', 'col' => 'tka_math'],
+                ['label' => 'Bahasa Indonesia', 'sub' => 'Literasi & pemahaman teks', 'id' => 'tka_bind', 'col' => 'tka_indonesian'],
                 ];
                 @endphp
 
@@ -162,7 +169,7 @@
                         <input type="number"
                             id="{{ $item['id'] }}"
                             name="{{ $item['id'] }}"
-                            value="{{ old($item['id'], $registrationData->{$item['id']} ?? '') }}"
+                            value="{{ old($item['id'], $registrationData->{$item['col']} ?? '') }}"
                             min="0" max="100" step="0.01"
                             placeholder="0.00"
                             class="w-[100px] text-right border border-gray-200 rounded-xl px-3 py-2 text-[14px] font-bold text-[#080C1A] focus:outline-none focus:ring-[#6366F1]/30 focus:border-[#6366F1] transition-all">
@@ -180,6 +187,7 @@
                     <div class="flex items-center justify-end gap-2">
                         <input type="text"
                             id="rata_tka"
+                            value="{{ $registrationData?->tka_average ? number_format($registrationData->tka_average, 2) : '' }}"
                             readonly
                             placeholder="—"
                             class="w-[100px] text-right bg-white border border-indigo-200 rounded-xl px-3 py-2 text-[14px] font-black text-[#6366F1] cursor-not-allowed">

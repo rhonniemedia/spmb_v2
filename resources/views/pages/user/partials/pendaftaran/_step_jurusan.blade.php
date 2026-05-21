@@ -34,26 +34,20 @@
                         <span>Wajib memilih <strong class="text-violet-950">3 jurusan berbeda</strong>.</span>
                     </li>
 
-                    {{-- Bullet 2 --}}
-                    <li class="flex items-start gap-2">
-                        <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0"></span>
-                        <span>Jurusan Rekayasa Perangkat Lunak (RPL) bebas dikombinasikan dengan apa saja.</span>
-                    </li>
-
-                    {{-- Bullet 3 --}}
+                    {{-- Bullet 2 (Disesuaikan dengan aturan baru) --}}
                     <li class="flex items-start gap-2">
                         <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0"></span>
                         <span class="leading-normal">
-                            Jurusan kelompok teknik otomotif/jaringan
+                            Jurusan kelompok kompetensi keahlian teknik
                             <strong class="text-violet-950 font-black uppercase">(TKJ, TKR, TSM)</strong>
-                            <strong>tidak boleh dikombinasikan satu sama lain</strong> di pilihan berbeda.
+                            <strong class="text-red-600 font-bold">hanya boleh dipilih sebagai Pilihan Pertama</strong> dan tidak diperkenankan pada pilihan kedua maupun ketiga.
                         </span>
                     </li>
                 </ul>
             </div>
         </div>
 
-        {{-- Alert Banner Error jika Validasi Gagal (Fallback Jaga-jaga) --}}
+        {{-- Alert Banner Error jika Validasi Gagal --}}
         <div x-show="adaError"
             x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 -translate-y-1"
@@ -93,10 +87,12 @@
                         <option value="" selected>— Pilih jurusan pilihan ke-{{ $stepNum }} —</option>
 
                         @foreach($concentrations as $c)
-                        {{-- FIX: Array pembanding dilempar menggunakan string model JavaScript murni untuk dievaluasi secara dinamis --}}
                         <option value="{{ $c->id }}"
                             :disabled="isDisabled('{{ $c->id }}', '{{ $config['model'] }}')">
                             {{ $c->name }} ({{ strtoupper($c->alias) }})
+                            <template x-if="jurusanList['{{ $c->id }}']?.restrict_choice && ('{{ $config['model'] }}' === 'pil2' || '{{ $config['model'] }}' === 'pil3')">
+                                <span> — [Khusus Pil 1]</span>
+                            </template>
                         </option>
                         @endforeach
                     </select>

@@ -374,25 +374,47 @@
                             <i class="fa-solid fa-circle-exclamation text-sm"></i> Ada
                         </label>
                     </div>
-                    {{-- Error untuk radio is_special_condition (jarang tapi bisa) --}}
+                    {{-- Error untuk radio is_special_condition --}}
                     <p class="text-[11px] text-red-600 font-semibold mt-1"
                         x-show="err1('is_special_condition')" x-text="err1('is_special_condition')">
                     </p>
                 </div>
 
                 <div x-show="hasSpecial === 'yes'" x-transition.duration.200ms>
-                    <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">Jenis Kondisi</label>
-                    <select
-                        name="special_condition_type"
-                        :class="err1('special_condition_type') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
-                        class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
-                        <option value="">Pilih jenis kondisi</option>
-                        @foreach(['tunanetra','tunarungu','tunawicara','tunadaksa','tunagrahita','autisme','lainnya'] as $kondisi)
-                        <option value="{{ $kondisi }}" @selected(old('special_condition_type', $personalData?->special_condition_type) === $kondisi)>
-                            {{ ucfirst($kondisi) }}
-                        </option>
-                        @endforeach
-                    </select>
+                    <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">Jenis Kondisi / Hambatan</label>
+                    <div class="relative">
+                        <select
+                            name="special_condition_type"
+                            :class="err1('special_condition_type') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Pilih jenis kondisi</option>
+
+                            @php
+                            $daftarKondisi = [
+                            'disabilitas_fisik' => 'Disabilitas Fisik / Hambatan Motorik',
+                            'disabilitas_netra' => 'Disabilitas Netra / Kurang Lihat (Low Vision)',
+                            'disabilitas_rungu' => 'Disabilitas Rungu / Kurang Dengar',
+                            'autisme' => 'Autisme / Spektrum Autis',
+                            'gpph_adhd' => 'GPPH / ADHD / ADD',
+                            'lamban_belajar' => 'Lamban Belajar (Slow Learner)',
+                            'kesulitan_belajar' => 'Kesulitan Belajar Spesifik (Disleksia/Disgrafia/Diskalkulia)',
+                            'disabilitas_intel_ringan' => 'Disabilitas Intelektual Ringan',
+                            'hambatan_perilaku_emosi' => 'Hambatan Perilaku dan Emosi',
+                            'cerdas_istimewa_cibi' => 'Cerdas Istimewa Bakat Istimewa (CIBI)',
+                            'lainnya' => 'Lainnya'
+                            ];
+                            @endphp
+
+                            @foreach($daftarKondisi as $value => $label)
+                            <option value="{{ $value }}" @selected(old('special_condition_type', $personalData?->special_condition_type) === $value)>
+                                {{ $label }}
+                            </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
                     <p class="text-[11px] text-red-600 font-semibold mt-1"
                         x-show="err1('special_condition_type')" x-text="err1('special_condition_type')">
                     </p>
@@ -403,7 +425,7 @@
                     <textarea
                         name="condition_description"
                         rows="2"
-                        placeholder="Jelaskan kondisi lebih detail jika diperlukan..."
+                        placeholder="Contoh: Pengguna kursi roda, butuh posisi duduk paling depan, disleksia ringan, dll..."
                         :class="err1('condition_description') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
                         class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] resize-none">{{ old('condition_description', $personalData?->condition_description) }}</textarea>
                     <p class="text-[11px] text-red-600 font-semibold mt-1"

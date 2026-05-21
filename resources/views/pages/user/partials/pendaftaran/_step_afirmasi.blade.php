@@ -20,10 +20,10 @@
 
 <div x-show="currentStepId === 'afirmasi'"
     x-data="{
-        nomorSktm: '',
-        pakaiKartu: false,
-        jenisKartu: '',
-        nomorKartu: '',
+        nomorSktm: @js($registrationAffirmasi?->sktm_number ?? ''),
+        pakaiKartu: @js((bool) ($registrationAffirmasi?->has_social_card ?? false)),
+        jenisKartu: @js($registrationAffirmasi?->card_type ?? ''),
+        nomorKartu: @js($registrationAffirmasi?->card_number ?? ''),
 
         get bolehLanjut() {
             return this.nomorSktm.trim() !== '';
@@ -77,6 +77,7 @@
                         <input type="text"
                             name="nomor_sktm"
                             x-model="nomorSktm"
+                            value="{{ $registrationAffirmasi?->sktm_number ?? '' }}"
                             placeholder="Contoh: 470/123/KEL/2024"
                             autocomplete="off"
                             class="w-full border-2 rounded-xl px-4 py-2.5 text-[13px] font-medium text-[#080C1A] placeholder-gray-400 outline-none transition-all
@@ -133,9 +134,6 @@
 
                     {{-- Input nomor kartu, muncul jika toggle aktif --}}
                     <div x-show="pakaiKartu"
-                        x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 -translate-y-1"
-                        x-transition:enter-end="opacity-100 translate-y-0"
                         class="px-5 pb-4 space-y-3">
 
                         {{-- Pilih jenis kartu --}}
@@ -149,7 +147,9 @@
                             ] as $k)
                             <label class="cursor-pointer" @click.stop>
                                 <input type="radio" name="jenis_kartu" value="{{ $k['value'] }}"
-                                    x-model="jenisKartu" class="sr-only">
+                                    x-model="jenisKartu"
+                                    :checked="jenisKartu === '{{ $k['value'] }}'"
+                                    class="sr-only">
                                 <span :class="jenisKartu === '{{ $k['value'] }}'
                                         ? 'bg-indigo-600 text-white border-indigo-600'
                                         : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'"
@@ -168,6 +168,7 @@
                             <input type="text"
                                 name="nomor_kartu"
                                 x-model="nomorKartu"
+                                value="{{ $registrationAffirmasi?->card_number ?? '' }}"
                                 placeholder="Nomor yang tertera pada kartu"
                                 autocomplete="off"
                                 class="w-full border-2 rounded-xl px-4 py-2.5 text-[13px] font-medium text-[#080C1A] placeholder-gray-400 outline-none transition-all

@@ -32,18 +32,66 @@ class RegistrationDataController extends Controller
         // Personal data sudah final, load semua data untuk registrasi
         $admissionPaths = AdmissionPath::where('is_active', true)->get();
         $concentrations = Concentration::where('status', 'active')->get();
-        $grupTerlarang  = ['tkj', 'tkr', 'tsm'];
+
+        // Definisikan grup jurusan yang hanya boleh dipilih di Pilihan 1
+        $hanyaPilihanSatu = ['tkj', 'tkr', 'tsm'];
         $jurusanList    = [];
 
         foreach ($concentrations as $c) {
+            $aliasLower = strtolower($c->alias);
+
             $jurusanList[$c->id] = [
-                'nama'          => $c->name,
-                'singkat'       => $c->alias,
-                'kode'          => $c->code,
-                'kuota'         => $c->quota,
-                'alias'         => strtolower($c->alias),
-                'grupTerlarang' => in_array(strtolower($c->alias), $grupTerlarang),
+                'nama'             => $c->name,
+                'singkat'          => $c->alias,
+                'kode'             => $c->code,
+                'kuota'            => $c->quota,
+                'alias'            => $aliasLower,
+                // Flag baru: Menandakan jika TRUE, maka di pilihan 2 & 3 jurusan ini harus di-disable/disembunyikan
+                'restrict_choice'  => in_array($aliasLower, $hanyaPilihanSatu),
             ];
+        }
+
+        // ── LOAD DATA EXISTING (untuk prefill form jika user sudah pernah menyimpan) ──
+        $registration          = RegistrationData::where('personal_data_id', $personalData->id)->first();
+        $registrationData      = $registration; // alias, dipakai di _step_nilai untuk value lama
+        $registrationZone        = $registration?->zonasi;    // ✅ sesuai nama method di model
+        $registrationAchievement = $registration?->prestasi;  // ✅ sesuai nama method di model
+        $registrationAffirmasi   = $registration?->afirmasi;  // ✅ sesuai nama method di model
+        // ── HITUNG INITIAL STEP BERDASARKAN DATA YANG SUDAH ADA ──
+        // Tujuan: Bawa user langsung ke step terakhir yang sudah diisi
+        $initialStep = 1; // Default: mulai dari awal (nilai)
+        if ($registration) {
+            // Step 1 (nilai) sudah diisi?
+            if ($registration->report_sem_1) {
+                $initialStep = 2; // Lanjut ke jalur
+
+                // Step 2 (jalur) sudah dipilih?
+                if ($registration->admission_path_id) {
+                    $admissionPath = $admissionPaths->find($registration->admission_path_id);
+                    $jalurSlug = $admissionPath
+                        ? Str::slug(str_replace('Jalur ', '', $admissionPath->name))
+                        : null;
+
+                    // Tentukan step berikutnya setelah jalur berdasarkan jenis jalur
+                    if ($jalurSlug === 'zonasi' && $registrationZone) {
+                        $initialStep = 4; // Zonasi sudah diisi → ke jurusan
+                    } elseif ($jalurSlug === 'prestasi' && $registrationAchievement) {
+                        $initialStep = 4; // Prestasi sudah diisi → ke jurusan
+                    } elseif ($jalurSlug === 'afirmasi' && $registrationAffirmasi) {
+                        $initialStep = 4; // Afirmasi sudah diisi → ke jurusan
+                    } elseif (in_array($jalurSlug, ['zonasi', 'prestasi', 'afirmasi'])) {
+                        $initialStep = 3; // Jalur khusus, belum isi step-nya → ke step jalur khusus
+                    } else {
+                        $initialStep = 3; // Reguler → ke jurusan (step ke-3 di reguler = jurusan)
+                    }
+
+                    // Step jurusan sudah diisi?
+                    if ($registration->choice_1) {
+                        // Cari index step konfirmasi di stepMap → selalu step terakhir
+                        $initialStep = 99; // Nilai sentinel → akan di-handle Alpine ke step konfirmasi
+                    }
+                }
+            }
         }
 
         return view('pages.user.pendaftaran', compact(
@@ -51,18 +99,16 @@ class RegistrationDataController extends Controller
             'admissionPaths',
             'concentrations',
             'jurusanList',
-            'grupTerlarang'
+            'hanyaPilihanSatu',
+            'registration',
+            'registrationData',
+            'registrationZone',
+            'registrationAchievement',
+            'registrationAffirmasi',
+            'initialStep'
         ));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    /**
-     * Store a newly created resource in storage.
-     * Menerima data nilai rapor & TKA (Step Nilai)
-     * Return  : JSON {success, step} — Alpine akan step++
-     */
     public function saveStepNilai(Request $request): JsonResponse
     {
         // 1. Aturan Validasi (Key disesuaikan dengan atribut name pada form input)
@@ -229,11 +275,11 @@ class RegistrationDataController extends Controller
             $validated['rumah_lng']
         );
 
-        // 2. Validasi batas maksimal 2 km (2000 meter)
-        if ($jarak > 2000) {
+        // 2. Validasi batas maksimal 1 km (1000 meter)
+        if ($jarak > 1000) {
             return response()->json([
                 'success' => false,
-                'message' => 'Maaf, koordinat rumah Anda berada di luar batas aman zonasi (Maksimal 2 km).'
+                'message' => 'Maaf, koordinat rumah Anda berada di luar batas aman zonasi (Maksimal 1 km).'
             ], 422);
         }
 
@@ -296,13 +342,14 @@ class RegistrationDataController extends Controller
     public function saveStepPrestasi(Request $request): JsonResponse
     {
         // ── 1. Validasi Jenis (selalu wajib) ─────────────────────────────────
+        // Ditambahkan pilihan 'peringkat'
         $rules = [
-            'prestasi_jenis' => 'required|in:kejuaraan,tahfiz,kepemimpinan',
+            'prestasi_jenis' => 'required|in:kejuaraan,tahfiz,kepemimpinan,peringkat',
         ];
 
         $messages = [
             'prestasi_jenis.required' => 'Jenis prestasi wajib dipilih.',
-            'prestasi_jenis.in'       => 'Jenis prestasi yang dipilih tidak valid.',
+            'prestasi_jenis.in'      => 'Jenis prestasi yang dipilih tidak valid.',
         ];
 
         // ── 2. Validasi Conditional Berdasarkan Jenis ─────────────────────────
@@ -310,26 +357,41 @@ class RegistrationDataController extends Controller
 
         if ($jenis === 'kejuaraan') {
             $rules['prestasi_tingkat'] = 'required|in:kabupaten,provinsi,nasional,internasional';
-            $rules['prestasi_kurasi']  = 'required|in:simt_pusprenas,dikbudprov';
-
             $messages['prestasi_tingkat.required'] = 'Tingkat kejuaraan wajib dipilih.';
             $messages['prestasi_tingkat.in']       = 'Tingkat kejuaraan yang dipilih tidak valid.';
-            $messages['prestasi_kurasi.required']  = 'Lembaga kurasi wajib dipilih untuk jalur kejuaraan.';
-            $messages['prestasi_kurasi.in']        = 'Lembaga kurasi yang dipilih tidak valid.';
+
+            // Validasi kurasi dihapus sesuai request UI baru
         }
 
         if ($jenis === 'tahfiz') {
-            $rules['prestasi_kurasi'] = 'required|in:simt_pusprenas,dikbudprov';
-
-            $messages['prestasi_kurasi.required'] = 'Lembaga kurasi wajib dipilih untuk jalur tahfiz.';
-            $messages['prestasi_kurasi.in']       = 'Lembaga kurasi yang dipilih tidak valid.';
+            // Jalur tahfiz sekarang langsung valid tanpa kurasi (hanya sertifikat resmi)
         }
 
         if ($jenis === 'kepemimpinan') {
             $rules['prestasi_jabatan'] = 'required|in:ketua_osis,ketua_osim,ketua_mpk,ketua_pramuka,ketua_ambalan,ketua_bes';
-
             $messages['prestasi_jabatan.required'] = 'Jabatan organisasi wajib dipilih untuk jalur kepemimpinan.';
             $messages['prestasi_jabatan.in']       = 'Jabatan yang dipilih tidak valid.';
+        }
+
+        if ($jenis === 'peringkat') {
+            // Validasi bahwa payload yang masuk harus berformat JSON
+            $rules['prestasi_peringkat'] = [
+                'required',
+                'json',
+                function ($attribute, $value, $fail) {
+                    $data = json_decode($value, true);
+                    // Pastikan minimal ada 1 semester yang diisi (nilainya tidak kosong '')
+                    $filtered = array_filter($data, function ($val) {
+                        return $val !== '';
+                    });
+
+                    if (empty($filtered)) {
+                        $fail('Minimal pilih satu peringkat semester yang ingin dilaporkan.');
+                    }
+                }
+            ];
+            $messages['prestasi_peringkat.required'] = 'Data peringkat per semester wajib diisi.';
+            $messages['prestasi_peringkat.json']     = 'Format data peringkat tidak valid.';
         }
 
         // ── 3. Eksekusi Validasi ──────────────────────────────────────────────
@@ -341,14 +403,19 @@ class RegistrationDataController extends Controller
         $registration->save(); // pastikan record ada sebelum relasi disimpan
 
         // ── 5. Upsert ke tabel registration_achievements ─────────────────────
-        // Mapping nama input form → nama kolom di tabel (sesuai migration)
+        // Decode data peringkat dari JSON string ke Array PHP sebelum disimpan
+        $ranksArray = isset($validated['prestasi_peringkat'])
+            ? json_decode($validated['prestasi_peringkat'], true)
+            : null;
+
         RegistrationAchievement::updateOrCreate(
             ['registration_data_id' => $registration->id],
             [
                 'achievement_type'    => $validated['prestasi_jenis'],
                 'level'               => $validated['prestasi_tingkat'] ?? null,
-                'curation_type'       => $validated['prestasi_kurasi']  ?? null,
                 'leadership_position' => $validated['prestasi_jabatan'] ?? null,
+                'class_ranks'         => $ranksArray, // Masuk ke kolom json database
+                // 'curation_type' dihapus karena kolomnya sudah tidak ada di migrasi baru
             ]
         );
 
@@ -418,6 +485,22 @@ class RegistrationDataController extends Controller
             ], 422);
         }
 
+        // ── GENERATE NOMOR URUT PENDAFTARAN OTOMATIS ──
+        if (!$registration->registration_number) {
+            $tahunSekarang = date('Y');
+
+            // Hitung ada berapa banyak pendaftar yang sudah mendapatkan nomor di tahun ini
+            $jumlahPendaftarTahunIni = RegistrationData::whereYear('submitted_at', $tahunSekarang)
+                ->whereNotNull('registration_number')
+                ->count();
+
+            // Urutan pendaftar saat ini adalah jumlah data + 1
+            $nomorUrutNext = $jumlahPendaftarTahunIni + 1;
+
+            // Gabungkan format: SPMB - 2026 - 0001
+            $registration->registration_number = 'SPMB-' . $tahunSekarang . '-' . str_pad($nomorUrutNext, 4, '0', STR_PAD_LEFT);
+        }
+
         $registration->submitted_at        = now();
         $registration->verification_status = 'pending';
         $registration->save();
@@ -425,7 +508,7 @@ class RegistrationDataController extends Controller
         return response()->json([
             'success'          => true,
             'nama'             => $personalData->full_name,
-            'noPeserta'        => $personalData->registration_number ?? 'SPMB-2026-' . str_pad($personalData->id, 6, '0', STR_PAD_LEFT),
+            'noPeserta'        => $registration->registration_number, // Membaca kolom terbaru dari database
             'jalur'            => $registration->admissionPath?->name ?? '—',
             'pilihan1'         => $registration->choice1?->name ?? '—',
             'pilihan2'         => $registration->choice2?->name ?? '—',

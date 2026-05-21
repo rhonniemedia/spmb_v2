@@ -13,6 +13,8 @@ return new class extends Migration
             $table->foreignUuid('personal_data_id')->constrained('personal_data')->onDelete('cascade');
             $table->foreignUuid('admission_path_id')->nullable()->constrained('admission_paths');
 
+            $table->string('registration_number', 30)->nullable()->unique();
+
             // --- PILIHAN JURUSAN (PILIHAN 1, 2, 3) ---
             $table->foreignUuid('choice_1')->nullable()->constrained('concentrations');
             $table->foreignUuid('choice_2')->nullable()->constrained('concentrations');

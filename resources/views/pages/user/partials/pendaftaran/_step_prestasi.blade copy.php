@@ -6,49 +6,34 @@
 | Hanya muncul jika currentStepId === 'prestasi' (dikontrol stepMap di parent).
 |
 | Arsitektur v2 — sistem pilih satu jenis (card list, radio):
-|   1. Kejuaraan     → pilih tingkat (kab/prov/nas/int)
-|   2. Tahfiz        → tanpa kurasi
+|   1. Kejuaraan     → pilih tingkat (kab/prov/nas/int) + kurasi
+|   2. Tahfiz        → pilih lembaga kurasi
 |   3. Kepemimpinan  → pilih jabatan dari daftar + info SK
-|   4. Peringkat     → pilih peringkat per semester
 |
 | Pola submit: HTMX hx-post → saveStepPrestasi → JSON {success, nextStep}
 |   → window.dispatchEvent('pindah-step') → Alpine navigasi ke 'jurusan'
+|   (identik dengan pola _step_jalur.blade.php)
 |==========================================================================
 --}}
 
 <div x-show="currentStepId === 'prestasi'"
     x-data="{
-        jenis: @js($registrationAchievement?->achievement_type ?? ''),
-        tingkat: @js($registrationAchievement?->level ?? ''),
-        jabatan: @js($registrationAchievement?->leadership_position ?? ''),
-
-        {{-- PERBAIKAN: Gunakan operator + untuk mempertahankan string key '1', '2', '3', '4', '5' --}}
-        peringkats: @js(
-            ($registrationAchievement?->class_ranks ?? []) + 
-            ['1' => '', '2' => '', '3' => '', '4' => '', '5' => '']
-        ),
+        jenis: '',
+        tingkat: '',
+        kurasi: '',
+        jabatan: '',
 
         get detailLengkap() {
-            if (this.jenis === 'kejuaraan')    return this.tingkat !== '';
-            if (this.jenis === 'tahfiz')       return true;
+            if (this.jenis === 'kejuaraan')    return this.tingkat !== '' && this.kurasi !== '';
+            if (this.jenis === 'tahfiz')       return this.kurasi  !== '';
             if (this.jenis === 'kepemimpinan') return this.jabatan !== '';
-            if (this.jenis === 'peringkat') {
-                return Object.values(this.peringkats).some(val => val !== '');
-            }
             return false;
         },
 
-        get peringkatPayload() {
-            return JSON.stringify(this.peringkats);
-        },
-
         resetDetail() {
-            this.tingkat = ''; 
-            this.jabatan = '';
-            this.peringkats = { '1': '', '2': '', '3': '', '4': '', '5': '' };
+            this.tingkat = ''; this.kurasi = ''; this.jabatan = '';
         },
     }"
-    x-init="$watch('jenis', (val, old) => { if (old !== '' && val !== old) resetDetail(); })"
     class="bg-white border border-gray-200 rounded-[20px] shadow-sm overflow-hidden">
 
     {{-- ── HEADER ── --}}
@@ -89,7 +74,7 @@
                 {{-- ① KEJUARAAN --}}
                 <label class="cursor-pointer block">
                     <input type="radio" name="prestasi_jenis" value="kejuaraan"
-                        x-model="jenis" @change="if ($event.target.value !== jenis) resetDetail()" class="sr-only">
+                        x-model="jenis" @change="resetDetail()" class="sr-only">
                     <div :class="jenis === 'kejuaraan'
                             ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-200'
                             : 'border-gray-200 bg-gray-50 hover:border-amber-300 hover:bg-amber-50/40'"
@@ -122,7 +107,7 @@
                             </div>
                         </div>
 
-                        {{-- Detail tingkat inline di dalam card --}}
+                        {{-- Detail tingkat & kurasi inline di dalam card --}}
                         <template x-if="jenis === 'kejuaraan'">
                             <div class="mt-4 pt-3 border-t border-amber-100 space-y-4">
                                 {{-- Baris 1: Tingkat Kejuaraan --}}
@@ -142,7 +127,7 @@
                                         @foreach($tingkats as $t)
                                         <label class="cursor-pointer" @click.stop>
                                             <input type="radio" name="prestasi_tingkat"
-                                                value="{{ $t['value'] }}" x-model="tingkat" :checked="tingkat === '{{ $t['value'] }}'" class="sr-only">
+                                                value="{{ $t['value'] }}" x-model="tingkat" class="sr-only">
                                             <div :class="tingkat === '{{ $t['value'] }}'
                                                     ? 'border-amber-400 bg-amber-100 ring-1 ring-amber-300'
                                                     : 'border-gray-200 bg-white hover:border-amber-300'"
@@ -162,27 +147,66 @@
                                     <input type="hidden" name="prestasi_tingkat" :value="tingkat">
                                 </div>
 
-                                {{-- Penegasan Dokumen Kejuaraan --}}
-                                <div class="flex gap-3 items-center bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
-                                    <div class="w-7 h-7 rounded-lg bg-red-200 flex items-center justify-center flex-shrink-0">
-                                        <i class="fa-solid fa-file-signature text-red-600 text-[11px]"></i>
+                                {{-- Baris 2: Jenis Kurasi (muncul setelah tingkat dipilih) --}}
+                                <template x-if="tingkat !== ''">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <p class="text-[11px] font-black text-amber-800 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                                                <i class="fa-solid fa-shield-halved text-amber-500 text-[10px]"></i> Jenis Kurasi
+                                            </p>
+                                            <div class="grid grid-cols-2 gap-2">
+                                                @php
+                                                $kurasisKej = [
+                                                ['value' => 'simt_pusprenas', 'label' => 'SIMT / Pusprenas', 'icon' => 'fa-landmark'],
+                                                ['value' => 'dikbudprov', 'label' => 'Dikbudprov', 'icon' => 'fa-school'],
+                                                ];
+                                                @endphp
+                                                @foreach($kurasisKej as $k)
+                                                <label class="cursor-pointer" @click.stop>
+                                                    <input type="radio" name="prestasi_kurasi"
+                                                        value="{{ $k['value'] }}" x-model="kurasi" class="sr-only">
+                                                    <div :class="kurasi === '{{ $k['value'] }}'
+                                                            ? 'border-amber-400 bg-amber-100 ring-1 ring-amber-300'
+                                                            : 'border-gray-200 bg-white hover:border-amber-300'"
+                                                        class="border-2 rounded-xl px-3 py-2 transition-all flex items-center gap-2">
+                                                        <i :class="kurasi === '{{ $k['value'] }}' ? 'text-amber-600' : 'text-gray-400'"
+                                                            class="fa-solid {{ $k['icon'] }} text-[12px] flex-shrink-0 transition-colors"></i>
+                                                        <span :class="kurasi === '{{ $k['value'] }}' ? 'text-amber-900 font-black' : 'text-gray-500 font-semibold'"
+                                                            class="text-[12px] transition-colors">{{ $k['label'] }}</span>
+                                                        <div x-show="kurasi === '{{ $k['value'] }}'"
+                                                            class="ml-auto w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+                                                            <i class="fa-solid fa-check text-white text-[7px]"></i>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                                @endforeach
+                                            </div>
+                                            <input type="hidden" name="prestasi_kurasi" :value="kurasi">
+                                        </div>
+
+                                        {{-- Penegasan Dokumen Kejuaraan --}}
+                                        <div class="flex gap-3 items-center bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
+                                            <div class="w-7 h-7 rounded-lg bg-red-200 flex items-center justify-center flex-shrink-0">
+                                                <i class="fa-solid fa-file-signature text-red-600 text-[11px]"></i>
+                                            </div>
+                                            <div class="flex flex-col space-y-0.5">
+                                                <p class="text-[12px] text-red-950 leading-tight">
+                                                    <span class="font-normal text-red-700">Dibuktikan dengan</span>
+                                                    <span class="font-black">Sertifikat / Piagam Kejuaraan Resmi</span>
+                                                </p>
+                                                <p class="text-[12px] text-red-950 leading-tight">
+                                                    <span class="font-normal text-red-700">Dokumen pendukung harus dibawa saat verifikasi</span>
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="flex flex-col space-y-0.5">
-                                        <p class="text-[12px] text-red-950 leading-tight">
-                                            <span class="font-normal text-red-700">Dibuktikan dengan</span>
-                                            <span class="font-black">Sertifikat / Piagam Kejuaraan Resmi</span>
-                                        </p>
-                                        <p class="text-[12px] text-red-950 length-tight">
-                                            <span class="font-normal text-red-700">Dokumen pendukung harus dibawa saat verifikasi</span>
-                                        </p>
-                                    </div>
-                                </div>
+                                </template>
                             </div>
                         </template>
                         <template x-if="jenis !== 'kejuaraan'">
                             <div class="mt-3 pt-3 border-t border-gray-200 flex items-center gap-2">
-                                <i class="fa-solid fa-file-signature text-gray-300 text-[11px]"></i>
-                                <span class="text-[11px] text-gray-400 font-medium">Dibuktikan dengan Sertifikat / Piagam Kejuaraan Resmi</span>
+                                <i class="fa-solid fa-shield-halved text-gray-300 text-[11px]"></i>
+                                <span class="text-[11px] text-gray-400 font-medium">Kurasi: SIMT / Pusprenas · Dikbudprov</span>
                             </div>
                         </template>
                     </div>
@@ -191,7 +215,7 @@
                 {{-- ② TAHFIZ --}}
                 <label class="cursor-pointer block">
                     <input type="radio" name="prestasi_jenis" value="tahfiz"
-                        x-model="jenis" @change="if ($event.target.value !== jenis) resetDetail()" class="sr-only">
+                        x-model="jenis" @change="resetDetail()" class="sr-only">
                     <div :class="jenis === 'tahfiz'
                             ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-200'
                             : 'border-gray-200 bg-gray-50 hover:border-amber-300 hover:bg-amber-50/40'"
@@ -222,9 +246,49 @@
                             </div>
                         </div>
 
-                        {{-- Penegasan Dokumen Tahfiz --}}
+                        {{-- Detail lembaga kurasi inline di dalam card --}}
                         <template x-if="jenis === 'tahfiz'">
                             <div class="mt-4 pt-3 border-t border-amber-100 space-y-4">
+                                <div>
+                                    <p class="text-[11px] font-black text-amber-800 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-shield-halved text-amber-500 text-[10px]"></i> Pilih Lembaga Kurasi
+                                    </p>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        @php
+                                        $kurasisTahfiz = [
+                                        ['value' => 'simt_pusprenas', 'label' => 'SIMT / Pusprenas', 'icon' => 'fa-landmark', 'sub' => 'Pusat Prestasi Nasional'],
+                                        ['value' => 'dikbudprov', 'label' => 'Dikbudprov', 'icon' => 'fa-school', 'sub' => 'Dinas Pendidikan Provinsi'],
+                                        ];
+                                        @endphp
+                                        @foreach($kurasisTahfiz as $k)
+                                        <label class="cursor-pointer" @click.stop>
+                                            <input type="radio" name="prestasi_kurasi"
+                                                value="{{ $k['value'] }}" x-model="kurasi" class="sr-only">
+                                            <div :class="kurasi === '{{ $k['value'] }}'
+                                                    ? 'border-amber-400 bg-amber-100 ring-1 ring-amber-300'
+                                                    : 'border-gray-200 bg-white hover:border-amber-300'"
+                                                class="border-2 rounded-xl px-3 py-2 transition-all">
+                                                <div class="flex items-center gap-2">
+                                                    <i :class="kurasi === '{{ $k['value'] }}' ? 'text-amber-600' : 'text-gray-400'"
+                                                        class="fa-solid {{ $k['icon'] }} text-[12px] flex-shrink-0 transition-colors"></i>
+                                                    <div class="flex-1 min-w-0">
+                                                        <div :class="kurasi === '{{ $k['value'] }}' ? 'text-amber-900 font-black' : 'text-gray-500 font-semibold'"
+                                                            class="text-[12px] transition-colors">{{ $k['label'] }}</div>
+                                                        <div class="text-[10px] text-gray-400 leading-tight truncate">{{ $k['sub'] }}</div>
+                                                    </div>
+                                                    <div x-show="kurasi === '{{ $k['value'] }}'"
+                                                        class="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+                                                        <i class="fa-solid fa-check text-white text-[7px]"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                    <input type="hidden" name="prestasi_kurasi" :value="kurasi">
+                                </div>
+
+                                {{-- Penegasan Dokumen Tahfiz --}}
                                 <div class="flex gap-3 items-center bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
                                     <div class="w-7 h-7 rounded-lg bg-red-200 flex items-center justify-center flex-shrink-0">
                                         <i class="fa-solid fa-file-signature text-red-600 text-[11px]"></i>
@@ -243,8 +307,8 @@
                         </template>
                         <template x-if="jenis !== 'tahfiz'">
                             <div class="mt-3 pt-3 border-t border-gray-200 flex items-center gap-2">
-                                <i class="fa-solid fa-file-signature text-gray-300 text-[11px]"></i>
-                                <span class="text-[11px] text-gray-400 font-medium">Dibuktikan dengan Piagam / Sertifikat Tahfiz Resmi</span>
+                                <i class="fa-solid fa-shield-halved text-gray-300 text-[11px]"></i>
+                                <span class="text-[11px] text-gray-400 font-medium">Kurasi: SIMT / Pusprenas · Dikbudprov</span>
                             </div>
                         </template>
                     </div>
@@ -253,7 +317,7 @@
                 {{-- ③ KEPEMIMPINAN --}}
                 <label class="cursor-pointer block">
                     <input type="radio" name="prestasi_jenis" value="kepemimpinan"
-                        x-model="jenis" @change="if ($event.target.value !== jenis) resetDetail()" class="sr-only">
+                        x-model="jenis" @change="resetDetail()" class="sr-only">
                     <div :class="jenis === 'kepemimpinan'
                             ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-200'
                             : 'border-gray-200 bg-gray-50 hover:border-amber-300 hover:bg-amber-50/40'"
@@ -307,7 +371,7 @@
                                         @foreach($jabatansInCard as $j)
                                         <label class="cursor-pointer block" @click.stop>
                                             <input type="radio" name="prestasi_jabatan"
-                                                value="{{ $j['value'] }}" x-model="jabatan" :checked="jabatan === '{{ $j['value'] }}'" class="sr-only">
+                                                value="{{ $j['value'] }}" x-model="jabatan" class="sr-only">
                                             <div :class="jabatan === '{{ $j['value'] }}'
                                                     ? 'border-amber-400 bg-amber-100 ring-1 ring-amber-300'
                                                     : 'border-gray-200 bg-white hover:border-amber-300'"
@@ -359,125 +423,6 @@
                     </div>
                 </label>
 
-                {{-- ④ PERINGKAT KELAS --}}
-                <label class="cursor-pointer block">
-                    <input type="radio" name="prestasi_jenis" value="peringkat"
-                        x-model="jenis" @change="if ($event.target.value !== jenis) resetDetail()" class="sr-only">
-                    <div :class="jenis === 'peringkat'
-                            ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-200'
-                            : 'border-gray-200 bg-gray-50 hover:border-amber-300 hover:bg-amber-50/40'"
-                        class="relative border-2 rounded-2xl p-4 transition-all duration-200">
-
-                        <div x-show="jenis === 'peringkat'"
-                            class="absolute top-4 right-4 w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-check text-white text-[10px]"></i>
-                        </div>
-
-                        <div class="flex items-start gap-4 pr-8">
-                            <div :class="jenis === 'peringkat' ? 'bg-amber-100' : 'bg-gray-200'"
-                                class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors duration-200">
-                                <i :class="jenis === 'peringkat' ? 'text-amber-600' : 'text-gray-400'"
-                                    class="fa-solid fa-ranking-star text-lg transition-colors duration-200"></i>
-                            </div>
-                            <div class="flex-1">
-                                <div :class="jenis === 'peringkat' ? 'text-[#080C1A]' : 'text-gray-400'"
-                                    class="text-[15px] font-black transition-colors duration-200">Peringkat / Juara Kelas</div>
-                                <div :class="jenis === 'peringkat' ? 'text-[#6A7686]' : 'text-gray-400'"
-                                    class="text-[12px] mt-0.5 leading-relaxed transition-colors duration-200">
-                                    Peringkat terbaik di kelas berdasarkan nilai rapor semester
-                                </div>
-                                <div class="flex flex-wrap gap-1.5 mt-2.5">
-                                    @foreach(['Juara 1','Juara 2','Juara 3'] as $r)
-                                    <span :class="jenis === 'peringkat' ? 'bg-amber-100 text-amber-700' : 'bg-gray-200 text-gray-400'"
-                                        class="px-2 py-0.5 rounded-full text-[11px] font-bold transition-colors duration-200">{{ $r }}</span>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Detail peringkat per semester (list format) --}}
-                        <template x-if="jenis === 'peringkat'">
-                            <div class="mt-4 pt-3 border-t border-amber-100 space-y-3">
-
-                                <p class="text-[11px] font-black text-amber-800 uppercase tracking-widest flex items-center gap-1.5">
-                                    <i class="fa-solid fa-medal text-amber-500 text-[10px]"></i> Peringkat per Semester
-                                </p>
-
-                                @php
-                                $semesterList = [
-                                ['sem' => '1', 'label' => 'Semester 1', 'kelas' => 'Kelas X'],
-                                ['sem' => '2', 'label' => 'Semester 2', 'kelas' => 'Kelas X'],
-                                ['sem' => '3', 'label' => 'Semester 3', 'kelas' => 'Kelas XI'],
-                                ['sem' => '4', 'label' => 'Semester 4', 'kelas' => 'Kelas XI'],
-                                ['sem' => '5', 'label' => 'Semester 5', 'kelas' => 'Kelas XII'],
-                                ];
-                                @endphp
-
-                                {{-- List per semester --}}
-                                <div class="rounded-xl border border-amber-100 overflow-hidden bg-white divide-y divide-gray-100">
-                                    @foreach($semesterList as $s)
-                                    <div class="flex items-center px-3 py-2.5 gap-3" @click.stop>
-
-                                        {{-- Label --}}
-                                        <div class="w-24 flex-shrink-0">
-                                            <p class="text-[12px] font-black text-[#080C1A] leading-tight">{{ $s['label'] }}</p>
-                                            <p class="text-[10px] text-gray-400 leading-tight">{{ $s['kelas'] }}</p>
-                                        </div>
-
-                                        <span class="text-gray-300 flex-shrink-0">:</span>
-
-                                        {{-- Tombol Juara 1/2/3 --}}
-                                        <div class="flex gap-1.5 flex-1">
-                                            @foreach(['1','2','3'] as $j)
-                                            <button type="button"
-                                                @click.stop="peringkats['{{ $s['sem'] }}'] = (peringkats['{{ $s['sem'] }}'] === '{{ $j }}') ? '' : '{{ $j }}'"
-                                                :class="peringkats['{{ $s['sem'] }}'] === '{{ $j }}'
-                                                    ? 'bg-amber-500 text-white border-amber-500 font-black'
-                                                    : 'bg-white text-gray-400 border-gray-200 font-semibold hover:border-amber-300 hover:text-amber-600'"
-                                                class="flex-1 border-2 rounded-lg py-2 text-[11px] text-center transition-all leading-none">
-                                                Juara {{ $j }}
-                                            </button>
-                                            @endforeach
-                                        </div>
-
-                                        {{-- Tanda centang jika dipilih --}}
-                                        <div class="w-5 flex-shrink-0 flex items-center justify-center">
-                                            <i x-show="peringkats['{{ $s['sem'] }}'] !== ''"
-                                                class="fa-solid fa-circle-check text-amber-500 text-base"></i>
-                                        </div>
-
-                                    </div>
-                                    @endforeach
-                                </div>
-
-                                <input type="hidden" name="prestasi_peringkat" :value="peringkatPayload">
-
-                                {{-- Penegasan Dokumen Peringkat --}}
-                                <div class="flex gap-3 items-center bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
-                                    <div class="w-7 h-7 rounded-lg bg-red-200 flex items-center justify-center flex-shrink-0">
-                                        <i class="fa-solid fa-file-signature text-red-600 text-[11px]"></i>
-                                    </div>
-                                    <div class="flex flex-col space-y-0.5">
-                                        <p class="text-[12px] text-red-950 leading-tight">
-                                            <span class="font-normal text-red-700">Dibuktikan dengan</span>
-                                            <span class="font-black">Rapor / Keterangan Peringkat dari Wali Kelas</span>
-                                        </p>
-                                        <p class="text-[12px] text-red-950 leading-tight">
-                                            <span class="font-normal text-red-700">Dokumen pendukung harus dibawa saat verifikasi</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                        <template x-if="jenis !== 'peringkat'">
-                            <div class="mt-3 pt-3 border-t border-gray-200 flex items-center gap-2">
-                                <i class="fa-solid fa-calendar-days text-gray-300 text-[11px]"></i>
-                                <span class="text-[11px] text-gray-400 font-medium">Semester 1 · 2 · 3 · 4 · 5</span>
-                            </div>
-                        </template>
-                    </div>
-                </label>
-
             </div>
         </div>
 
@@ -493,7 +438,7 @@
         <div class="flex items-center gap-3">
             <button type="button"
                 hx-post="{{ route('registration.prestasi') }}"
-                hx-include="[name='prestasi_jenis'], [name='prestasi_tingkat'], [name='prestasi_jabatan'], [name='prestasi_peringkat']"
+                hx-include="[name='prestasi_jenis'], [name='prestasi_tingkat'], [name='prestasi_kurasi'], [name='prestasi_jabatan']"
                 hx-target="this"
                 hx-swap="none"
                 hx-indicator="#loading-prestasi"

@@ -14,13 +14,25 @@
 
         <div class="hidden lg:flex items-center gap-0.5 flex-1 overflow-x-auto scrollbar-hide">
             @php
+            // 1. Definisikan rute awal yang selalu muncul di depan
             $navLinks = [
             ['label' => 'Dashboard', 'icon' => 'fa-gauge', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard')],
             ['label' => 'Biodata', 'icon' => 'fa-id-card', 'route' => 'biodata', 'active' => request()->routeIs('biodata')],
-            ['label' => 'Pengumuman', 'icon' => 'fa-bullhorn', 'route' => 'pengumuman', 'active' => request()->routeIs('pengumuman')],
-            ['label' => 'Daftar Ulang', 'icon' => 'fa-rotate-right', 'route' => 'daftar-ulang', 'active' => request()->routeIs('daftar-ulang')],
-            ['label' => 'Bantuan', 'icon' => 'fa-circle-question', 'route' => 'bantuan', 'active' => request()->routeIs('bantuan')],
             ];
+
+            // 2. LOGIKABARU: Sisipkan Daftar Ulang secara dinamis di sini (sebelum Bantuan & Pengumuman)
+            if (isset($isDaftarUlangActive) && $isDaftarUlangActive) {
+            $navLinks[] = [
+            'label' => 'Daftar Ulang',
+            'icon' => 'fa-clipboard-check',
+            'route' => 'daftar-ulang',
+            'active' => request()->routeIs('daftar-ulang')
+            ];
+            }
+
+            // 3. Tambahkan rute penutup di bagian akhir array
+            $navLinks[] = ['label' => 'Bantuan', 'icon' => 'fa-circle-question', 'route' => 'bantuan', 'active' => request()->routeIs('bantuan')];
+            $navLinks[] = ['label' => 'Pengumuman', 'icon' => 'fa-bullhorn', 'route' => 'pengumuman', 'active' => request()->routeIs('pengumuman')];
             @endphp
 
             @foreach($navLinks as $link)

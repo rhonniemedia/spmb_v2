@@ -138,7 +138,7 @@
                     <i class="fa-solid fa-gauge"></i> Kembali ke Dashboard
                 </a>
                 <span class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/15 text-white text-[13px] font-bold rounded-full border border-white/25 cursor-default">
-                    <i class="fa-solid fa-id-badge"></i> No. Peserta: SPMB-2026-004821
+                    <i class="fa-solid fa-id-badge"></i> Akun Terverifikasi: {{ auth()->user()?->email_verified_at?->format('d M Y, H:i') }} WIB
                 </span>
             </div>
         </div>

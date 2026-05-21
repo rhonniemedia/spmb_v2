@@ -54,8 +54,8 @@
         @csrf
 
         {{-- ── INPUT COORDINATE HIDDEN (DIKIRIM KE BACKEND) ── --}}
-        <input type="hidden" name="rumah_lat" id="input-rumah-lat">
-        <input type="hidden" name="rumah_lng" id="input-rumah-lng">
+        <input type="hidden" name="rumah_lat" id="input-rumah-lat" value="{{ $registrationZone?->house_latitude ?? '' }}">
+        <input type="hidden" name="rumah_lng" id="input-rumah-lng" value="{{ $registrationZone?->house_longitude ?? '' }}">
 
         <div class="space-y-6">
             {{-- ── BAGIAN ALAMAT TEKS (UNTUK REKAM ARSIP DATA) ── --}}
@@ -164,7 +164,12 @@
 
         {{-- ── KONTEN DYNAMIC RESPONSE DARI BACKEND ── --}}
         <div id="hasil-jarak">
-            {{-- Bagian ini akan di-swap oleh HTMX membawa data jarak, label zona, dan pemicu garis polyline --}}
+            @if($registrationZone)
+            @include('pages.user.partials.pendaftaran._hasil_jarak', [
+            'jarak' => round($registrationZone->calculated_distance_meters / 1000, 2),
+            'jarakMeter' => round($registrationZone->calculated_distance_meters)
+            ])
+            @endif
         </div>
 
         {{-- ── WADAH ERROR VALIDATION / ZONASI ── --}}
@@ -220,90 +225,126 @@
 
 @push('scripts')
 <script>
-    // Inisialisasi variabel global scope instansiasi peta Leaflet
-    var mapZonasiUtama = null; // Set default null untuk pengecekan x-effect
+    // 1. Variabel Global (TETAP DIAMBIL DARI SCRIPT LAMA)
+    var mapZonasiUtama = null;
     var markerRumahDinamis;
     var polylineRuteHubung = null;
     var markerSekolahDinamis = null;
 
-    // Titik Default Awal: Ambil dari konfigurasi koordinat sekolah
     const latSekolahAwal = parseFloat("{{ config('sekolah.lat', -3.45678) }}");
     const lngSekolahAwal = parseFloat("{{ config('sekolah.lng', 102.34567) }}");
 
-    // Hapus document.addEventListener("DOMContentLoaded") agar tidak dipaksa load saat element disembunyikan
-
+    // 2. Fungsi initInstanPetaZonasi (INI YANG DIUBAH / DI-REPLACE TOTAL)
     function initInstanPetaZonasi() {
         const mapContainer = document.getElementById('peta-interaktif-zonasi');
         if (!mapContainer || mapZonasiUtama !== null) return;
 
-        // 1. Instansiasi Peta pusat awal di koordinat SMK tujuan
+        // Ambil koordinat lama dari database jika ada
+        const latTersimpan = parseFloat(document.getElementById('input-rumah-lat').value);
+        const lngTersimpan = parseFloat(document.getElementById('input-rumah-lng').value);
+
+        const isDataExisting = !isNaN(latTersimpan) && !isNaN(lngTersimpan) && latTersimpan !== 0;
+
+        const pusatLat = isDataExisting ? latTersimpan : latSekolahAwal;
+        const pusatLng = isDataExisting ? lngTersimpan : lngSekolahAwal;
+
+        // Instansiasi Peta
         mapZonasiUtama = L.map('peta-interaktif-zonasi', {
             zoomControl: true,
             scrollWheelZoom: false
-        }).setView([latSekolahAwal, lngSekolahAwal], 15);
+        }).setView([pusatLat, pusatLng], isDataExisting ? 17 : 15);
 
-        // 2. Load Tile OpenStreetMap
+        // Load Tile OSM
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
             maxZoom: 19
         }).addTo(mapZonasiUtama);
 
-        // 3. Custom divIcon bergaya modern minimalis (Rumah = Hijau Emerald)
+        // Style Ikon Rumah (Emerald) & Sekolah (Red)
         const styleIkonRumah = L.divIcon({
             html: '<div style="background:#10B981;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>',
             className: '',
             iconAnchor: [8, 8],
         });
 
-        // 4. Tambahkan Marker Rumah yang bersifat Draggable
-        markerRumahDinamis = L.marker([latSekolahAwal, lngSekolahAwal], {
+        const styleIkonSekolah = L.divIcon({
+            html: '<div style="background:#FF1443;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>',
+            className: '',
+            iconAnchor: [8, 8],
+        });
+
+        // Tambahkan Marker Rumah
+        markerRumahDinamis = L.marker([pusatLat, pusatLng], {
             draggable: true,
             icon: styleIkonRumah
         }).addTo(mapZonasiUtama);
 
-        markerRumahDinamis.bindPopup('<div class="text-xs font-bold text-gray-800">Posisi Rumah Anda</div><div class="text-[10px] text-gray-500">Geser titik ini tepat di atas atap rumah domisili Anda sekarang.</div>').openPopup();
+        markerRumahDinamis.bindPopup('<div class="text-xs font-bold text-gray-800">Posisi Rumah Anda</div><div class="text-[10px] text-gray-500">Geser titik ini tepat di atas atap rumah domisili Anda sekarang.</div>');
+        if (!isDataExisting) markerRumahDinamis.openPopup();
 
-        // 5. Fungsi pengisi value koordinat mentah ke input tersembunyi
+        // Jika data sudah ada di DB, buat penanda sekolah dan garis hubung sejak awal
+        if (isDataExisting) {
+            markerSekolahDinamis = L.marker([latSekolahAwal, lngSekolahAwal], {
+                icon: styleIkonSekolah
+            }).addTo(mapZonasiUtama);
+            markerSekolahDinamis.bindPopup('<b>{{ config("sekolah.nama", "SMK Negeri") }}</b>');
+
+            polylineRuteHubung = L.polyline([
+                [latTersimpan, lngTersimpan],
+                [latSekolahAwal, lngSekolahAwal]
+            ], {
+                color: '#10B981',
+                weight: 3,
+                dashArray: '6, 8',
+                opacity: 0.8
+            }).addTo(mapZonasiUtama);
+
+            mapZonasiUtama.fitBounds([
+                [latTersimpan, lngTersimpan],
+                [latSekolahAwal, lngSekolahAwal]
+            ], {
+                padding: [40, 40]
+            });
+        }
+
         function pasokKoordinatForm(lat, lng) {
             document.getElementById('input-rumah-lat').value = lat.toFixed(7);
             document.getElementById('input-rumah-lng').value = lng.toFixed(7);
         }
 
-        // Jalankan pasok data koordinat awal saat halaman dirender pertama kali
-        pasokKoordinatForm(latSekolahAwal, lngSekolahAwal);
+        if (!isDataExisting) {
+            pasokKoordinatForm(latSekolahAwal, lngSekolahAwal);
+        }
 
-        // 6. EVENT: Deteksi perpindahan ketika marker selesai digeser user
+        // Event Drag Marker Rumah
         markerRumahDinamis.on('dragend', function(e) {
             const titikBaru = markerRumahDinamis.getLatLng();
             pasokKoordinatForm(titikBaru.lat, titikBaru.lng);
             hapusGarisRuteLama();
         });
 
-        // 7. EVENT: Geser marker otomatis ke titik manapun yang diklik pada peta
+        // Event Klik Peta
         mapZonasiUtama.on('click', function(e) {
             markerRumahDinamis.setLatLng(e.latlng);
             pasokKoordinatForm(e.latlng.lat, e.latlng.lng);
             hapusGarisRuteLama();
         });
 
-        // Paksa hitung ulang dimensi peta setelah init sukses
         setTimeout(() => {
             mapZonasiUtama.invalidateSize();
         }, 100);
     }
 
-    // Fungsi pembantu menghapus polyline
+    // 3. Fungsi Hapus Garis (TETAP DIAMBIL DARI SCRIPT LAMA)
     function hapusGarisRuteLama() {
         if (polylineRuteHubung !== null) {
             mapZonasiUtama.removeLayer(polylineRuteHubung);
             polylineRuteHubung = null;
         }
-
-        // Reset state jarakSudahDicek ke root Alpine
         window.dispatchEvent(new CustomEvent('jarak-direset'));
     }
 
-    // Fungsi mengambil koordinat sensor GPS dari perangkat
+    // 4. Fungsi Ambil GPS Perangkat (TETAP DIAMBIL DARI SCRIPT LAMA)
     function panggilGPSOtomatis() {
         if (!navigator.geolocation) {
             alert("Maaf, penjelajah web (browser) Anda belum mendukung deteksi GPS internal perangkat.");
@@ -331,7 +372,7 @@
         });
     }
 
-    // EVENT HTMX: Tangkap pasca swap HTML respon kalkulasi dari backend
+    // 5. Listener HTMX afterSwap (TETAP DIAMBIL DARI SCRIPT LAMA)
     document.body.addEventListener('htmx:afterSwap', function(e) {
         if (e.detail.target.id !== 'hasil-jarak') return;
 
@@ -372,24 +413,20 @@
             });
         }
 
-        // Dispatch event ke root Alpine setelah swap selesai
         window.dispatchEvent(new CustomEvent('jarak-dihitung'));
     });
 
-    // EVENT HTMX: Menangkap response error (seperti HTTP 422 dari validasi backend)
+    // 6. Listener HTMX responseError (TETAP DIAMBIL DARI SCRIPT LAMA)
     document.body.addEventListener('htmx:responseError', function(e) {
-        // Pastikan error berasal dari request zonasi hitung atau saveStep3
         if (e.detail.xhr.status === 422) {
             try {
                 const response = JSON.parse(e.detail.xhr.responseText);
                 let pesanError = response.message || "Terjadi kesalahan validasi pada data lokasi Anda.";
 
-                // Jika ada detail error validasi Laravel form (object errors)
                 if (response.errors) {
                     pesanError = Object.values(response.errors).flat().join(' ');
                 }
 
-                // Tampilkan pesan error ke komponen blade
                 const errorContainer = document.getElementById('error-zonasi');
                 const errorText = document.getElementById('error-zonasi-pesan');
 
@@ -397,7 +434,6 @@
                     errorText.innerText = pesanError;
                     errorContainer.classList.remove('hidden');
 
-                    // Scroll otomatis ke arah teks error agar pendaftar langsung melihatnya
                     errorContainer.scrollIntoView({
                         behavior: 'smooth',
                         block: 'center'
@@ -409,7 +445,6 @@
         }
     });
 
-    // Sembunyikan error secara otomatis jika user menggeser ulang map atau memanggil GPS baru
     window.addEventListener('jarak-direset', function() {
         const errorContainer = document.getElementById('error-zonasi');
         if (errorContainer) errorContainer.classList.add('hidden');
