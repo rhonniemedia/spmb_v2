@@ -7,8 +7,8 @@
             </div>
             <div>
                 <div class="text-sm font-black leading-tight text-[#080C1A]">Portal SPMB</div>
-                <div class="text-xs text-[#6A7686] hidden xs:block sm:block">SMK Negeri 1 Rejang Lebong</div>
-                <div class="text-xs text-[#6A7686] sm:hidden">SMKN 1 Rejang Lebong</div>
+                <div class="text-xs text-[#6A7686] hidden xs:block sm:block">{{ $g_schoolInfo->name }}</div>
+                <div class="text-xs text-[#6A7686] sm:hidden">{{ $g_schoolInfo->name }}</div>
             </div>
         </a>
 
@@ -21,7 +21,7 @@
             ];
 
             // 2. LOGIKABARU: Sisipkan Daftar Ulang secara dinamis di sini (sebelum Bantuan & Pengumuman)
-            if (isset($isDaftarUlangActive) && $isDaftarUlangActive) {
+            if (isset($g_isDaftarUlangActive) && $g_isDaftarUlangActive) {
             $navLinks[] = [
             'label' => 'Daftar Ulang',
             'icon' => 'fa-clipboard-check',
@@ -61,9 +61,11 @@
 
                     <div class="w-[26px] h-[26px] rounded-full flex items-center justify-center font-black text-white text-[11px] flex-shrink-0"
                         style="background: linear-gradient(135deg, #FF1443, #FF6B8A);">
-                        {{-- Logika mengambil inisial dari nama user --}}
+                        {{-- Logika mengambil inisial dari real_name user --}}
                         @php
-                        $name = Auth::user()->name;
+                        // Menggunakan real_name yang sudah kita buat di Model User
+                        $name = Auth::user()->real_name;
+
                         $initials = collect(explode(' ', $name))
                         ->map(fn($segment) => mb_substr($segment, 0, 1))
                         ->take(2)
@@ -72,8 +74,9 @@
                         {{ strtoupper($initials) }}
                     </div>
 
+                    {{-- Menampilkan nama asli yang dinamis --}}
                     <span class="hidden sm:inline text-[13px] font-bold text-[#080C1A] whitespace-nowrap">
-                        {{ Auth::user()->name }}
+                        {{ Auth::user()->real_name }}
                     </span>
 
                     <i class="fa-solid fa-chevron-down text-[10px] text-[#6A7686] transition-transform"

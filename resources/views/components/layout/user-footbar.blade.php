@@ -13,18 +13,28 @@
                     </div>
                     <div>
                         <p class="font-bold text-white text-sm">SMK Negeri 1</p>
-                        <p class="text-xs text-primary/70">Rejang Lebong</p>
+                        <p class="text-xs text-primary/70">{{ $g_schoolInfo->city ?? '' }}</p>
                     </div>
                 </div>
                 <p class="text-slate-400 text-sm leading-relaxed mb-6">
                     Mencetak generasi kompeten dan berkarakter untuk menghadapi tantangan industri masa depan.
                 </p>
                 <div class="flex gap-3">
-                    @foreach(['instagram', 'facebook', 'youtube', 'tiktok'] as $social)
-                    <a href="#" class="w-9 h-9 rounded-xl flex items-center justify-center border border-white/10 bg-white/5 hover:border-primary/40 hover:bg-primary/10 transition-all group">
-                        <i class="fa-brands fa-{{ $social }} text-slate-400 group-hover:text-primary text-sm"></i>
+                    @if($g_schoolInfo && is_array($g_schoolInfo->social_media))
+                    @foreach($g_schoolInfo->social_media as $social)
+                    {{-- Cek apakah url dan platform tidak kosong --}}
+                    @if(!empty($social['url']) && !empty($social['platform']))
+                    <a href="{{ $social['url'] }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="{{ Str::title($social['platform']) }}"
+                        class="w-9 h-9 rounded-xl flex items-center justify-center border border-white/10 bg-white/5 hover:border-primary/40 hover:bg-primary/10 transition-all group">
+                        {{-- Nama platform (instagram, facebook, dll) langsung dijadikan nama class icon --}}
+                        <i class="fa-brands fa-{{ strtolower($social['platform']) }} text-slate-400 group-hover:text-primary text-sm"></i>
                     </a>
+                    @endif
                     @endforeach
+                    @endif
                 </div>
             </div>
 
@@ -33,14 +43,11 @@
                     <span class="w-1.5 h-4 bg-primary rounded-full"></span> Program Keahlian
                 </h4>
                 <ul class="space-y-3">
-                    @php
-                    $jurusan = ['Rekayasa Perangkat Lunak', 'Teknik Komputer & Jaringan', 'Multimedia / DKV', 'Akuntansi & Keuangan', 'Teknik Kendaraan Ringan'];
-                    @endphp
-                    @foreach($jurusan as $j)
+                    @foreach($g_concentrations as $concentration)
                     <li>
                         <a href="#" class="text-slate-400 text-sm hover:text-primary transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-circle text-[4px] text-primary/40"></i>
-                            {{ $j }}
+                            {{ $concentration->name ?? '-' }}
                         </a>
                     </li>
                     @endforeach
@@ -57,20 +64,22 @@
                             <i class="fa-solid fa-location-dot"></i>
                         </div>
                         <p class="text-slate-400 text-sm leading-relaxed">
-                            Jl. Kapten A. Rivai No. 47, Palembang, Sumatera Selatan 30129
+                            {{ $g_schoolInfo->address ?? '' }}, {{ $g_schoolInfo->village ?? '' }}<br>{{ $g_schoolInfo->district ?? '' }} {{ $g_schoolInfo->postal_code ?? '' }}
                         </p>
                     </li>
                     <li class="flex gap-3 items-center">
                         <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 text-primary">
                             <i class="fa-solid fa-phone"></i>
                         </div>
-                        <a href="tel:+62711123456" class="text-slate-400 text-sm hover:text-primary transition-colors">(0711) 123-456</a>
+                        <a href="tel:+62711123456" class="text-slate-400 text-sm hover:text-primary transition-colors">{{ $g_schoolInfo->phone ?? '' }}</a>
                     </li>
                     <li class="flex gap-3 items-center">
-                        <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0 text-green-400">
-                            <i class="fa-brands fa-whatsapp"></i>
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 text-blue-400">
+                            <i class="fa-solid fa-envelope"></i>
                         </div>
-                        <a href="#" class="text-slate-400 text-sm hover:text-green-400 transition-colors">+62 812-3456-7890</a>
+                        <a href="mailto:{{ $g_schoolInfo->email ?? '' }}" class="text-slate-400 text-sm hover:text-blue-400 transition-colors">
+                            {{ $g_schoolInfo->email ?? '' }}
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -78,7 +87,7 @@
 
         <div class="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p class="text-slate-500 text-[11px]">
-                © 2026 SMK Negeri 1 Kota Palembang. Dikembangkan untuk Portal SPMB.
+                © {{ now()->year }} {{ $g_schoolInfo->name ?? '' }}. Dikembangkan untuk Portal SPMB.
             </p>
             <div class="flex gap-6">
                 <a href="#" class="text-slate-500 text-[11px] hover:text-slate-300 transition-colors">Kebijakan Privasi</a>

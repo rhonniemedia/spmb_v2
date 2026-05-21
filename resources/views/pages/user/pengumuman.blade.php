@@ -293,57 +293,7 @@
             </div>
         </div>
 
-        {{-- Highlight — Wajib Dibaca (dari $urgentAnnouncement) --}}
-        @if($urgentAnnouncement)
-        @php
-        $us = $categorySettings[$urgentAnnouncement->category] ?? ['color' => 'gray', 'icon' => 'fa-circle-info', 'label' => $urgentAnnouncement->category];
-        $uc = $colorMap[$us['color']] ?? $colorMap['gray'];
-        @endphp
-        <div class="bg-white border border-gray-200 rounded-card shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 class="text-base font-black text-[#080C1A]">Wajib Dibaca</h3>
-                <span class="text-[12px] font-black text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full uppercase">Penting</span>
-            </div>
-            <div class="p-5">
-                <div class="flex gap-3 mb-3">
-                    <div class="w-10 h-10 rounded-[12px] {{ $uc['iconBg'] }} flex items-center justify-center flex-shrink-0 text-[16px]">
-                        <i class="fa-solid {{ $us['icon'] }}"></i>
-                    </div>
-                    <div>
-                        <span class="text-[11px] font-black {{ $uc['katColor'] }} px-2 py-0.5 rounded-full uppercase tracking-wide border">
-                            {{ $us['label'] }}
-                        </span>
-                        <h4 class="text-[14px] font-black text-[#080C1A] leading-snug mt-1">
-                            {{ $urgentAnnouncement->title }}
-                        </h4>
-                    </div>
-                </div>
-                <p class="text-[13px] text-[#6A7686] leading-relaxed mb-3">
-                    {{ Str::limit(strip_tags($urgentAnnouncement->content ?? ''), 100) }}
-                </p>
-                <a href="#"
-                    class="inline-flex w-full items-center justify-center gap-2 px-4 py-[9px] rounded-full text-[13px] font-black text-primary bg-primary/5 border border-primary/20 no-underline hover:bg-primary/10 transition-all">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i> Buka Pengumuman
-                </a>
-            </div>
-        </div>
-        @endif
-
-        {{-- Butuh Bantuan --}}
-        <div class="bg-white border border-gray-200 rounded-card shadow-sm overflow-hidden">
-            <div class="px-5 py-4">
-                <p class="text-[13px] font-bold text-[#080C1A] flex items-center gap-1.5 mb-1">
-                    <i class="fa-solid fa-circle-question text-primary text-[14px]"></i> Butuh Bantuan?
-                </p>
-                <p class="text-[13px] text-[#6A7686] leading-relaxed mb-3">
-                    Panitia SPMB siap membantu selama jam kerja <strong class="text-[#080C1A]">08:00–16:00 WIB</strong>.
-                </p>
-                <a href="https://wa.me/6281234567890" target="_blank"
-                    class="inline-flex w-full items-center justify-center gap-[7px] px-4 py-[9px] rounded-full text-[14px] font-bold no-underline bg-white border-[1.5px] border-[#25D366] text-[#25D366] hover:-translate-y-px transition-all">
-                    <i class="fa-brands fa-whatsapp text-[15px]"></i> Chat WhatsApp Panitia
-                </a>
-            </div>
-        </div>
+        @include ('pages.user.partials.biodata._sidebar')
 
     </div>
 </div>

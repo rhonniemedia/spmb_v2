@@ -13,14 +13,19 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// --- GOOGLE AUTH ---
-Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.login');
-Route::get('auth/google/callback', [GoogleController::class, 'callback']);
+Route::middleware('guest')->group(function () {
+    // Halaman utama / Landing Page
+    Route::get('/', [LandingPageController::class, 'index'])->name('home');
 
-// --- REGISTRASI MANUAL ---
-Route::get('/auth/login', fn() => view('pages.auth.login'))->name('login');
-Route::get('/auth/register', fn() => view('pages.auth.register'))->name('register');
-Route::post('/register', [RegisteredUserController::class, 'store']);
+    // Halaman Auth Manual
+    Route::get('/auth/login', fn() => view('pages.auth.login'))->name('login');
+    Route::get('/auth/register', fn() => view('pages.auth.register'))->name('register');
+    Route::post('/register', [RegisteredUserController::class, 'store']);
+
+    // Google Auth (Hanya untuk login/registrasi baru)
+    Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.login');
+    Route::get('auth/google/callback', [GoogleController::class, 'callback']);
+});
 
 // --- VERIFIKASI EMAIL ---
 Route::get('/email/verify', fn() => view('pages.auth.verify-email'))->middleware('auth')->name('verification.notice');
@@ -28,9 +33,6 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     $request->fulfill();
     return redirect('/dashboard');
 })->middleware(['auth', 'signed'])->name('verification.verify');
-
-// --- DASHBOARD ---
-Route::get('/', [LandingPageController::class, 'index'])->name('home');
 
 // ADMIN DASHBOARD
 Route::get('/admin/dashboard', fn() => view('pages.admin.dashboard'))->name('admin.dashboard');
@@ -87,7 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/success', [RegistrationDataController::class, 'successScreen'])->name('success');
         });
 
-        Route::view('/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang')->middleware('check.daftar.ulang');
+        Route::view('/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang');
         Route::get('/support', [FaqController::class, 'index'])->name('bantuan');
         Route::get('/announcements', [AnnouncementController::class, 'index'])->name('pengumuman');
     });

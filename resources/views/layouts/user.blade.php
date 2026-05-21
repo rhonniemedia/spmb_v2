@@ -56,7 +56,7 @@
     </script>
 </head>
 
-<body class="user-dashboard font-sans bg-gray-50 text-[#080C1A] min-h-screen" x-data="{ mobileMenu: false }">
+<body class="user-dashboard font-sans bg-gray-50 text-[#080C1A] min-h-screen" x-data="{ mobileMenu: false, modalWhatsapp: false }">
 
     @include('components.layout.user-topbar')
 
@@ -65,6 +65,7 @@
     </main>
 
     @include('components.layout.user-footbar')
+    @include('components.layout.whatsapp-modal')
 
     <script>
         // Gunakan document saja, tidak perlu document.body agar bisa diletakkan di head

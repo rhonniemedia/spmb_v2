@@ -12,10 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
-        // ── DAFTARKAN ALIAS MIDDLEWARE ANDA DI SINI ──
-        $middleware->alias([
-            'check.daftar.ulang' => \App\Http\Middleware\CheckDaftarUlangSchedule::class,
-        ]);
+        // Mengatur tujuan pengalihan (redirect) untuk middleware 'guest' jika user SUDAH login
+        $middleware->redirectTo(
+            '/auth/login',       // Parameter 1 (guest): Jika belum login, dilempar ke sini
+            '/user/dashboard'    // Parameter 2 (auth): Jika sudah login tapi akses halaman 'guest', dilempar ke sini
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

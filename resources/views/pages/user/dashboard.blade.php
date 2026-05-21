@@ -27,7 +27,7 @@
             <i class="fa-solid fa-circle-dot text-[10px] animate-pulse"></i> Status Pendaftaran
         </div>
         <h1 class="text-xl md:text-2xl font-black text-white mb-1 leading-tight">
-            Selamat, Ahmad! Pendaftaran Kamu Aktif!
+            Selamat, {{ auth()->user()->first_name }}! Pendaftaran Kamu Aktif!
         </h1>
         <p class="text-sm text-white/80 leading-relaxed mb-5 max-w-[540px]">
             Dokumen sedang diverifikasi oleh panitia SPMB. Pengumuman hasil seleksi akan dirilis pada
@@ -196,6 +196,9 @@
                 @endforeach
             </div>
         </div>
+
+        @include('pages.user.partials.biodata._sidebar')
+
     </div>
 </div>
 @endsection
