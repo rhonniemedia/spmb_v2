@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ConcentrationSeeder::class,
             SchoolSeeder::class,
             SpmbStepSeeder::class,
+            RequirementSeeder::class,
             // Seeder lainnya...
         ]);
 

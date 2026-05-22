@@ -20,12 +20,6 @@ return new class extends Migration
             $table->foreignUuid('choice_2')->nullable()->constrained('concentrations');
             $table->foreignUuid('choice_3')->nullable()->constrained('concentrations');
 
-            // --- BERKAS UMUM FISIK (SCAN) ---
-            $table->string('diploma_file')->nullable();
-            $table->string('graduation_letter_file')->nullable();
-            $table->string('report_card_file')->nullable();
-            $table->string('birth_certificate_file')->nullable();
-
             // --- DATA NILAI (DARI STEP 1: NILAI & TKA) ---
             // Nilai Rapor Per Semester (Menggunakan decimal agar presisi)
             $table->decimal('report_sem_1', 5, 2)->nullable();

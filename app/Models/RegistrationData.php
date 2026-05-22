@@ -80,4 +80,10 @@ class RegistrationData extends Model
     {
         return $this->belongsTo(Concentration::class, 'choice_3');
     }
+
+    public function documents()
+    {
+        // Mengambil semua dokumen yang sudah diunggah oleh siswa ini beserta detail requirement-nya
+        return $this->hasMany(RegistrationDocument::class);
+    }
 }
