@@ -32,10 +32,16 @@ class SchoolSeeder extends Seeder
                 'school_logo_path' => null,
                 'government_logo_path' => null,
 
-                // ── DATA SEEDER UNTUK KOLOM WHATSAPP (JSON ARRAY) ──
+                // ── DATA SEEDER UNTUK KOLOM WHATSAPP (JSON ARRAY OF OBJECTS) ──
                 'whatsapp_numbers' => [
-                    '081234567890', // Nomor Utama / Admin PPDB
-                    '089876543210'  // Nomor Cadangan / Humas
+                    [
+                        'name' => 'Admin SPMB 1',
+                        'number' => '081234567890'
+                    ],
+                    [
+                        'name' => 'Admin SPMB 2',
+                        'number' => '089876543210'
+                    ]
                 ],
 
                 // ── DATA SEEDER UNTUK SOSIAL MEDIA (JSON ARRAY OF OBJECTS) ──

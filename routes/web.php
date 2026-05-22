@@ -9,6 +9,7 @@ use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\ParentDataController;
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\RegistrationDataController;
+use App\Http\Controllers\UserDashboardController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,7 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // --- KELOMPOK USER ---
     Route::prefix('user')->group(function () {
-        Route::view('/dashboard', 'pages.user.dashboard')->name('dashboard');
+        Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 
         // Halaman Utama Biodata (Tampilan Form)
         Route::get('/biodata', [PersonalDataController::class, 'index'])->name('biodata');
