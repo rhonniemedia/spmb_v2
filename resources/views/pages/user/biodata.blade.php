@@ -71,34 +71,35 @@
 @endpush
 
 <div x-data="{
-    step: 1,
-    totalSteps: 6,
-    isSubmitted: false,
-    submitResult: {},
-    showWali: false,
-    sameAddress: false,
-    files: { foto: null },
-    get progressPct() {
-        return Math.round((this.step / this.totalSteps) * 100);
-    },
-    stepLabels: ['Data Pribadi','Alamat','Orang Tua','Pendidikan','Pas Foto','Konfirmasi'],
-    stepIcons: ['fa-user','fa-location-dot','fa-people-roof','fa-book-open-reader','fa-camera','fa-clipboard-check'],
-    sidebarStatus(i) {
-        if (i < this.step) return 'done';
-        if (i === this.step) return 'active';
-        return 'pending';
-    },
-    init() {
-        this.$watch('step', (val) => {
-            if (val === 6) {
-                htmx.ajax('GET', '{{ route('biodata.summary') }}', {
-                    target: '#summary-container',
-                    swap: 'innerHTML'
-                });
-            }
-        });
-    }
-}">
+        step: 1,
+        totalSteps: 6,
+        isSubmitted: false,
+        submitResult: {},
+        showWali: false,
+        sameAddress: false,
+        files: { foto: null },
+        get progressPct() {
+            return Math.round((this.step / this.totalSteps) * 100);
+        },
+        stepLabels: ['Data Pribadi','Alamat','Orang Tua','Pendidikan','Pas Foto','Konfirmasi'],
+        stepIcons: ['fa-user','fa-location-dot','fa-people-roof','fa-book-open-reader','fa-camera','fa-clipboard-check'],
+        sidebarStatus(i) {
+            if (i < this.step) return 'done';
+            if (i === this.step) return 'active';
+            return 'pending';
+        },
+        init() {
+            this.$watch('step', (val) => {
+                if (val === 6) {
+                    htmx.ajax('GET', '{{ route('biodata.summary') }}', {
+                        target: '#summary-container',
+                        swap: 'innerHTML'
+                    });
+                }
+            });
+        }
+    }"
+    x-on:biodata-submitted.window="submitResult = $event.detail; isSubmitted = true">
 
     {{-- ══════════════════════════════════════════
             BREADCRUMB
@@ -199,10 +200,10 @@
 
                                 {{-- Status icon (Lingkaran) --}}
                                 <div :class="{
-                            'bg-[#FF1443] text-white': sidebarStatus(idx + 1) === 'active',
-                            'bg-green-500 text-white': sidebarStatus(idx + 1) === 'done',
-                            'bg-gray-100 text-[#B0B9C4]': sidebarStatus(idx + 1) === 'pending'
-                        }" class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300">
+                                    'bg-[#FF1443] text-white': sidebarStatus(idx + 1) === 'active',
+                                    'bg-green-500 text-white': sidebarStatus(idx + 1) === 'done',
+                                    'bg-gray-100 text-[#B0B9C4]': sidebarStatus(idx + 1) === 'pending'
+                                }" class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300">
 
                                     {{-- Jika Selesai: Tampilkan Icon Check --}}
                                     <template x-if="sidebarStatus(idx + 1) === 'done'">
@@ -223,10 +224,10 @@
                                 {{-- Label --}}
                                 <div class="flex-1 min-w-0">
                                     <span :class="{
-                                'text-[#080C1A] font-black': sidebarStatus(idx + 1) === 'active',
-                                'text-[#080C1A] font-bold': sidebarStatus(idx + 1) === 'done',
-                                'text-[#B0B9C4] font-medium': sidebarStatus(idx + 1) === 'pending'
-                            }" class="text-[13px] block truncate" x-text="label"></span>
+                                        'text-[#080C1A] font-black': sidebarStatus(idx + 1) === 'active',
+                                        'text-[#080C1A] font-bold': sidebarStatus(idx + 1) === 'done',
+                                        'text-[#B0B9C4] font-medium': sidebarStatus(idx + 1) === 'pending'
+                                    }" class="text-[13px] block truncate" x-text="label"></span>
                                 </div>
 
                                 {{-- Badge --}}
@@ -263,11 +264,8 @@
         </div>
     </div>
 
-
-</div>{{-- /two-col grid --}}
-
-<!-- SUCCESS SCREEN -->
-@include('pages.user.partials.biodata._success_screen')
+    <!-- SUCCESS SCREEN -->
+    @include('pages.user.partials.biodata._success_screen')
 
 </div>{{-- /x-data --}}
 

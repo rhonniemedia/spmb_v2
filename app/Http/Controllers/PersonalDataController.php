@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PersonalData;
 use App\Models\SpmbStep;
+use App\Notifications\BiodataFinalizedNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -357,6 +358,15 @@ class PersonalDataController extends Controller
         $personal->profile_status = 'final';
         $personal->save();
 
+        // ─── AMBIL USER & KIRIM NOTIFIKASI SECARA INSTAN ───
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if ($user) {
+            // Kirim notifikasi 'Biodata Berhasil Dikunci!' ke database pendaftar
+            $user->notify(new BiodataFinalizedNotification());
+        }
+
+        // Mengembalikan response JSON dengan tambahan header HX-Trigger untuk HTMX
         return response()->json([
             'success'        => true,
             'profile_status' => $personal->profile_status,
@@ -364,7 +374,10 @@ class PersonalDataController extends Controller
             'full_name'       => $personal->full_name,
             'previous_school' => $personal->previous_school,
             'phone_number'    => $personal->phone_number,
-        ]);
+        ])->header('HX-Trigger', json_encode([
+            'refresh-notifications' => true,
+            'biodata-submitted'     => true,
+        ]));
     }
 
     /*

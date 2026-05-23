@@ -557,20 +557,8 @@
             </div>
 
             {{-- Kontak Layanan Bantuan Pasien --}}
-            <div class="bg-white border border-[#E5E7EB] rounded-[20px] overflow-hidden shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-                <div class="px-[18px] py-[14px]">
-                    <p class="text-[14px] font-bold mb-2 flex items-center gap-[6px]">
-                        <i class="fa-solid fa-circle-question text-[14px] text-[#FF1443]"></i>Butuh Bantuan?
-                    </p>
-                    <p class="text-[13px] text-[#6A7686] leading-relaxed mb-3">
-                        Panitia SPMB siap membantu selama jam kerja resmi 08:00–16:00 WIB.
-                    </p>
-                    <a href="https://wa.me/6281234567890" target="_blank"
-                        class="inline-flex w-full items-center justify-center gap-[7px] px-4 py-[9px] rounded-full font-sans text-[14px] font-bold no-underline bg-white border-[1.5px] border-[#25D366] text-[#25D366] hover:-translate-y-px transition-all">
-                        <i class="fa-solid fa-comment text-[13px]"></i> Chat WhatsApp Panitia
-                    </a>
-                </div>
-            </div>
+            @include ('pages.user.partials.biodata._sidebar')
+
 
         </div>{{-- /sidebar --}}
 

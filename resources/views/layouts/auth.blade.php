@@ -11,6 +11,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}" />
 
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+    <!-- Alpine.js (harus SEBELUM scripts lain yang pakai Alpine) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- x-cloak: sembunyikan elemen Alpine sebelum init -->
+    <style>
+        [x-cloak] {
+            display: none !important
+        }
+    </style>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 </head>
@@ -140,7 +151,7 @@
         style.textContent = `@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }`;
         document.head.appendChild(style);
     </script>
-
+    @stack('scripts')
 </body>
 
 </html>

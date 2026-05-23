@@ -50,10 +50,83 @@
         </div>
 
         <div class="flex items-center gap-3 ml-auto">
-            <div class="relative w-[34px] h-[34px] rounded-[10px] bg-gray-50 border border-gray-200 flex items-center justify-center cursor-pointer text-[#6A7686] text-[13px] hover:border-primary hover:text-primary transition-all">
-                <i class="fa-solid fa-bell"></i>
-                <div class="absolute top-[5px] right-[5px] w-[7px] h-[7px] rounded-full bg-primary border-2 border-white"></div>
+            @auth
+            @php
+            $unreadNotifications = auth()->user()->unreadNotifications;
+            $allNotifications = auth()->user()->notifications()->take(5)->get();
+            @endphp
+
+            <!-- Wrapper Lonceng Notifikasi dengan Alpine.js -->
+            <div class="relative" x-data="{ openNotif: false }">
+
+                <button @click="openNotif = !openNotif"
+                    hx-get="{{ route('notifications.dropdown') }}"
+                    hx-trigger="click, every 15s, refresh-notifications from:body"
+                    hx-target="#notification-list"
+                    class="relative w-[34px] h-[34px] rounded-[10px] bg-gray-50 border border-gray-200 flex items-center justify-center cursor-pointer text-[#6A7686] text-[13px] hover:border-primary hover:text-primary transition-all focus:outline-none">
+                    <i class="fa-solid fa-bell"></i>
+
+                    <div id="notification-badge">
+                        @if($unreadNotifications->count() > 0)
+                        <div class="absolute top-[5px] right-[5px] w-[8px] h-[8px] rounded-full bg-primary border-2 border-white animate-pulse"></div>
+                        @endif
+                    </div>
+                </button>
+
+                <div x-show="openNotif"
+                    @click.away="openNotif = false"
+                    x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-[15px] shadow-xl py-2 z-[300]"
+                    style="display: none;">
+
+                    <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
+                        <span class="text-xs font-black text-[#080C1A]">Pemberitahuan</span>
+
+                        <span id="notification-count-header">
+                            @if($unreadNotifications->count() > 0)
+                            <span class="text-[10px] bg-red-50 text-red-500 px-2 py-0.5 rounded-full font-bold">
+                                {{ $unreadNotifications->count() }} Baru
+                            </span>
+                            @endif
+                        </span>
+                    </div>
+
+                    <div id="notification-list" class="max-h-64 overflow-y-auto custom-scrollbar">
+                        @forelse($allNotifications as $notification)
+                        <a href="{{ route('notifications.read', $notification->id) }}"
+                            class="flex gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 {{ $notification->read_at ? 'opacity-60' : 'bg-primary/5' }}">
+
+                            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                                <i class="fa-solid {{ $notification->data['icon'] ?? 'fa-info' }} {{ $notification->data['color'] ?? 'text-gray-500' }} text-sm"></i>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-bold text-gray-800 {{ $notification->read_at ? 'font-normal' : 'font-bold' }}">
+                                    {{ $notification->data['title'] }}
+                                </p>
+                                <p class="text-[11px] text-[#6A7686] mt-0.5 line-clamp-2 leading-relaxed">
+                                    {{ $notification->data['message'] }}
+                                </p>
+                                <span class="text-[9px] text-gray-400 block mt-1">
+                                    <i class="fa-regular fa-clock mr-0.5"></i> {{ $notification->created_at->diffForHumans() }}
+                                </span>
+                            </div>
+                        </a>
+                        @empty
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="fa-solid fa-bell-slash text-xl mb-1 block text-gray-300"></i>
+                            <span class="text-xs">Belum ada pemberitahuan</span>
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
             </div>
+            @endauth
 
             <div class="relative" x-data="{ profileOpen: false }">
                 <div @click="profileOpen = !profileOpen"
@@ -110,6 +183,7 @@
         </div>
     </div>
 
+    <!-- Mobile Menu -->
     <div x-show="mobileMenu"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 -translate-y-4"
@@ -118,16 +192,47 @@
         <div class="flex flex-col gap-1">
             @foreach($navLinks as $link)
             <a href="{{ $link['route'] !== '#' ? route($link['route']) : '#' }}"
-                class="flex items-center gap-3 px-3 py-[10px] rounded-[10px] text-[13px] font-semibold transition-all {{ $link['active'] ? 'bg-primary-light text-primary' : 'text-[#6A7686] hover:bg-gray-50' }}">
+                class="flex items-center gap-3 px-3 py-[10px] rounded-[10px] text-[13px] font-semibold transition-all {{ $link['active'] ? 'bg-primary/10 text-primary' : 'text-[#6A7686] hover:bg-gray-50' }}">
                 <i class="fa-solid {{ $link['icon'] }} w-5"></i>
                 {{ $link['label'] }}
-                @if(isset($link['badge']))
-                <span class="ml-auto {{ $link['badgeColor'] }} text-white text-[10px] font-bold px-1.5 py-0 rounded-full min-w-[18px] text-center">
-                    {{ $link['badge'] }}
-                </span>
-                @endif
             </a>
             @endforeach
+
+            <div class="border-t border-gray-100 my-2 pt-2">
+                <div class="flex justify-between items-center px-3 mb-1">
+                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Notifikasi Terbaru</span>
+
+                    <span id="notification-count-mobile">
+                        @if($unreadNotifications->count() > 0)
+                        <span class="text-[10px] text-primary font-bold bg-primary-light px-2 py-0.5 rounded-full">
+                            {{ $unreadNotifications->count() }} Baru
+                        </span>
+                        @endif
+                    </span>
+                </div>
+
+                <div id="notification-list-mobile" class="flex flex-col gap-1 max-h-52 overflow-y-auto">
+                    @auth
+                    @php
+                    $mobileNotifs = auth()->user()->unreadNotifications()->take(3)->get();
+                    @endphp
+                    @forelse($mobileNotifs as $notif)
+                    <a href="{{ route('notifications.read', $notif->id) }}"
+                        class="flex items-start gap-3 px-3 py-[10px] rounded-[10px] bg-primary/5 border border-primary/10 mx-2 transition-colors hover:bg-primary/10">
+                        <i class="fa-solid {{ $notif->data['icon'] ?? 'fa-info' }} {{ $notif->data['color'] ?? 'text-gray-500' }} mt-0.5 text-xs"></i>
+                        <div class="flex-1">
+                            <div class="text-xs font-bold text-gray-800 leading-tight">{{ $notif->data['title'] }}</div>
+                            <div class="text-[11px] text-[#6A7686] line-clamp-1 mt-0.5">{{ $notif->data['message'] }}</div>
+                        </div>
+                    </a>
+                    @empty
+                    <div class="text-center py-4 text-gray-400 text-xs">
+                        Tidak ada pemberitahuan baru
+                    </div>
+                    @endforelse
+                    @endauth
+                </div>
+            </div>
         </div>
     </div>
 </nav>

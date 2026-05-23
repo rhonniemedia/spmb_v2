@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ParentDataController;
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\RegistrationDataController;
@@ -19,9 +21,11 @@ Route::middleware('guest')->group(function () {
     Route::get('/', [LandingPageController::class, 'index'])->name('home');
 
     // Halaman Auth Manual
-    Route::get('/auth/login', fn() => view('pages.auth.login'))->name('login');
+    Route::get('/auth/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/auth/login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
+
     Route::get('/auth/register', fn() => view('pages.auth.register'))->name('register');
-    Route::post('/register', [RegisteredUserController::class, 'store']);
+    Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
 
     // Google Auth (Hanya untuk login/registrasi baru)
     Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.login');
@@ -29,10 +33,11 @@ Route::middleware('guest')->group(function () {
 });
 
 // --- VERIFIKASI EMAIL ---
-Route::get('/email/verify', fn() => view('pages.auth.verify-email'))->middleware('auth')->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
-    return redirect('/dashboard');
+
+    // Redirect users to a page of your choice after successful verification
+    return redirect()->route('dashboard')->with('verified', true);
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 // ADMIN DASHBOARD
@@ -52,6 +57,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- KELOMPOK USER ---
     Route::prefix('user')->group(function () {
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+
+        // ─── TAMBAHKAN ROUTE PERANTARA NOTIFIKASI DI SINI ───
+        Route::get('/user/notifications/dropdown', [NotificationController::class, 'dropdown'])->name('notifications.dropdown');
+        Route::get('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
 
         // Halaman Utama Biodata (Tampilan Form)
         Route::get('/biodata', [PersonalDataController::class, 'index'])->name('biodata');

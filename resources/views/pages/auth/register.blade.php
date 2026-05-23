@@ -5,119 +5,262 @@
 @section('content')
 
 <div class="flex-1 flex items-center justify-center p-6 py-12">
-    <div class="w-full" style="max-width: 640px;">
+    <div class="w-full max-w-2xl">
 
-        <!-- Mobile logo -->
+        {{-- Mobile logo --}}
         <div class="flex justify-center mb-8 lg:hidden fade-up">
-            <a href="index.html" class="flex items-center gap-3">
+            <a href="{{ route('home') }}" class="flex items-center gap-3">
                 <div class="logo-badge"><i class="fa-solid fa-graduation-cap text-white text-xl"></i></div>
                 <div>
-                    <p style="font-weight:800;font-size:0.95rem;color:var(--foreground);">SMK Negeri 1</p>
-                    <p style="font-size:0.72rem;color:var(--secondary);">Rejang Lebong</p>
+                    <p class="font-extrabold text-sm" style="color:var(--foreground)">SMK Negeri 1</p>
+                    <p class="text-xs" style="color:var(--secondary)">Rejang Lebong</p>
                 </div>
             </a>
         </div>
 
-        <!-- Card -->
-        <div class="auth-card p-8 fade-up delay-1">
+        {{-- Card Container Utama yang Membungkus Area Swap --}}
+        <div class="auth-card p-8 fade-up delay-1" id="registerCard" x-data="registerForm()" x-init="init()">
 
-            <!-- Header -->
+            {{-- Header --}}
             <div class="mb-7">
-                <h2 style="font-size:1.6rem;font-weight:800;color:var(--foreground);margin-bottom:6px;">Buat Akun Baru</h2>
-                <p style="font-size:0.88rem;color:var(--secondary);">Sudah punya akun? <a href="{{ route('login') }}" style="color:var(--primary);font-weight:600;text-decoration:none;">Masuk di sini</a></p>
+                <h2 class="text-3xl font-extrabold mb-1" style="color:var(--foreground)">Buat Akun Baru</h2>
+                <p class="text-sm" style="color:var(--secondary)">
+                    Sudah punya akun?
+                    <a href="{{ route('login') }}" class="font-semibold no-underline" style="color:var(--primary)">Masuk di sini</a>
+                </p>
             </div>
 
-            <!-- Form -->
-            <form onsubmit="handleRegister(event)" id="registerForm" novalidate>
+            {{-- Banner Error Server --}}
+            @if ($errors->any())
+            <div id="serverErrorBanner" class="flex items-start gap-3 p-3 mb-5 rounded-xl border text-red-500 bg-red-50 border-red-200 fade-up">
+                <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0"></i>
+                <div>
+                    <p class="font-semibold mb-1 text-sm">Pendaftaran gagal. Periksa kembali:</p>
+                    <ul class="list-disc pl-4 text-sm space-y-0.5">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            @endif
 
-                <!-- Grid 2 kolom -->
+            {{-- Form: Target Swap diganti ke Outer HTML Card atau Form yang dibungkus ulang --}}
+            <form
+                method="POST"
+                action="{{ route('register.store') }}"
+                id="registerForm"
+                novalidate
+                @submit="submitForm($event)">
+                @csrf
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                    <!-- Name -->
+                    {{-- Nama Lengkap --}}
                     <div class="fade-up delay-3">
-                        <label style="display:block;font-size:0.83rem;font-weight:600;color:var(--foreground);margin-bottom:8px;">Nama Lengkap</label>
+                        <label class="block text-sm font-semibold mb-2" style="color:var(--foreground)">Nama Lengkap</label>
                         <div class="input-wrapper">
                             <i class="fa-solid fa-user input-icon"></i>
-                            <input type="text" id="regName" class="input-field" placeholder="Nama sesuai KK / Ijazah" required autocomplete="name" oninput="validateName()" />
-                            <span class="input-status" id="nameStatus"></span>
+                            <input
+                                type="text"
+                                name="name"
+                                id="regName"
+                                class="input-field"
+                                :class="{
+                                    'is-error': errors.name || {{ $errors->has('name') ? 'true' : 'false' }},
+                                    'is-valid': fields.name && !errors.name && !{{ $errors->has('name') ? 'true' : 'false' }}
+                                }"
+                                placeholder="Nama sesuai KK / Ijazah"
+                                value="{{ old('name', $name ?? '') }}"
+                                autocomplete="name"
+                                x-model="fields.name"
+                                @input="validateName()"
+                                @blur="validateName()" />
                         </div>
-                        <p class="field-error" id="nameError" style="display:none;"><i class="fa-solid fa-circle-exclamation"></i> <span></span></p>
+                        <p x-show="errors.name" x-cloak class="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span x-text="errors.name"></span>
+                        </p>
+                        @error('name')
+                        <p class="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>{{ $message }}</span>
+                        </p>
+                        @enderror
                     </div>
 
-                    <!-- Email -->
+                    {{-- Alamat Email --}}
                     <div class="fade-up delay-3">
-                        <label style="display:block;font-size:0.83rem;font-weight:600;color:var(--foreground);margin-bottom:8px;">Alamat Email</label>
+                        <label class="block text-sm font-semibold mb-2" style="color:var(--foreground)">Alamat Email</label>
                         <div class="input-wrapper">
                             <i class="fa-solid fa-envelope input-icon"></i>
-                            <input type="email" id="regEmail" class="input-field" placeholder="contoh@email.com" required autocomplete="email" oninput="validateEmail()" />
-                            <span class="input-status" id="emailStatus"></span>
+                            <input
+                                type="email"
+                                name="email"
+                                id="regEmail"
+                                class="input-field"
+                                :class="{
+                                    'is-error': errors.email || {{ $errors->has('email') ? 'true' : 'false' }},
+                                    'is-valid': fields.email && !errors.email && !{{ $errors->has('email') ? 'true' : 'false' }}
+                                }"
+                                placeholder="contoh@email.com"
+                                value="{{ old('email', $email ?? '') }}"
+                                autocomplete="email"
+                                x-model="fields.email"
+                                @input="validateEmail()"
+                                @blur="validateEmail()" />
                         </div>
-                        <p class="field-error" id="emailError" style="display:none;"><i class="fa-solid fa-circle-exclamation"></i> <span></span></p>
+                        <p x-show="errors.email" x-cloak class="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span x-text="errors.email"></span>
+                        </p>
+                        @error('email')
+                        <p class="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>{{ $message }}</span>
+                        </p>
+                        @enderror
                     </div>
 
-                    <!-- Password -->
+                    {{-- Password --}}
                     <div class="fade-up delay-4">
-                        <label style="display:block;font-size:0.83rem;font-weight:600;color:var(--foreground);margin-bottom:8px;">Password</label>
-                        <div class="input-wrapper">
+                        <label class="block text-sm font-semibold mb-2" style="color:var(--foreground)">Password</label>
+                        <div class="input-wrapper relative">
                             <i class="fa-solid fa-lock input-icon"></i>
-                            <input type="password" id="regPassword" class="input-field" placeholder="Minimal 8 karakter" required style="padding-right:80px;" oninput="validatePassword()" />
-                            <button type="button" class="toggle-password" style="right:40px;" onclick="togglePwd('regPassword', this)">
-                                <i class="fa-solid fa-eye"></i>
+                            <input
+                                :type="showPassword ? 'text' : 'password'"
+                                name="password"
+                                id="regPassword"
+                                class="input-field pr-12"
+                                :class="{
+                                    'is-error': errors.password || {{ $errors->has('password') ? 'true' : 'false' }},
+                                    'is-valid': fields.password && !errors.password && strength >= 3 && !{{ $errors->has('password') ? 'true' : 'false' }}
+                                }"
+                                placeholder="Minimal 8 karakter"
+                                x-model="fields.password"
+                                @input="validatePassword(); validateConfirm()"
+                                @blur="validatePassword()" />
+                            <button
+                                type="button"
+                                tabindex="-1"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer flex items-center justify-center p-1 transition-colors"
+                                style="color:var(--secondary)"
+                                @click="showPassword = !showPassword">
+                                <i :class="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
                             </button>
-                            <span class="input-status" id="passStatus" style="right:16px;"></span>
                         </div>
-                        <!-- Strength bar -->
-                        <div id="strengthWrap" style="display:none;margin-top:8px;">
-                            <div class="strength-bar-wrap">
-                                <div class="strength-seg" id="seg1"></div>
-                                <div class="strength-seg" id="seg2"></div>
-                                <div class="strength-seg" id="seg3"></div>
-                                <div class="strength-seg" id="seg4"></div>
+                        <template x-if="fields.password.length > 0">
+                            <div class="mt-1.5">
+                                <div class="h-1 rounded-full bg-gray-200 overflow-hidden">
+                                    <div
+                                        class="h-full rounded-full transition-all duration-300"
+                                        :style="{ width: (strength / 4 * 100) + '%', backgroundColor: strengthColor }"></div>
+                                </div>
+                                <p class="text-xs font-medium mt-0.5" :style="{ color: strengthColor }" x-text="strengthLabel"></p>
                             </div>
-                            <p class="strength-label" id="strengthLabel" style="color:var(--secondary);"></p>
-                        </div>
-                        <p class="field-error" id="passError" style="display:none;"><i class="fa-solid fa-circle-exclamation"></i> <span></span></p>
+                        </template>
+                        <p x-show="errors.password" x-cloak class="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span x-text="errors.password"></span>
+                        </p>
+                        @error('password')
+                        <p class="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>{{ $message }}</span>
+                        </p>
+                        @enderror
                     </div>
 
-                    <!-- Confirm Password -->
+                    {{-- Konfirmasi Password --}}
                     <div class="fade-up delay-4">
-                        <label style="display:block;font-size:0.83rem;font-weight:600;color:var(--foreground);margin-bottom:8px;">Konfirmasi Password</label>
-                        <div class="input-wrapper">
+                        <label class="block text-sm font-semibold mb-2" style="color:var(--foreground)">Konfirmasi Password</label>
+                        <div class="input-wrapper relative">
                             <i class="fa-solid fa-lock input-icon"></i>
-                            <input type="password" id="regConfirm" class="input-field" placeholder="Ulangi password" required style="padding-right:80px;" oninput="validateConfirm()" />
-                            <button type="button" class="toggle-password" style="right:40px;" onclick="togglePwd('regConfirm', this)">
-                                <i class="fa-solid fa-eye"></i>
+                            <input
+                                :type="showConfirm ? 'text' : 'password'"
+                                name="password_confirmation"
+                                id="regConfirm"
+                                class="input-field pr-12"
+                                :class="{
+                                    'is-error': errors.confirm,
+                                    'is-valid': fields.confirm && !errors.confirm && fields.confirm === fields.password
+                                }"
+                                placeholder="Ulangi password"
+                                x-model="fields.confirm"
+                                @input="validateConfirm()"
+                                @blur="validateConfirm()" />
+                            <button
+                                type="button"
+                                tabindex="-1"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer flex items-center justify-center p-1 transition-colors"
+                                style="color:var(--secondary)"
+                                @click="showConfirm = !showConfirm">
+                                <i :class="showConfirm ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
                             </button>
-                            <span class="input-status" id="confirmStatus" style="right:16px;"></span>
                         </div>
-                        <p class="field-error" id="confirmError" style="display:none;"><i class="fa-solid fa-circle-exclamation"></i> <span></span></p>
+                        <p x-show="errors.confirm" x-cloak class="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span x-text="errors.confirm"></span>
+                        </p>
                     </div>
 
                 </div>
 
-                <!-- Terms (full width) -->
-                <div class="flex items-start gap-3 fade-up delay-5" style="margin-top:20px;">
-                    <input type="checkbox" id="agreeTerms" class="custom-checkbox" style="margin-top:1px;" />
-                    <label for="agreeTerms" style="font-size:0.83rem;color:var(--secondary);cursor:pointer;line-height:1.5;">
-                        Saya menyetujui <a href="#" style="color:var(--primary);font-weight:600;text-decoration:none;">Syarat & Ketentuan</a> serta <a href="#" style="color:var(--primary);font-weight:600;text-decoration:none;">Kebijakan Privasi</a> SPMB SMK Negeri 1
-                    </label>
+                {{-- Checkbox Syarat & Ketentuan --}}
+                <div class="mt-5 fade-up delay-5">
+                    <div class="flex items-start gap-3">
+                        <input
+                            type="checkbox"
+                            name="agree"
+                            id="agreeTerms"
+                            class="mt-0.5 w-4 h-4 rounded border-gray-300 cursor-pointer shrink-0 accent-red-500"
+                            x-model="fields.agree"
+                            @change="validateAgree()" />
+                        <label for="agreeTerms" class="text-sm cursor-pointer leading-relaxed" style="color:var(--secondary)">
+                            Saya menyetujui
+                            <a href="#" class="font-semibold no-underline" style="color:var(--primary)" @click.prevent="openTerms()">Syarat &amp; Ketentuan</a>
+                            pendaftaran SPMB SMK Negeri 1 Rejang Lebong
+                        </label>
+                    </div>
+                    <p x-show="errors.agree" x-cloak class="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span x-text="errors.agree"></span>
+                    </p>
+                    @error('agree')
+                    <p class="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span>{{ $message }}</span>
+                    </p>
+                    @enderror
                 </div>
 
-                <!-- Submit (full width) -->
-                <div class="fade-up delay-6 pt-1" style="margin-top:20px;">
-                    <button type="submit" class="btn-primary" id="btnRegister">
-                        <span id="btnRegText">Buat Akun Sekarang</span>
-                        <span id="btnRegSpinner" style="display:none;"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Memproses...</span>
+                {{-- Submit Button (Sudah dibersihkan dari duplikasi div) --}}
+                <div class="mt-5 fade-up delay-6">
+                    <button
+                        type="submit"
+                        id="btnRegister"
+                        class="btn-primary w-full flex items-center justify-center gap-2"
+                        :disabled="isSubmitting"
+                        :class="{ 'opacity-70 cursor-not-allowed': isSubmitting }">
+                        <template x-if="!isSubmitting">
+                            <span>Buat Akun Sekarang</span>
+                        </template>
+                        <template x-if="isSubmitting">
+                            <span><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Memproses...</span>
+                        </template>
                     </button>
                 </div>
 
             </form>
 
-            <!-- Divider -->
+            {{-- Divider --}}
             <div class="divider my-6 fade-up delay-2">atau daftar dengan</div>
 
-            <!-- Google Button -->
-            <a href="{{ route('google.login') }}" class="btn-google fade-up delay-2" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            {{-- Google Button --}}
+            <a
+                href="{{ route('google.login') }}"
+                class="btn-google fade-up delay-2"
+                style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
                 <svg width="20" height="20" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -129,13 +272,130 @@
 
         </div>
 
-        <!-- Back -->
+        {{-- Back to Home --}}
         <p class="text-center mt-3 fade-up delay-6">
-            <a href="{{ route('home') }}" style="font-size:0.82rem;color:var(--secondary);text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
-                <i class="fa-solid fa-arrow-left" style="font-size:0.75rem;"></i> Kembali ke Beranda
+            <a href="{{ route('home') }}" class="text-xs no-underline inline-flex items-center gap-1.5" style="color:var(--secondary)">
+                <i class="fa-solid fa-arrow-left text-xs"></i> Kembali ke Beranda
             </a>
         </p>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('registerForm', () => ({
+            fields: {
+                name: @json(old('name', $name ?? '')),
+                email: @json(old('email', $email ?? '')),
+                password: '',
+                confirm: '',
+                agree: @json((bool) old('agree', $agree ?? false)),
+            },
+            errors: {
+                name: '',
+                email: '',
+                password: '',
+                confirm: '',
+                agree: '',
+            },
+            isSubmitting: false,
+            showPassword: false,
+            showConfirm: false,
+            strength: 0,
+            strengthLabel: '',
+            strengthColor: '#e5e7eb',
+
+            init() {
+                const banner = document.getElementById('serverErrorBanner');
+                if (banner) {
+                    banner.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+                this.isSubmitting = false;
+            },
+
+            validateName() {
+                const v = this.fields.name.trim();
+                if (!v) this.errors.name = 'Nama lengkap wajib diisi.';
+                else if (v.length < 3) this.errors.name = 'Nama minimal 3 karakter.';
+                else if (v.length > 255) this.errors.name = 'Nama terlalu panjang.';
+                else this.errors.name = '';
+            },
+
+            validateEmail() {
+                const v = this.fields.email.trim();
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!v) this.errors.email = 'Alamat email wajib diisi.';
+                else if (!re.test(v)) this.errors.email = 'Format email tidak valid.';
+                else this.errors.email = '';
+            },
+
+            validatePassword() {
+                const v = this.fields.password;
+
+                // 1. Hitung Strength Meter (Logika visual tetap sama)
+                let score = 0;
+                if (v.length >= 8) score++;
+                if (/[A-Z]/.test(v)) score++;
+                if (/[0-9]/.test(v)) score++;
+                if (/[^A-Za-z0-9]/.test(v)) score++;
+                this.strength = score;
+
+                const labels = ['', 'Lemah', 'Cukup', 'Kuat', 'Sangat Kuat'];
+                const colors = ['', '#ef4444', '#f97316', '#22c55e', '#16a34a'];
+                this.strengthLabel = labels[score] || '';
+                this.strengthColor = colors[score] || '#e5e7eb';
+
+                // 2. Validasi Aturan Ketat (Regex Kombinasi)
+                // Memastikan ada: Huruf kecil (?=.*[a-z]), Huruf besar (?=.*[A-Z]), Angka (?=.*\d), dan Simbol (?=.*[@$!%*?&...])
+                const strictRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?& #_+\-=\[\]{}();':"\\|,.\/<>'`~^]).{8,}$/;
+
+                if (!v) {
+                    this.errors.password = 'Password wajib diisi.';
+                } else if (!strictRegex.test(v)) {
+                    this.errors.password = 'Password harus minimal 8 karakter dengan kombinasi huruf kapital, huruf kecil, angka, dan karakter khusus.';
+                } else {
+                    this.errors.password = '';
+                }
+            },
+
+            validateConfirm() {
+                const v = this.fields.confirm;
+                if (!v) this.errors.confirm = 'Konfirmasi password wajib diisi.';
+                else if (v !== this.fields.password) this.errors.confirm = 'Konfirmasi password tidak cocok.';
+                else this.errors.confirm = '';
+            },
+
+            validateAgree() {
+                this.errors.agree = this.fields.agree ? '' : 'Anda harus menyetujui Syarat & Ketentuan.';
+            },
+
+            validateAll() {
+                this.validateName();
+                this.validateEmail();
+                this.validatePassword();
+                this.validateConfirm();
+                this.validateAgree();
+                return !this.errors.name && !this.errors.email && !this.errors.password && !this.errors.confirm && !this.errors.agree;
+            },
+
+            submitForm(event) {
+                if (!this.validateAll()) {
+                    event.preventDefault();
+                    return;
+                }
+                this.isSubmitting = true;
+            },
+
+            openTerms() {
+                window.open('/syarat-ketentuan', '_blank', 'noopener,noreferrer');
+            },
+        }));
+    });
+</script>
+@endpush
 
 @endsection

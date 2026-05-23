@@ -167,13 +167,20 @@
                         hx-post="{{ route('biodata.submit') }}"
                         hx-indicator="#biodata-form"
                         hx-swap="none"
-                        @htmx:after-request="if($event.detail.successful){ let r=JSON.parse($event.detail.xhr.response); if(r.success){ submitResult=r; isSubmitted=true } }"
+                        x-on:htmx:afterRequest.camel="
+                            if($event.detail.successful){
+                                let r = JSON.parse($event.detail.xhr.response);
+                                if(r.success){
+                                    $dispatch('biodata-submitted', r);
+                                }
+                            }
+                        "
                         :disabled="!(check1 && check2 && check3)"
                         :class="(check1 && check2 && check3)
                             ? 'bg-green-600 hover:bg-green-700 hover:-translate-y-px shadow-lg shadow-green-500/30 cursor-pointer'
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none pointer-events-none'"
                         class="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-black rounded-full text-white transition-all duration-200">
-                        <span hx-dis-indicator>
+                        <span>
                             <i class="fa-solid fa-paper-plane mr-2"></i> Kirim Biodata Sekarang
                         </span>
                         <span id="next-indicator" class="htmx-indicator gap-2">

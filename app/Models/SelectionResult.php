@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SelectionResults extends Model
+class SelectionResult extends Model
 {
     //
 }

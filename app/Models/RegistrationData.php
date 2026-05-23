@@ -42,6 +42,12 @@ class RegistrationData extends Model
         return $this->belongsTo(AdmissionPath::class, 'admission_path_id');
     }
 
+    public function selectionResult(): HasOne
+    {
+        // Menghubungkan ke model SelectionResult berdasarkan foreign key 'registration_id'
+        return $this->hasOne(SelectionResult::class, 'registration_id');
+    }
+
     /**
      * Relasi Ekstensi: Jalur Afirmasi (1:1 Bersyarat)
      */

@@ -8,6 +8,7 @@ use App\Models\PersonalData;
 use App\Models\RegistrationData;
 use App\Models\Requirement;
 use App\Models\SpmbStep;
+use App\Notifications\DataReminderNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,6 +16,7 @@ class UserDashboardController extends Controller
 {
     public function index()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $now = now();
 
@@ -27,13 +29,29 @@ class UserDashboardController extends Controller
         // Ambil data personal pendaftar
         $personalData = PersonalData::where('user_id', $user->id)->first();
 
+        // ─── AUTO-CHECK & KIRIM NOTIFIKASI SAMBUTAN (UNTUK GOOGLE & MANUAL) ───
+        if (!$personalData) {
+            // Periksa apakah user sudah pernah menerima notifikasi selamat datang agar tidak duplikat saat di-refresh
+            $hasWelcomeNotification = $user->notifications()
+                ->where('data->title', 'Selamat Datang di SPMB!')
+                ->exists();
+
+            if (!$hasWelcomeNotification) {
+                // Kirim notifikasi selamat datang ke database
+                $user->notify(new DataReminderNotification('welcome'));
+
+                // Muat ulang relasi unreadNotifications agar langsung tampil di navbar saat ini juga
+                $user->load('unreadNotifications');
+            }
+        }
+
         // Ambil data registrasi utama pendaftar beserta dokumen fisik yang sudah divalidasi panitia
         $registration = null;
         $verifiedCount = 0;
         $progressPercent = 0;
 
         if ($personalData) {
-            $registration = RegistrationData::with('documents')
+            $registration = RegistrationData::with(['documents', 'selectionResult'])
                 ->where('personal_data_id', $personalData->id)
                 ->first();
 

@@ -19,6 +19,13 @@ class SpmbStep extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'tags'               => 'array',
+        'show_statuses'      => 'boolean',
+        'show_result_badges' => 'boolean',
+        'is_highlight'       => 'boolean',
+    ];
+
     protected function status(): Attribute
     {
         return Attribute::get(function () {

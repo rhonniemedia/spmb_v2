@@ -9,6 +9,7 @@ use App\Models\RegistrationAchievement;
 use App\Models\RegistrationAffirmation;
 use App\Models\RegistrationData;
 use App\Models\RegistrationZone;
+use App\Notifications\RegistrationFinalizedNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,66 +30,71 @@ class RegistrationDataController extends Controller
                 ->with('error', 'Lengkapi dan submit data pribadi terlebih dahulu sebelum mendaftar.');
         }
 
-        // Personal data sudah final, load semua data untuk registrasi
         $admissionPaths = AdmissionPath::where('is_active', true)->get();
         $concentrations = Concentration::where('status', 'active')->get();
-
-        // Definisikan grup jurusan yang hanya boleh dipilih di Pilihan 1
         $hanyaPilihanSatu = ['tkj', 'tkr', 'tsm'];
-        $jurusanList    = [];
+        $jurusanList = [];
 
         foreach ($concentrations as $c) {
             $aliasLower = strtolower($c->alias);
-
             $jurusanList[$c->id] = [
-                'nama'             => $c->name,
-                'singkat'          => $c->alias,
-                'kode'             => $c->code,
-                'kuota'            => $c->quota,
-                'alias'            => $aliasLower,
-                // Flag baru: Menandakan jika TRUE, maka di pilihan 2 & 3 jurusan ini harus di-disable/disembunyikan
-                'restrict_choice'  => in_array($aliasLower, $hanyaPilihanSatu),
+                'nama'            => $c->name,
+                'singkat'         => $c->alias,
+                'kode'            => $c->code,
+                'kuota'           => $c->quota,
+                'alias'           => $aliasLower,
+                'restrict_choice' => in_array($aliasLower, $hanyaPilihanSatu),
             ];
         }
 
-        // ── LOAD DATA EXISTING (untuk prefill form jika user sudah pernah menyimpan) ──
-        $registration          = RegistrationData::where('personal_data_id', $personalData->id)->first();
-        $registrationData      = $registration; // alias, dipakai di _step_nilai untuk value lama
-        $registrationZone        = $registration?->zonasi;    // ✅ sesuai nama method di model
-        $registrationAchievement = $registration?->prestasi;  // ✅ sesuai nama method di model
-        $registrationAffirmasi   = $registration?->afirmasi;  // ✅ sesuai nama method di model
-        // ── HITUNG INITIAL STEP BERDASARKAN DATA YANG SUDAH ADA ──
-        // Tujuan: Bawa user langsung ke step terakhir yang sudah diisi
-        $initialStep = 1; // Default: mulai dari awal (nilai)
-        if ($registration) {
-            // Step 1 (nilai) sudah diisi?
-            if ($registration->report_sem_1) {
-                $initialStep = 2; // Lanjut ke jalur
+        $registration            = RegistrationData::where('personal_data_id', $personalData->id)->first();
+        $registrationData        = $registration;
+        $registrationZone        = $registration?->zonasi;
+        $registrationAchievement = $registration?->prestasi;
+        $registrationAffirmasi   = $registration?->afirmasi;
 
-                // Step 2 (jalur) sudah dipilih?
+        // ── Jika sudah pernah submit, arahkan ke halaman resume ──
+        if ($registration && $registration->submitted_at !== null) {
+            return view('pages.user.resume-pendaftaran', compact(
+                'personalData',
+                'registration',
+                'registrationData',
+                'registrationZone',
+                'registrationAchievement',
+                'registrationAffirmasi',
+                'admissionPaths',
+                'concentrations',
+                'jurusanList',
+                'hanyaPilihanSatu',
+            ));
+        }
+
+        // ── Belum submit, hitung initial step dan tampilkan form ──
+        $initialStep = 1;
+        if ($registration) {
+            if ($registration->report_sem_1) {
+                $initialStep = 2;
+
                 if ($registration->admission_path_id) {
                     $admissionPath = $admissionPaths->find($registration->admission_path_id);
                     $jalurSlug = $admissionPath
                         ? Str::slug(str_replace('Jalur ', '', $admissionPath->name))
                         : null;
 
-                    // Tentukan step berikutnya setelah jalur berdasarkan jenis jalur
                     if ($jalurSlug === 'zonasi' && $registrationZone) {
-                        $initialStep = 4; // Zonasi sudah diisi → ke jurusan
+                        $initialStep = 4;
                     } elseif ($jalurSlug === 'prestasi' && $registrationAchievement) {
-                        $initialStep = 4; // Prestasi sudah diisi → ke jurusan
+                        $initialStep = 4;
                     } elseif ($jalurSlug === 'afirmasi' && $registrationAffirmasi) {
-                        $initialStep = 4; // Afirmasi sudah diisi → ke jurusan
+                        $initialStep = 4;
                     } elseif (in_array($jalurSlug, ['zonasi', 'prestasi', 'afirmasi'])) {
-                        $initialStep = 3; // Jalur khusus, belum isi step-nya → ke step jalur khusus
+                        $initialStep = 3;
                     } else {
-                        $initialStep = 3; // Reguler → ke jurusan (step ke-3 di reguler = jurusan)
+                        $initialStep = 3;
                     }
 
-                    // Step jurusan sudah diisi?
                     if ($registration->choice_1) {
-                        // Cari index step konfirmasi di stepMap → selalu step terakhir
-                        $initialStep = 99; // Nilai sentinel → akan di-handle Alpine ke step konfirmasi
+                        $initialStep = 99;
                     }
                 }
             }
@@ -505,6 +511,14 @@ class RegistrationDataController extends Controller
         $registration->verification_status = 'pending';
         $registration->save();
 
+                // ─── AMBIL USER & KIRIM NOTIFIKASI SECARA INSTAN ───
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if ($user) {
+            //  Benar (Kirimkan objek $registration ke dalamnya)
+            $user->notify(new RegistrationFinalizedNotification($registration));
+        }
+
         return response()->json([
             'success'          => true,
             'nama'             => $personalData->full_name,
@@ -514,7 +528,10 @@ class RegistrationDataController extends Controller
             'pilihan2'         => $registration->choice2?->name ?? '—',
             'pilihan3'         => $registration->choice3?->name ?? '—',
             'submittedAt'      => $registration->submitted_at->format('d M Y'),
-        ]);
+        ])->header('HX-Trigger', json_encode([
+            'refresh-notifications' => true,
+            'registration-submitted' => true,  // sesuaikan nama event-nya
+        ]));
     }
 
     public function successScreen()
