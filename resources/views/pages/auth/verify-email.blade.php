@@ -112,14 +112,12 @@
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
-                            class="text-[#6A7686] font-medium transition-all duration-200 rounded-full border border-[#F3F4F3] hover:text-[#FF1443] hover:border-[#FF1443]/30 hover:bg-[#FF1443]/[0.03] w-full py-2.5 px-6 text-sm flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
-                            Keluar dari Akun
-                        </button>
-                    </form>
+                    {{-- Tombol kembali ke beranda — cukup link biasa, tidak perlu logout --}}
+                    <a href="{{ route('home') }}"
+                        class="text-[#6A7686] font-medium transition-all duration-200 rounded-full border border-[#F3F4F3] hover:text-[#FF1443] hover:border-[#FF1443]/30 hover:bg-[#FF1443]/[0.03] w-full py-2.5 px-6 text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-house text-xs"></i>
+                        Kembali ke Beranda
+                    </a>
                 </div>
 
             </div>

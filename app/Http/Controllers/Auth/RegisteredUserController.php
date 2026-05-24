@@ -37,7 +37,6 @@ class RegisteredUserController extends Controller
                 'email.unique'       => 'Alamat email ini sudah terdaftar.',
                 'password.required'  => 'Password wajib diisi.',
                 'password.confirmed' => 'Konfirmasi password tidak cocok.',
-                // Pesan error kustom saat password tidak memenuhi syarat kompleksitas
                 'password'           => 'Password minimal harus 8 karakter dan merupakan kombinasi dari huruf kapital, huruf kecil, angka, serta karakter khusus (simbol).',
                 'agree.accepted'     => 'Anda harus menyetujui Syarat & Ketentuan.',
             ]);
@@ -55,7 +54,7 @@ class RegisteredUserController extends Controller
             // 4. Kirim Email Verifikasi
             $user->sendEmailVerificationNotification();
 
-            // 5. Respons HTMX: kirim header HX-Redirect agar browser berpindah halaman penuh
+            // 5. Respons HTMX
             if ($request->hasHeader('HX-Request')) {
                 return response('', 200)
                     ->header('HX-Redirect', route('verification.notice'));
@@ -64,14 +63,8 @@ class RegisteredUserController extends Controller
             // Fallback untuk request non-HTMX
             return redirect()->route('verification.notice');
         } catch (ValidationException $e) {
-            // Validasi gagal → kembalikan form beserta pesan error
 
             if ($request->hasHeader('HX-Request')) {
-                /*
-                 * Untuk request HTMX:
-                 * Tambahkan passing data request (old input) langsung ke view 
-                 * agar Alpine dapat menginisialisasi state 'fields' kembali.
-                 */
                 return response(
                     view('pages.auth.register', [
                         'errors' => $e->validator->errors(),
@@ -79,22 +72,13 @@ class RegisteredUserController extends Controller
                         'email'  => $request->input('email'),
                         'agree'  => $request->has('agree'),
                     ])->render(),
-                    422  // HTMX membutuhkan status 400/500-an untuk melakukan swap jika terdeteksi error
+                    422
                 )->withHeaders([
                     'HX-Trigger' => json_encode(['scrollToTop' => true]),
                 ]);
             }
 
-            // Fallback non-HTMX
             throw $e;
         }
-    }
-
-    public function destroy()
-    {
-        Auth::logout();
-
-        // Mengarahkan ke nama route 'home'
-        return redirect()->route('home');
     }
 }

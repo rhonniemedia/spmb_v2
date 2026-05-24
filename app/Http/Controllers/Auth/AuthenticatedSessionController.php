@@ -32,27 +32,40 @@ class AuthenticatedSessionController extends Controller
             'password.required' => 'Password wajib diisi.',
         ]);
 
-        // 2. Coba Autentikasi (Fitur "Remember Me" opsional jika ada)
+        // 2. Coba Autentikasi
         $remember = $request->boolean('remember');
 
         if (!Auth::attempt($request->only('email', 'password'), $remember)) {
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'), // atau teks kustom: 'Email atau password salah.'
+                'email' => __('auth.failed'),
             ]);
         }
 
         // 3. Regenerasi Session
         $request->session()->regenerate();
 
-        // Ambil URL tujuan semula (misal link verifikasi), jika tidak ada baru arahkan ke dashboard
+        // Ambil URL tujuan semula, jika tidak ada arahkan ke dashboard
         $redirectUrl = redirect()->intended(route('dashboard'))->getTargetUrl();
 
-        // 4. Pengalihan Response Sukses (Mendukung HTMX)
+        // 4. Response Sukses (Mendukung HTMX)
         if ($request->hasHeader('HX-Request')) {
             return response('', 200)
-                ->header('HX-Redirect', $redirectUrl); // Mengalihkan HTMX ke URL tujuan asli
+                ->header('HX-Redirect', $redirectUrl);
         }
 
         return redirect()->intended(route('dashboard'));
+    }
+
+    /**
+     * Menangani request logout.
+     */
+    public function destroy(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home');
     }
 }
