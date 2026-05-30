@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('personal_data', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('user_id')->nullable()->constrained('users')->onDelete('cascade');
 
             // --- GROUP 1: CORE IDENTITIES (Strictly Required) ---
             $table->string('full_name');
@@ -23,18 +23,18 @@ return new class extends Migration
             $table->text('nisn_encrypted');
             $table->string('nisn_hash')->unique();
 
-            $table->text('nik_encrypted');
-            $table->string('nik_hash')->index();
+            $table->text('nik_encrypted')->nullable();
+            $table->string('nik_hash')->index()->nullable();
 
-            $table->text('pob_encrypted');
-            $table->text('dob_encrypted');
-            $table->string('dob_hash')->index();
+            $table->text('pob_encrypted')->nullable();
+            $table->text('dob_encrypted')->nullable();
+            $table->string('dob_hash')->index()->nullable();
 
-            $table->text('religion_encrypted');
-            $table->string('religion_hash')->index();
+            $table->text('religion_encrypted')->nullable();
+            $table->string('religion_hash')->index()->nullable();
 
-            $table->integer('child_order');
-            $table->integer('number_of_siblings');
+            $table->integer('child_order')->nullable();
+            $table->integer('number_of_siblings')->nullable();
 
             $table->string('blood_type', 3)->nullable();
 

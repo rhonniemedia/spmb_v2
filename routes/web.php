@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\ObservationController;
+use App\Http\Controllers\Admin\RegistrationDataController as AdminRegistrationDataController;
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -11,9 +13,8 @@ use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ParentDataController;
 use App\Http\Controllers\PersonalDataController;
-use App\Http\Controllers\RegistrationDataController;
+use App\Http\Controllers\RegistrationDataController as UserRegistrationDataController;
 use App\Http\Controllers\UserDashboardController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -74,7 +75,9 @@ Route::get('/email/verified', fn() => view('pages.auth.email-verified'))->name('
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', fn() => view('pages.admin.dashboard'))->name('dashboard');
-    Route::get('/verification', fn() => view('pages.admin.verifikasi'))->name('verifikasi');
+    // Route::get('/observation', [ObservationController::class, 'index'])->name('observasi');
+    // web.php
+    Route::get('/verifikasi/create', fn() => view('pages.admin.verifikasi.partials.form'))->name('verifikasi.create');
     Route::get('/announcement', fn() => view('pages.admin.pengumuman'))->name('pengumuman');
 
     // Verifikasi Pendaftaran
@@ -83,7 +86,25 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::post('/{noPendaftaran}/keputusan', [VerifikasiController::class, 'keputusan'])->name('keputusan');
         Route::post('/{noPendaftaran}/dokumen/{dokId}', [VerifikasiController::class, 'updateDokumen'])->name('dokumen.update');
     });
+
+    // Mengelompokkan rute di bawah prefix 'data' dan name 'pendaftar'
+    Route::prefix('data')->name('pendaftar.')->group(function () {
+        Route::get('/',        [AdminRegistrationDataController::class, 'index'])->name('index');
+        Route::get('/create',  [AdminRegistrationDataController::class, 'create'])->name('create');
+        Route::post('/',       [AdminRegistrationDataController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [AdminRegistrationDataController::class, 'edit'])->name('edit');
+        Route::put('/{id}',    [AdminRegistrationDataController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('observation')->name('observasi.')->group(function () {
+        Route::get('/',        [ObservationController::class, 'index'])->name('index');
+        Route::get('/create',  [ObservationController::class, 'create'])->name('create');
+        Route::post('/',       [ObservationController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [ObservationController::class, 'edit'])->name('edit');
+        Route::put('/{id}',    [ObservationController::class, 'update'])->name('update');
+    });
 });
+
 
 // ============================================================
 // USER ROUTES (login + email verified)
@@ -114,22 +135,22 @@ Route::middleware(['auth', 'verified'])->prefix('user')->group(function () {
     });
 
     // Pendaftaran — Halaman Utama
-    Route::get('/registration', [RegistrationDataController::class, 'index'])->name('registration');
+    Route::get('/registration', [UserRegistrationDataController::class, 'index'])->name('registration');
 
     // Pendaftaran — Proses Step
     Route::prefix('registration')->name('registration.')->group(function () {
-        Route::post('/step/1', [RegistrationDataController::class, 'saveStepNilai'])->name('step1');
-        Route::post('/step/2', [RegistrationDataController::class, 'saveStepJalur'])->name('step2');
-        Route::post('/step/3', [RegistrationDataController::class, 'saveStepZonasi'])->name('step3');
-        Route::post('/step/4', [RegistrationDataController::class, 'saveStepJurusan'])->name('step4');
-        Route::post('/step/5', [RegistrationDataController::class, 'saveStepPrestasi'])->name('prestasi');
-        Route::post('/step/6', [RegistrationDataController::class, 'saveStepAfirmasi'])->name('afirmasi');
+        Route::post('/step/1', [UserRegistrationDataController::class, 'saveStepNilai'])->name('step1');
+        Route::post('/step/2', [UserRegistrationDataController::class, 'saveStepJalur'])->name('step2');
+        Route::post('/step/3', [UserRegistrationDataController::class, 'saveStepZonasi'])->name('step3');
+        Route::post('/step/4', [UserRegistrationDataController::class, 'saveStepJurusan'])->name('step4');
+        Route::post('/step/5', [UserRegistrationDataController::class, 'saveStepPrestasi'])->name('prestasi');
+        Route::post('/step/6', [UserRegistrationDataController::class, 'saveStepAfirmasi'])->name('afirmasi');
 
-        Route::post('/zoning/distance-calculation', [RegistrationDataController::class, 'hitungJarak'])->name('zonasi.hitung');
-        Route::get('/summary', [RegistrationDataController::class, 'summary'])->name('summary');
-        Route::post('/draft', [RegistrationDataController::class, 'saveDraft'])->name('draft');
-        Route::post('/submit', [RegistrationDataController::class, 'submit'])->name('submit');
-        Route::get('/success', [RegistrationDataController::class, 'successScreen'])->name('success');
+        Route::post('/zoning/distance-calculation', [UserRegistrationDataController::class, 'hitungJarak'])->name('zonasi.hitung');
+        Route::get('/summary', [UserRegistrationDataController::class, 'summary'])->name('summary');
+        Route::post('/draft', [UserRegistrationDataController::class, 'saveDraft'])->name('draft');
+        Route::post('/submit', [UserRegistrationDataController::class, 'submit'])->name('submit');
+        Route::get('/success', [UserRegistrationDataController::class, 'successScreen'])->name('success');
     });
 
     // Halaman Lainnya

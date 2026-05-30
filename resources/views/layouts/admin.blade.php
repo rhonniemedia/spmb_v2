@@ -19,6 +19,8 @@
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -65,14 +67,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) {
-                lucide.createIcons();
-            }
+            if (window.lucide) lucide.createIcons();
+
+            // Re-render lucide setiap kali HTMX selesai load konten
+            document.body.addEventListener('htmx:afterSwap', () => {
+                if (window.lucide) lucide.createIcons();
+            });
         });
     </script>
 
-    @stack('scripts')
+    @include('components.layout.modal')
 
+    @stack('scripts')
 </body>
 
 </html>

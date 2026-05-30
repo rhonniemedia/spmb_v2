@@ -49,8 +49,10 @@
                   </div>
               </div>
               <!-- Avatar -->
-              <div class="size-11 rounded-xl bg-primary flex items-center justify-center cursor-pointer">
-                  <span class="text-white font-bold text-sm">AP</span>
+              <div
+                  class="size-11 rounded-full bg-red-700 flex items-center justify-center ring-2 ring-white shadow-md cursor-pointer shrink-0"
+                  @click="openProfile = !openProfile">
+                  <span class="text-white font-black text-sm">RS</span>
               </div>
           </div>
       </div>

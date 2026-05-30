@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RegistrationData extends Model
@@ -87,9 +88,20 @@ class RegistrationData extends Model
         return $this->belongsTo(Concentration::class, 'choice_3');
     }
 
+    public function achievements(): HasMany
+    {
+        // Menggunakan hasMany agar konsisten dengan proses delete() di Controller
+        return $this->hasMany(RegistrationAchievement::class, 'registration_data_id');
+    }
+
     public function documents()
     {
         // Mengambil semua dokumen yang sudah diunggah oleh siswa ini beserta detail requirement-nya
-        return $this->hasMany(RegistrationDocument::class);
+        return $this->hasMany(RegistrationDocument::class, 'registration_data_id');
+    }
+
+    public function observationData()
+    {
+        return $this->hasOne(ObservationData::class, 'registration_id');
     }
 }

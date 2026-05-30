@@ -5,14 +5,8 @@
         <!-- Logo -->
         <div class="flex items-center justify-between border-b border-border h-[90px] px-5 gap-3">
             <div class="flex items-center gap-3">
-                <div class="w-11 h-9 bg-primary rounded-xl flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
-                    </svg>
+                <div class="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center bg-gradient-to-br from-red-500 to-purple-700 shadow-sm">
+                    <i data-lucide="graduation-cap" class="size-5 text-white"></i>
                 </div>
                 <div>
                     <h1 class="font-bold text-base text-foreground leading-tight">SPMB</h1>
@@ -42,23 +36,23 @@
             <div class="flex flex-col gap-4">
                 <h3 class="font-medium text-sm text-secondary">Manajemen Peserta</h3>
                 <div class="flex flex-col gap-1">
-                    <a href="{{route('admin.verifikasi')}}" class="group cursor-pointer {{ request()->routeIs('admin.verifikasi') ? 'active' : '' }}">
-                        <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
-                            <i data-lucide="file-check" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
-                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Verifikasi</span>
-                            <span class="ml-auto h-5 min-w-5 px-1.5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">24</span>
-                        </div>
-                    </a>
-                    <a href="#" class="group cursor-pointer">
+                    <a href="{{route('admin.pendaftar.index')}}" class="group cursor-pointer {{ request()->routeIs('admin.pendaftar.index') ? 'active' : '' }}">
                         <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
                             <i data-lucide="users" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
                             <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Data Peserta</span>
                         </div>
                     </a>
+                    <a href="{{route('admin.observasi.index')}}" class="group cursor-pointer {{ request()->routeIs('admin.observasi.index') ? 'active' : '' }}">
+                        <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
+                            <i data-lucide="file-check" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
+                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Observasi</span>
+                            <span class="ml-auto h-5 min-w-5 px-1.5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">24</span>
+                        </div>
+                    </a>
                     <a href="#" class="group cursor-pointer">
                         <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
                             <i data-lucide="bar-chart-3" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
-                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Peringkat & Seleksi</span>
+                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Hasil Seleksi</span>
                         </div>
                     </a>
                     <a href="#" class="group cursor-pointer">
