@@ -66,42 +66,18 @@
             </div>
 
             <div class="flex flex-col gap-4">
-                <h3 class="font-medium text-sm text-secondary">Pengumuman</h3>
+                <h3 class="font-medium text-sm text-secondary">Pengguna</h3>
                 <div class="flex flex-col gap-1">
-                    <a href="{{route('admin.pengumuman')}}" class="group cursor-pointer {{ request()->routeIs('admin.pengumuman') ? 'active' : '' }}">
+                    <a href="{{route('admin.pengguna.index')}}" class="group cursor-pointer {{ request()->routeIs('admin.pengguna.index') ? 'active' : '' }}">
                         <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
-                            <i data-lucide="megaphone" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
-                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Pengumuman</span>
+                            <i data-lucide="users-round" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
+                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Daftar Pengguna</span>
                         </div>
                     </a>
                     <a href="#" class="group cursor-pointer">
                         <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
-                            <i data-lucide="bell-ring" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
-                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Notifikasi Massal</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-4">
-                <h3 class="font-medium text-sm text-secondary">Sistem</h3>
-                <div class="flex flex-col gap-1">
-                    <a href="#" class="group cursor-pointer">
-                        <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
-                            <i data-lucide="calendar" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
-                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Jadwal SPMB</span>
-                        </div>
-                    </a>
-                    <a href="#" class="group cursor-pointer">
-                        <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
-                            <i data-lucide="settings" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
-                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Pengaturan</span>
-                        </div>
-                    </a>
-                    <a href="#" class="group cursor-pointer">
-                        <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
-                            <i data-lucide="download-cloud" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
-                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Export Data</span>
+                            <i data-lucide="circle-user" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
+                            <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Akun Pengguna</span>
                         </div>
                     </a>
                 </div>
@@ -114,7 +90,7 @@
             <div class="flex items-center justify-between border-t bg-white border-border p-5 gap-3">
                 <div class="min-w-0">
                     <p class="font-semibold text-foreground text-sm">Admin Panitia</p>
-                    <p class="text-xs text-secondary mt-0.5">SPMB 2025/2026</p>
+                    <p class="text-xs text-secondary mt-0.5">SPMB {{ date('Y') }}</p>
                 </div>
                 <div class="size-11 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
                     <i data-lucide="life-buoy" class="size-6 text-primary"></i>

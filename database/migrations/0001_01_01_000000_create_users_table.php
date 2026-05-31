@@ -12,12 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->uuid('id')->primary(); // Menggunakan UUID sebagai Primary Key
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('google_id')->nullable();
+
+            // Menambahkan semua kemungkinan role
+            $table->enum('role', [
+                'superadmin',
+                'admin',
+                'verifikator',
+                'observator',
+                'user' // Selalu siapkan role 'user' biasa sebagai default
+            ])->default('user');
+
+            $table->softDeletes();
+
             $table->rememberToken();
             $table->timestamps();
         });

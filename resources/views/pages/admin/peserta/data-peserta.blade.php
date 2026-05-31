@@ -62,50 +62,8 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white">
-            <div class="flex items-center gap-2">
-                <div class="size-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                    <i data-lucide="users" class="size-5 text-primary"></i>
-                </div>
-                <p class="font-medium text-xs text-secondary">Total Peserta</p>
-            </div>
-            <p class="font-bold text-3xl">{{ number_format($peserta->total() ?? 0, 0, ',', '.') }}</p>
-        </div>
-        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white">
-            <div class="flex items-center gap-2">
-                <div class="size-10 bg-warning/10 rounded-xl flex items-center justify-center shrink-0">
-                    <i data-lucide="clock" class="size-5 text-warning"></i>
-                </div>
-                <p class="font-medium text-xs text-secondary">Pending</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <p class="font-bold text-3xl">24</p>
-                <span class="text-warning text-xs font-semibold">Perlu tindakan</span>
-            </div>
-        </div>
-        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white">
-            <div class="flex items-center gap-2">
-                <div class="size-10 bg-success/10 rounded-xl flex items-center justify-center shrink-0">
-                    <i data-lucide="check-circle" class="size-5 text-success"></i>
-                </div>
-                <p class="font-medium text-xs text-secondary">Terverifikasi</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <p class="font-bold text-3xl">189</p>
-                <span class="text-success text-xs font-semibold">76.2%</span>
-            </div>
-        </div>
-        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white">
-            <div class="flex items-center gap-2">
-                <div class="size-10 bg-error/10 rounded-xl flex items-center justify-center shrink-0">
-                    <i data-lucide="x-circle" class="size-5 text-error"></i>
-                </div>
-                <p class="font-medium text-xs text-secondary">Ditolak</p>
-            </div>
-            <p class="font-bold text-3xl">35</p>
-        </div>
-    </div>
+    {{-- ── Statistik Cards ── --}}
+    @include('pages.admin.peserta.partials._stats-cards')
 
     {{-- ── PHP BLOCK ── --}}
     @php
@@ -174,14 +132,33 @@
                 <h3 class="font-bold text-lg text-foreground">Daftar Peserta SPMB</h3>
                 <p class="text-sm text-secondary">Kelola data peserta Sistem Penerimaan Murid Baru</p>
             </div>
+            {{-- FITUR PENCARIAN LIVE SEARCH HTMX --}}
             <div class="flex items-center gap-2 flex-wrap">
-                <div class="relative">
+                <form action="{{ url()->current() }}" method="GET" class="relative">
                     <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
-                    <input type="text" placeholder="Cari peserta..." x-model="search" class="pl-9 pr-9 py-2 rounded-xl border border-border bg-white text-sm focus:ring-1 focus:ring-primary outline-none w-[180px] transition-all" />
-                    <button type="button" x-show="search.length > 0" @click="search = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
+
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari peserta..."
+                        hx-get="{{ url()->current() }}"
+                        hx-include="closest form"
+                        hx-trigger="keyup changed delay:500ms, search"
+                        hx-target="#peserta-container"
+                        hx-select="#peserta-container"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        class="pl-9 pr-9 py-2 rounded-xl border border-border bg-white text-sm focus:ring-1 focus:ring-primary outline-none w-[180px] md:w-[220px] transition-all" />
+
+                    @if(request('search'))
+                    <button type="button"
+                        hx-get="{{ request()->fullUrlWithQuery(['search' => null]) }}"
+                        hx-target="#peserta-container"
+                        hx-select="#peserta-container"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
                         <i data-lucide="x" class="size-4"></i>
                     </button>
-                </div>
+                    @endif
+                </form>
             </div>
         </div>
 

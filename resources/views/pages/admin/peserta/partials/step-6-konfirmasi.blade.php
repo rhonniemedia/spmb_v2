@@ -18,29 +18,51 @@
             this.errorMsg   = '';
             const form = document.getElementById('step6-form');
             const data = new FormData(form);
+            
             @if($isEdit)
-            {{-- PUT tidak support FormData langsung; kirim sebagai POST + _method=PUT --}}
             data.append('_method', 'PUT');
             @endif
+            
             try {
                 const res  = await fetch('{{ $postUrl }}', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        {{-- Jangan set Content-Type — biarkan browser set boundary FormData otomatis --}}
+                        'Accept': 'application/json'
                     },
-                    body: data,
+                    body: data
                 });
+                
                 const json = await res.json();
                 console.log('[store] response:', json);
+                
                 if (json.success) {
-                    if (typeof showToast === 'function') showToast(json.message, '#30B22D');
-                    setTimeout(() => { window.location.href = json.redirect; }, 800);
+                    // 1. Tutup Modal Secara Halus (Cara bawaan Alpine.js)
+                    this.$dispatch('close-modal');
+
+                    // 2. Munculkan Sweet Alert Global
+                    if (window.ShowAlert) {
+                        window.ShowAlert({
+                            type: 'success',
+                            title: 'Berhasil!',
+                            message: json.message,
+                            confirmText: 'Tutup'
+                        });
+                    }
+
+                    // 3. Refresh Tabel Secara Gaib (Tanpa Reload Browser!)
+                    setTimeout(() => {
+                        // UBAH BAGIAN 'GET' MENJADI window.location.href
+                        htmx.ajax('GET', window.location.href, {
+                            target: '#peserta-container',
+                            select: '#peserta-container',
+                            swap: 'outerHTML'
+                        });
+                    }, 300);
+                    
                 } else {
                     // Mengolah error agar lebih mudah dibaca
                     if (json.errors) {
-                        // Gabungkan semua pesan error menjadi satu string yang dipisahkan oleh |
                         this.errorMsg = Object.values(json.errors)
                             .map(err => Array.isArray(err) ? err[0] : err)
                             .join(' | ');

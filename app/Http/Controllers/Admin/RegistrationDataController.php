@@ -20,18 +20,52 @@ class RegistrationDataController extends Controller
     /**
      * Tampilkan halaman daftar peserta.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // 1. Tangkap kata kunci pencarian dari HTMX
+        $search = $request->input('search');
+
+        // 2. Hitung Statistik untuk Kartu (Berdasarkan Status Verifikasi)
+        $totalPesertaStats = RegistrationData::count();
+        $passedStats       = RegistrationData::where('verification_status', 'verified')->count();
+        $failedStats       = RegistrationData::where('verification_status', 'rejected')->count();
+        $pendingStats      = RegistrationData::where('verification_status', 'pending')->count();
+
+        $passedPercentage = $totalPesertaStats > 0
+            ? round(($passedStats / $totalPesertaStats) * 100, 1)
+            : 0;
+
+        // 3. Query Data Tabel
         $peserta = RegistrationData::with([
             'personalData',
             'choice1',
             'choice2',
             'choice3'
         ])
+            ->when($search, function ($query) use ($search) {
+                // Gunakan kurung tambahan (nested where) agar aman
+                $query->where(function ($q) use ($search) {
+                    $q->where('registration_number', 'like', "%{$search}%")
+                        ->orWhereHas('personalData', function ($q2) use ($search) {
+                            $q2->where('full_name', 'like', "%{$search}%")
+                                ->orWhere('previous_school', 'like', "%{$search}%");
+                        });
+                });
+            })
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('pages.admin.observasi.observasi', compact('peserta'));
+        // 4. Kirim Data + Statistik ke View
+        return view('pages.admin.peserta.data-peserta', compact(
+            'peserta',
+            'search',
+            'totalPesertaStats',
+            'passedStats',
+            'failedStats',
+            'pendingStats',
+            'passedPercentage'
+        ));
     }
 
     /**
@@ -503,7 +537,7 @@ class RegistrationDataController extends Controller
             return response()->json([
                 'success'  => true,
                 'message'  => 'Data pendaftar berhasil diperbarui!',
-                'redirect' => route('admin.peserta.index'),
+                'redirect' => route('admin.pendaftar.index'),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

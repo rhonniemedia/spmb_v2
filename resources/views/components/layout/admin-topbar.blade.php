@@ -2,7 +2,7 @@
           <button @click="sidebarOpen = true" class="lg:hidden size-11 flex items-center justify-center rounded-xl ring-1 ring-border hover:ring-primary transition-all duration-300 cursor-pointer">
               <i data-lucide="menu" class="size-6 text-foreground"></i>
           </button>
-          <h2 class="hidden lg:block font-bold text-2xl text-foreground">Dashboard Verifikasi</h2>
+          <h2 class="hidden lg:block font-bold text-2xl text-foreground">Portal SPMB</h2>
 
           <div class="flex items-center gap-3">
               <!-- Search -->

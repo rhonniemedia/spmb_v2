@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            UserSeeder::class,
             AdmissionPathSeeder::class,
             AnnouncementSeeder::class,
             FaqCategorySeeder::class,
@@ -24,7 +25,7 @@ class DatabaseSeeder extends Seeder
             // Seeder lainnya...
         ]);
 
-        RegistrationData::factory(50)->create();
+        RegistrationData::factory(5000)->create();
 
         // User::factory(10)->create();
 

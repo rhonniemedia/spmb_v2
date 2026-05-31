@@ -18,38 +18,27 @@ return new class extends Migration
             // --- GATE 2 STATUS ---
             $table->enum('observation_status', ['pending', 'passed', 'failed'])->default('pending');
 
-            // --- PHYSICAL CHECK & SCORES ---
+            // --- PHYSICAL CHECK (Only Yes/No conditions) ---
             $table->enum('hearing_check', ['yes', 'no'])->default('no');
-            $table->unsignedTinyInteger('hearing_score')->default(0);
-
             $table->enum('vision_check', ['yes', 'no'])->default('no');
-            $table->unsignedTinyInteger('vision_score')->default(0);
-
             $table->enum('color_blind_check', ['yes', 'no'])->default('no');
-            $table->unsignedTinyInteger('color_blind_score')->default(0);
-
             $table->enum('physical_activity', ['yes', 'no'])->default('no');
-            $table->unsignedTinyInteger('physical_activity_score')->default(0);
 
-            // --- HARD CONSTRAINTS (DISKUALIFIKASI) ---
+            // --- HARD CONSTRAINTS (Disqualification) ---
             $table->enum('tattoo', ['yes', 'no'])->default('no');
-            $table->unsignedTinyInteger('tattoo_score')->default(0);
-
             $table->enum('tattoo_scar', ['yes', 'no'])->default('no');
-            $table->unsignedTinyInteger('tattoo_scar_score')->default(0);
-
             $table->enum('piercing', ['yes', 'no'])->default('no');
-            $table->unsignedTinyInteger('piercing_score')->default(0);
 
             // --- ADDITIONAL PHYSICAL INFO ---
             $table->enum('keloid', ['yes', 'no'])->default('no');
-            $table->unsignedTinyInteger('keloid_score')->default(0);
-
             $table->enum('minor_disability', ['yes', 'no'])->default('no');
-            $table->unsignedTinyInteger('minor_disability_score')->default(0);
-
             $table->enum('aid_tool', ['yes', 'no'])->default('no');
-            $table->unsignedTinyInteger('aid_tool_score')->default(0);
+
+            // --- CATEGORY SCORES (Observer's Judgement) ---
+            // Menggunakan unsignedTinyInteger karena nilainya hanya 0-100 (maksimal daya tampung TinyInteger adalah 255)
+            $table->unsignedTinyInteger('physical_score')->nullable();
+            $table->unsignedTinyInteger('special_trait_score')->nullable();
+            $table->unsignedTinyInteger('achievement_score')->nullable();
 
             // --- SUMMARY ---
             $table->unsignedSmallInteger('total_score')->default(0);

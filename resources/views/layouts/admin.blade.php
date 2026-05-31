@@ -77,6 +77,7 @@
     </script>
 
     @include('components.layout.modal')
+    @include('components.ui.sweet-alert')
 
     @stack('scripts')
 </body>

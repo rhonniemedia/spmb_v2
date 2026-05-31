@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ObservationController;
 use App\Http\Controllers\Admin\RegistrationDataController as AdminRegistrationDataController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -102,6 +103,15 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::post('/',       [ObservationController::class, 'store'])->name('store');
         Route::get('/{id}/edit', [ObservationController::class, 'edit'])->name('edit');
         Route::put('/{id}',    [ObservationController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('user-data')->name('pengguna.')->group(function () {
+        Route::get('/',        [UserController::class, 'index'])->name('index');
+        Route::post('/',       [UserController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
+        Route::put('/{id}',    [UserController::class, 'update'])->name('update');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/reset-password', [UserController::class, 'resetPassword'])->name('reset-password');
     });
 });
 
