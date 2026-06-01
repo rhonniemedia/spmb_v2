@@ -37,28 +37,18 @@
                 console.log('[store] response:', json);
                 
                 if (json.success) {
-                    // 1. Tutup Modal Secara Halus (Cara bawaan Alpine.js)
+                    // 1. Tutup Modal Wizard Form Secara Halus
                     this.$dispatch('close-modal');
 
-                    // 2. Munculkan Sweet Alert Global
-                    if (window.ShowAlert) {
-                        window.ShowAlert({
-                            type: 'success',
-                            title: 'Berhasil!',
-                            message: json.message,
-                            confirmText: 'Tutup'
-                        });
-                    }
-
-                    // 3. Refresh Tabel Secara Gaib (Tanpa Reload Browser!)
+                    // 2. Beri jeda 300ms agar animasi form tertutup selesai, 
+                    //    baru pancarkan event untuk membuka modal sukses khusus
                     setTimeout(() => {
-                        // UBAH BAGIAN 'GET' MENJADI window.location.href
-                        htmx.ajax('GET', window.location.href, {
-                            target: '#peserta-container',
-                            select: '#peserta-container',
-                            swap: 'outerHTML'
-                        });
+                        window.dispatchEvent(new CustomEvent('show-success-registration', {
+                            detail: json.data
+                        }));
                     }, 300);
+                    
+                    // (Bagian HTMX di sini SUDAH DIHAPUS, dipindah ke data-peserta.blade.php)
                     
                 } else {
                     // Mengolah error agar lebih mudah dibaca

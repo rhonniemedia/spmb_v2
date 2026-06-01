@@ -147,6 +147,8 @@
         class="flex flex-col rounded-2xl border border-border p-6 bg-white gap-6"
         x-data="verifikasiApp()"
         data-peserta="{!! $pesertaJson !!}"
+        x-on:show-success-registration.window="openSuccessModal($event.detail)"
+        x-on:refresh-table.window="refreshTable()"
         x-init="loadData()">
 
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -346,6 +348,131 @@
         {{-- ── Modal Detail Peserta ── --}}
         @include ('pages.admin.peserta.partials._detail-modal')
 
+        {{-- ── Animasi Khusus Modal SweetAlert ── --}}
+        <style>
+            @keyframes sa-scale-in {
+                0% {
+                    opacity: 0;
+                    transform: scale(0.85) translateY(12px);
+                }
+
+                100% {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+
+            @keyframes sa-ripple {
+                0% {
+                    transform: scale(0);
+                    opacity: 0.6;
+                }
+
+                100% {
+                    transform: scale(2.5);
+                    opacity: 0;
+                }
+            }
+
+            @keyframes sa-bounce-icon {
+
+                0%,
+                100% {
+                    transform: scale(1);
+                }
+
+                50% {
+                    transform: scale(1.15);
+                }
+            }
+
+            @keyframes sa-checkmark {
+                0% {
+                    stroke-dashoffset: 50;
+                }
+
+                100% {
+                    stroke-dashoffset: 0;
+                }
+            }
+
+            .animate-sa-scale-in {
+                animation: sa-scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            }
+
+            .animate-sa-ripple {
+                animation: sa-ripple 0.6s ease-out forwards;
+            }
+
+            .animate-sa-bounce-icon {
+                animation: sa-bounce-icon 0.6s ease forwards;
+            }
+
+            .sa-stroke-dash {
+                stroke-dasharray: 50;
+                stroke-dashoffset: 50;
+                animation: sa-checkmark 0.5s ease 0.25s forwards;
+            }
+        </style>
+
+        {{-- ── Modal Sukses Custom (Tema SweetAlert Hijau) ── --}}
+        <div x-show="successModalOpen" x-cloak
+            class="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-0"
+            style="background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); display:none;"
+            x-transition:enter="transition-opacity duration-250 ease-out"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity duration-200"
+            x-transition:leave-end="opacity-0"
+            @click.self="closeSuccessModal()">
+
+            <div x-show="successModalOpen"
+                x-transition:enter="animate-sa-scale-in"
+                x-transition:leave="transition-all duration-200"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-95"
+                class="relative w-full max-w-[400px] shadow-2xl overflow-hidden"
+                style="border-radius: 2rem; background: radial-gradient(ellipse 75% 65% at 110% -10%, rgba(110,231,183,0.8) 0%, rgba(167,243,208,0.33) 45%, transparent 70%), radial-gradient(ellipse 50% 45% at -10% 110%, rgba(167,243,208,0.4) 0%, transparent 65%), #ffffff;">
+
+                <div class="relative z-10 px-8 pt-10 pb-4 text-center">
+
+                    <div class="flex justify-center mb-6">
+                        <div class="relative">
+                            <div class="absolute inset-0 animate-sa-ripple" style="border-radius:9999px; background: #6ee7b7; opacity: 0.25"></div>
+                            <div class="relative w-20 h-20 flex items-center justify-center animate-sa-bounce-icon" style="border-radius:9999px; background: linear-gradient(135deg, #34d399, #059669); box-shadow: 0 8px 24px rgba(5,150,105,0.28)">
+                                <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                                    <path class="sa-stroke-dash" d="M8 18 L15 25 L28 11" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 class="text-[22px] font-bold mb-2 leading-tight text-gray-800 tracking-tight">Data Disimpan!</h2>
+
+                    <p class="text-[14px] leading-relaxed text-gray-500 mb-6 px-2">
+                        Data peserta <strong class="text-gray-800" x-text="successData.full_name"></strong> dengan nomor registrasi
+                        <strong class="text-gray-800 font-mono" x-text="successData.reg_number"></strong> berhasil disimpan.
+                    </p>
+                </div>
+
+                <div class="relative z-10 px-8 pb-10 flex flex-col gap-3">
+                    <button @click="cetakBukti()"
+                        class="w-full py-3.5 px-5 text-[15px] font-bold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 text-white hover:opacity-90 cursor-pointer"
+                        style="border-radius:999px; background: linear-gradient(135deg, #34d399, #059669); box-shadow: 0 8px 20px rgba(5,150,105,0.28)">
+                        <i data-lucide="printer" class="size-[18px]"></i>
+                        <span>Cetak Bukti Daftar</span>
+                    </button>
+
+                    <button @click="closeSuccessModal()"
+                        class="w-full py-3.5 px-5 text-[15px] font-bold transition-all duration-200 active:scale-95 border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-800 cursor-pointer"
+                        style="border-radius:999px">
+                        <span>OK, Tutup</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -364,6 +491,41 @@
             modalOpen: false,
             activePeserta: null,
             pesertaData: [],
+
+            successModalOpen: false,
+            successData: {},
+
+            openSuccessModal(data) {
+                this.successData = data;
+                this.successModalOpen = true;
+                this.$nextTick(() => {
+                    if (window.lucide) lucide.createIcons();
+                });
+            },
+
+            // Tambahkan fungsi baru ini
+            refreshTable() {
+                htmx.ajax('GET', window.location.href, {
+                    target: '#peserta-container',
+                    select: '#peserta-container',
+                    swap: 'outerHTML'
+                });
+            },
+
+            closeSuccessModal() {
+                this.successModalOpen = false;
+
+                // Panggil refresh setelah modal sukses ditutup
+                this.refreshTable();
+            },
+
+            cetakBukti() {
+                // Buka link cetak di tab baru menggunakan ID dari DB
+                window.open(`/admin/data/${this.successData.id}/cetak`, '_blank');
+                // Langsung tutup modal suksesnya
+                this.refreshTable();
+                this.closeSuccessModal();
+            },
 
             // Fungsi ini otomatis dipanggil oleh x-init setiap kali HTMX melakukan render ulang tabel
             loadData() {

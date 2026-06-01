@@ -16,7 +16,7 @@ class RequirementSeeder extends Seeder
         $data = [
             [
                 'category' => 'dokumen',
-                'name' => 'Akta Kelahiran',
+                'name' => 'Akta Kelahiran Asli',
                 'description' => 'Akta kelahiran Asli calon murid baru',
                 'is_mandatory' => true,
                 'icon' => 'fa-solid fa-file-invoice',
@@ -48,8 +48,8 @@ class RequirementSeeder extends Seeder
             ],
             [
                 'category' => 'dokumen',
-                'name' => 'Pas Foto 3×4',
-                'description' => 'Pas Foto formal terbaru berlatar belakang merah/biru',
+                'name' => 'Surat Keterangan Rata-rata Nilai Rapor',
+                'description' => 'Surat Keterangan Rata-rata Nilai Rapor dari Semester 1 s.d. 5',
                 'is_mandatory' => true,
                 'icon' => 'fa-solid fa-image',
                 'color_theme' => 'rose'

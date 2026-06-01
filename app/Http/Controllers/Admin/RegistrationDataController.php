@@ -150,6 +150,37 @@ class RegistrationDataController extends Controller
         }, compact('jurusanList', 'jalurList', 'berkasList', 'hiddenFields', 'regNumber', 'stepUrls', 'isEdit', 'postUrl'));
     }
     /**
+     * Generate nomor registrasi dengan counter global (semua prefix berbagi urutan yang sama).
+     * Wajib dipanggil di dalam DB::beginTransaction() agar lockForUpdate() efektif.
+     *
+     * Contoh urutan tersimpan di DB:
+     *   REG-2026-1234-0001  <- pendaftar ke-1
+     *   REG-2027-1222-0002  <- pendaftar ke-2
+     *   REG-2026-8000-0003  <- pendaftar ke-3
+     *   dst.
+     */
+    private function generateRegistrationNumber(string $baseReg): string
+    {
+        $baseReg = rtrim($baseReg, '-');
+
+        // Ambil nomor urut terbesar dari SEMUA data (counter global, bukan per-prefix)
+        $lastRecord = RegistrationData::where('registration_number', 'REGEXP', '-[0-9]{4}$')
+            ->lockForUpdate()
+            ->orderByRaw('CAST(SUBSTRING_INDEX(registration_number, "-", -1) AS UNSIGNED) DESC')
+            ->first();
+
+        if ($lastRecord) {
+            $parts      = explode('-', $lastRecord->registration_number);
+            $lastNumber = (int) end($parts);
+            $sequence   = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $sequence = '0001';
+        }
+
+        return $baseReg . '-' . $sequence;
+    }
+
+    /**
      * Simpan data pendaftar ke database.
      *
      * Route: POST /admin/pendaftar
@@ -157,9 +188,20 @@ class RegistrationDataController extends Controller
      */
     public function store(Request $request)
     {
+        // 0. VALIDASI AWAL: pastikan reg_number diisi sebelum masuk transaksi
+        $baseReg = $request->input('reg_number');
+
+        if (empty(trim($baseReg ?? ''))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nomor registrasi wajib diisi.',
+                'errors'  => ['reg_number' => ['Nomor registrasi wajib diisi.']],
+            ], 422);
+        }
+
         // 1. Definisikan aturan validasi
         $rules = [
-            'reg_number'    => ['required', 'string', 'max:30', 'unique:registration_data,registration_number'],
+            'reg_number'    => ['required', 'string', 'max:25'],
             'full_name'     => ['required', 'string', 'max:100'],
             'nickname'      => ['required', 'string', 'max:50'],
             'gender'        => ['required', 'in:L,P'],
@@ -185,7 +227,6 @@ class RegistrationDataController extends Controller
 
         // 2. Pesan Error Kustom
         $messages = [
-            'reg_number.unique'      => 'Nomor registrasi ini sudah terdaftar di sistem.',
             'nisn.digits'            => 'NISN harus terdiri dari tepat 10 digit angka.',
             'phone.regex'            => 'Format nomor WhatsApp tidak valid (hanya angka, +, -, spasi).',
             'gender.in'              => 'Jenis kelamin harus L (Laki-laki) atau P (Perempuan).',
@@ -212,6 +253,10 @@ class RegistrationDataController extends Controller
         DB::beginTransaction();
 
         try {
+            // [0] Generate nomor registrasi final di dalam transaksi
+            // agar lockForUpdate() mencegah race condition (duplikat nomor)
+            $finalRegNumber = $this->generateRegistrationNumber($validated['reg_number']);
+
             // [A] Simpan PersonalData
             $personalData = PersonalData::create([
                 'full_name'       => $validated['full_name'],
@@ -227,7 +272,7 @@ class RegistrationDataController extends Controller
             $registrationData = RegistrationData::create([
                 'personal_data_id'    => $personalData->id,
                 'admission_path_id'   => $validated['jalur'],
-                'registration_number' => $validated['reg_number'],
+                'registration_number' => $finalRegNumber,
                 'choice_1'            => $validated['pil1'],
                 'choice_2'            => $validated['pil2'] ?? null,
                 'choice_3'            => $validated['pil3'] ?? null,
@@ -284,6 +329,12 @@ class RegistrationDataController extends Controller
             return response()->json([
                 'success'  => true,
                 'message'  => 'Data pendaftar berhasil disimpan!',
+                // Tambahkan array data ini
+                'data'     => [
+                    'id'         => $registrationData->id,
+                    'full_name'  => $personalData->full_name,
+                    'reg_number' => $registrationData->registration_number
+                ],
                 'redirect' => route('admin.pendaftar.index'),
             ]);
         } catch (\Exception $e) {
@@ -310,8 +361,11 @@ class RegistrationDataController extends Controller
         // Jika ini adalah tarikan pertama (bukan hasil klik Lanjut/Kembali HTMX),
         // suntikkan data dari database ke dalam Request agar Blade Alpine dapat mendeteksinya.
         if (! $request->has('full_name')) {
+            // Potong 5 karakter terakhir (tanda strip dan 4 digit angka)
+            $prefixOnly = substr($registration->registration_number, 0, -5);
+
             $dbData = [
-                'reg_number'    => $registration->registration_number,
+                'reg_number'    => $prefixOnly, // Tampilkan prefix saja
                 'full_name'     => $registration->personalData->full_name ?? '',
                 'nickname'      => $registration->personalData->nick_name ?? '',
                 'gender'        => $registration->personalData->gender ?? '',
@@ -474,6 +528,17 @@ class RegistrationDataController extends Controller
 
         try {
             $registrationData = RegistrationData::findOrFail($id);
+
+            // --- LOGIKA MENGUBAH AWALAN TANPA MENGGANGU 4 DIGIT TERAKHIR ---
+            $newInputPrefix = rtrim($validated['reg_number'], '-'); // Contoh: "NEW-2026"
+            $oldRegNumber = $registrationData->registration_number; // Contoh: "REG-2026-0001"
+
+            // Ambil 4 digit terakhir dari nomor lama
+            $suffix = substr($oldRegNumber, -4);
+
+            // Gabungkan awalan baru dengan akhiran lama
+            $finalRegNumber = $newInputPrefix . '-' . $suffix;
+
             $personalData = $registrationData->personalData;
 
             // Update PersonalData
@@ -489,7 +554,7 @@ class RegistrationDataController extends Controller
             // Update RegistrationData
             $registrationData->update([
                 'admission_path_id'   => $validated['jalur'],
-                'registration_number' => $validated['reg_number'],
+                'registration_number' => $finalRegNumber,
                 'choice_1'            => $validated['pil1'],
                 'choice_2'            => $validated['pil2'] ?? null,
                 'choice_3'            => $validated['pil3'] ?? null,
@@ -545,6 +610,12 @@ class RegistrationDataController extends Controller
             return response()->json([
                 'success'  => true,
                 'message'  => 'Data pendaftar berhasil diperbarui!',
+                // Tambahkan array data ini
+                'data'     => [
+                    'id'         => $registrationData->id,
+                    'full_name'  => $personalData->full_name,
+                    'reg_number' => $registrationData->registration_number
+                ],
                 'redirect' => route('admin.pendaftar.index'),
             ]);
         } catch (\Exception $e) {

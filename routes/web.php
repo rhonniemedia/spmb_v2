@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CetakBuktiDaftarController;
 use App\Http\Controllers\Admin\ObservationController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RegistrationDataController as AdminRegistrationDataController;
@@ -96,6 +97,7 @@ Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->pre
         Route::post('/',       [AdminRegistrationDataController::class, 'store'])->name('store');
         Route::get('/{id}/edit', [AdminRegistrationDataController::class, 'edit'])->name('edit');
         Route::put('/{id}',    [AdminRegistrationDataController::class, 'update'])->name('update');
+        Route::get('/{id}/cetak', [CetakBuktiDaftarController::class, 'cetakBukti'])->name('cetak');
     });
 
     Route::prefix('observation')->name('observasi.')->group(function () {

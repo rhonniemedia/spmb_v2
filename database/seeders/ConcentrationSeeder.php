@@ -21,7 +21,7 @@ class ConcentrationSeeder extends Seeder
                 'description' => 'Mempelajari perencanaan, gambar desain bangunan, visualisasi 3D, serta perhitungan anggaran biaya konstruksi menggunakan teknologi BIM modern.',
                 'tags' => ['Architecture', 'BIM Modeler'],
                 'color' => 'cyan', // Khas warna arsitektur/teknik
-                'quota' => 72,
+                'quota' => 36,
                 'status' => 'active',
             ],
             [
@@ -32,7 +32,7 @@ class ConcentrationSeeder extends Seeder
                 'description' => 'Menguasai sistem kontrol otomatis elektronik, pemrogaman PLC, robotika industri, serta maintenance perangkat kontrol elektronika pabrik.',
                 'tags' => ['Automation', 'Robotics'],
                 'color' => 'emerald', // Hijau elektronik / mapan
-                'quota' => 72,
+                'quota' => 36,
                 'status' => 'active',
             ],
             [
@@ -54,7 +54,7 @@ class ConcentrationSeeder extends Seeder
                 'description' => 'Mempelajari pengoperasian dan pemeliharaan komponen pembangkit energi listrik, termasuk pengelolaan generator dan sistem energi terbarukan.',
                 'tags' => ['Power Plant', 'Energy Tech'],
                 'color' => 'amber', // Kuning/Amber Energi listrik tinggi
-                'quota' => 72,
+                'quota' => 36,
                 'status' => 'active',
             ],
             [
@@ -65,7 +65,7 @@ class ConcentrationSeeder extends Seeder
                 'description' => 'Mempelajari pemasangan, pengoperasian, dan perbaikan instalasi penerangan gedung, instalasi tenaga, hingga panel kontrol motor listrik industri.',
                 'tags' => ['Electrical', 'Control Panel'],
                 'color' => 'yellow', // Kuning petir/listrik
-                'quota' => 72,
+                'quota' => 108,
                 'status' => 'active',
             ],
             [
@@ -87,7 +87,7 @@ class ConcentrationSeeder extends Seeder
                 'description' => 'Mempelajari teknik penyambungan logam menggunakan berbagai metode las industri standar internasional (SMAW, GMAW, GTAW) untuk manufaktur.',
                 'tags' => ['Welding', 'Fabrication'],
                 'color' => 'orange', // Orange percikan api/las
-                'quota' => 72,
+                'quota' => 36,
                 'status' => 'active',
             ],
             [
@@ -120,7 +120,7 @@ class ConcentrationSeeder extends Seeder
                 'description' => 'Mempelajari pelaksanaan konstruksi bangunan perumahan, teknik beton bertulang, pemasangan dinding lantai, serta manajemen kerja area konstruksi.',
                 'tags' => ['Civil Eng', 'Construction'],
                 'color' => 'sky', // Cerah seperti langit konstruksi lapangan
-                'quota' => 72,
+                'quota' => 36,
                 'status' => 'active',
             ],
         ];

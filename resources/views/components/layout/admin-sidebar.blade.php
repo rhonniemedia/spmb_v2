@@ -46,7 +46,7 @@
                         <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
                             <i data-lucide="file-check" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
                             <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Observasi</span>
-                            <span class="ml-auto h-5 min-w-5 px-1.5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">24</span>
+                            <!-- <span class="ml-auto h-5 min-w-5 px-1.5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">24</span> -->
                         </div>
                     </a>
                     <a href="#" class="group cursor-pointer">
@@ -59,7 +59,7 @@
                         <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
                             <i data-lucide="log-in" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
                             <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Daftar Ulang</span>
-                            <span class="ml-auto h-5 min-w-5 px-1.5 rounded-full bg-success text-white text-[10px] font-bold flex items-center justify-center">4</span>
+                            <!-- <span class="ml-auto h-5 min-w-5 px-1.5 rounded-full bg-success text-white text-[10px] font-bold flex items-center justify-center">4</span> -->
                         </div>
                     </a>
                 </div>
