@@ -109,7 +109,6 @@ class ObservationController extends Controller
         ObservationData::create([
             ...$validated,
             'observer_id' => Auth::user()->id,
-            'updated_by'  => Auth::user()->id,
         ]);
 
         // 1. Ambil data peserta terbaru beserta relasinya

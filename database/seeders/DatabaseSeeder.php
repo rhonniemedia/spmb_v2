@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             // Seeder lainnya...
         ]);
 
-        RegistrationData::factory(5000)->create();
+        RegistrationData::factory(5)->create();
 
         // User::factory(10)->create();
 

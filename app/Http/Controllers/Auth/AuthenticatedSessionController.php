@@ -9,17 +9,11 @@ use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Menampilkan halaman login.
-     */
     public function create()
     {
         return view('pages.auth.login');
     }
 
-    /**
-     * Menangani request autentikasi / login.
-     */
     public function store(Request $request)
     {
         // 1. Validasi Input
@@ -44,8 +38,16 @@ class AuthenticatedSessionController extends Controller
         // 3. Regenerasi Session
         $request->session()->regenerate();
 
-        // Ambil URL tujuan semula, jika tidak ada arahkan ke dashboard
-        $redirectUrl = redirect()->intended(route('dashboard'))->getTargetUrl();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // PENENTUAN ARAH REDIRECT BERDASARKAN ROLE
+        $dashboardRoute = in_array($user->role, ['superadmin', 'admin', 'verifikator', 'observator'])
+            ? route('admin.dashboard')
+            : route('dashboard'); // Ini nama rute untuk user biasa di web.php
+
+        // Ambil URL tujuan semula, jika tidak ada arahkan ke dashboard sesuai role
+        $redirectUrl = redirect()->intended($dashboardRoute)->getTargetUrl();
 
         // 4. Response Sukses (Mendukung HTMX)
         if ($request->hasHeader('HX-Request')) {
@@ -53,12 +55,9 @@ class AuthenticatedSessionController extends Controller
                 ->header('HX-Redirect', $redirectUrl);
         }
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended($dashboardRoute);
     }
 
-    /**
-     * Menangani request logout.
-     */
     public function destroy(Request $request)
     {
         Auth::logout();

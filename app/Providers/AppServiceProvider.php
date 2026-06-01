@@ -6,6 +6,7 @@ use App\Http\View\Composers\MasterComposer;
 use App\Notifications\DataReminderNotification;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -35,5 +36,22 @@ class AppServiceProvider extends ServiceProvider
                 $event->user->notify(new DataReminderNotification('welcome'));
             }
         );
+
+        // Daftarkan masing-masing role sebagai Gate
+        Gate::define('superadmin', function ($user) {
+            return $user->role === 'superadmin';
+        });
+
+        Gate::define('admin', function ($user) {
+            return $user->role === 'admin';
+        });
+
+        Gate::define('verifikator', function ($user) {
+            return $user->role === 'verifikator';
+        });
+
+        Gate::define('observator', function ($user) {
+            return $user->role === 'observator';
+        });
     }
 }

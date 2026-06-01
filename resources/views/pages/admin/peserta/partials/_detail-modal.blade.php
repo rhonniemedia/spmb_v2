@@ -1,14 +1,13 @@
-{{-- ═══════════════════════════════════════════
-        MODAL DETAIL (Lihat detail info peserta)
-════════════════════════════════════════════ --}}
-<div x-show="modalOpen" x-cloak
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
-    x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
-    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-    @click.self="modalOpen = false">
+<div x-show="modalOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+    class="fixed inset-0 bg-foreground/60 z-[200] flex items-center justify-center p-4" style="display:none" @click.self="modalOpen = false">
 
-    <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+    <div x-show="modalOpen"
+        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100 translate-y-0" x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+        class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+
+        {{-- Header (asli) --}}
         <div class="flex items-center justify-between px-6 py-5 border-b border-border shrink-0">
             <div class="flex items-center gap-3">
                 <div class="h-10 w-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
@@ -19,24 +18,23 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                {{-- BADGE STATUS OBSERVASI --}}
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold tracking-wider"
+                <!-- <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold"
                     :class="{
-                        'bg-warning/10 text-warning-dark': activePeserta?.obs_status === 'pending',
-                        'bg-success/10 text-success-dark': activePeserta?.obs_status === 'passed',
-                        'bg-error/10 text-error-dark': activePeserta?.obs_status === 'failed'
-                    }"
-                    x-text="activePeserta?.obs_status === 'passed' ? 'Terverifikasi' : (activePeserta?.obs_status === 'failed' ? 'Ditolak' : 'Belum Observasi')">
-                </span>
-
-                <button @click="modalOpen = false"
-                    class="size-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors cursor-pointer">
+                                'bg-warning/10 text-warning-dark': activePeserta?.status === 'pending',
+                                'bg-success/10 text-success-dark': activePeserta?.status === 'verified',
+                                'bg-error/10 text-error-dark': activePeserta?.status === 'rejected',
+                                'bg-blue-50 text-blue-700': activePeserta?.status === 'incomplete'
+                            }" x-text="activePeserta?.statusLabel"></span> -->
+                <button @click="modalOpen = false" class="size-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors cursor-pointer">
                     <i data-lucide="x" class="size-4 text-secondary"></i>
                 </button>
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-6 md:p-8">
+        {{-- Body --}}
+        <div class="flex-1 overflow-y-auto scrollbar-hide p-6 md:p-8">
+
+            {{-- Chip: Jalur & Jurusan Utama --}}
             <div class="flex items-center gap-2 flex-wrap mb-6">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border"
                     style="background:#EEEDFE;color:#3C3489;border-color:#AFA9EC">
@@ -52,6 +50,7 @@
                 </template>
             </div>
 
+            {{-- Grup: Data Diri --}}
             <div class="mb-6">
                 <div class="flex items-center gap-2 mb-3">
                     <i data-lucide="user" class="size-3 text-secondary shrink-0"></i>
@@ -74,12 +73,13 @@
                     <div class="rounded-xl px-3 py-2.5 bg-muted/50">
                         <p class="text-[11px] text-secondary mb-1">WhatsApp</p>
                         <div class="flex items-center gap-2">
-                            <p class="text-sm font-medium text-foreground font-mono"
-                                x-text="`+62${activePeserta?.phone?.replace(/^0/, '')}`"></p>
+                            <p class="text-sm font-medium text-foreground font-mono" x-text="`+62${activePeserta?.phone?.replace(/^0/, '')}`"></p>
                             <a :href="`https://wa.me/62${activePeserta?.phone?.replace(/^0/, '')}`"
-                                target="_blank" x-show="activePeserta?.phone !== '-'"
+                                target="_blank"
+                                x-show="activePeserta?.phone !== '-'"
                                 class="inline-flex items-center justify-center size-5 rounded-md hover:opacity-80 transition-opacity shrink-0"
-                                style="background:#dcfce7;color:#16a34a" title="Chat WhatsApp">
+                                style="background:#dcfce7;color:#16a34a"
+                                title="Chat WhatsApp">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-2.5 h-2.5 fill-current">
                                     <path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z" />
                                 </svg>
@@ -89,6 +89,7 @@
                 </div>
             </div>
 
+            {{-- Grup: Pilihan Jurusan --}}
             <div class="mb-6">
                 <div class="flex items-center gap-2 mb-3">
                     <i data-lucide="layout-grid" class="size-3 text-secondary shrink-0"></i>
@@ -104,8 +105,7 @@
                     </div>
                     <div class="rounded-xl px-3 py-2.5 bg-muted/50">
                         <p class="text-[11px] text-secondary mb-1">Pilihan 2</p>
-                        <p class="text-sm font-medium text-foreground"
-                            x-text="activePeserta?.jurusan2 === '-' ? '—' : activePeserta?.jurusan2"></p>
+                        <p class="text-sm font-medium text-foreground" x-text="activePeserta?.jurusan2 === '-' ? '—' : activePeserta?.jurusan2"></p>
                     </div>
                     <div class="rounded-xl px-3 py-2.5 bg-muted/50">
                         <p class="text-[11px] text-secondary mb-1">Pilihan 3</p>
@@ -116,6 +116,7 @@
                 </div>
             </div>
 
+            {{-- Grup: Nilai --}}
             <div class="mb-6">
                 <div class="flex items-center gap-2 mb-3">
                     <i data-lucide="bar-chart-2" class="size-3 text-secondary shrink-0"></i>
@@ -134,6 +135,7 @@
                 </div>
             </div>
 
+
             <div>
                 <div class="flex items-center gap-2 mb-3">
                     <i data-lucide="file-check" class="size-3 text-secondary shrink-0"></i>
@@ -148,24 +150,27 @@
                             <span x-text="berkas"></span>
                         </span>
                     </template>
+                    <template x-if="!activePeserta?.berkas || activePeserta?.berkas.length === 0">
+                        <span class="text-xs text-secondary italic">Belum ada berkas yang diverifikasi</span>
+                    </template>
                 </div>
             </div>
 
-            {{-- TAMBAHKAN BAGIAN INI: Riwayat Sistem (Log) Observasi --}}
+            {{-- TAMBAHKAN BAGIAN INI: Riwayat Sistem (Log) --}}
             <div class="mt-8 pt-6 border-t border-dashed border-border">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
-                    {{-- Box 1: Info Observasi --}}
+                    {{-- Box 1: Info Verifikasi --}}
                     <div class="rounded-xl px-4 py-3 bg-muted/50 flex items-start gap-3">
                         <div class="size-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100 shadow-sm">
-                            <i data-lucide="clipboard-check" class="size-4 text-blue-600"></i>
+                            <i data-lucide="shield-check" class="size-4 text-blue-600"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[10px] font-bold tracking-[0.05em] uppercase text-secondary mb-0.5">Diobservasi Oleh</p>
-                            <p class="text-xs font-semibold text-foreground truncate" x-text="activePeserta?.obs_verified_by ?? 'Sistem / Belum'"></p>
+                            <p class="text-[10px] font-bold tracking-[0.05em] uppercase text-secondary mb-0.5">Diverifikasi Oleh</p>
+                            <p class="text-xs font-semibold text-foreground truncate" x-text="activePeserta?.verified_by ?? 'Sistem / Belum'"></p>
                             <div class="flex items-center gap-1 mt-1 text-[10px] text-secondary">
                                 <i data-lucide="calendar-clock" class="size-3 shrink-0"></i>
-                                <span class="truncate" x-text="activePeserta?.obs_verified_at ?? '-'"></span>
+                                <span class="truncate" x-text="activePeserta?.verified_at ?? '-'"></span>
                             </div>
                         </div>
                     </div>
@@ -177,26 +182,39 @@
                         </div>
                         <div class="min-w-0">
                             <p class="text-[10px] font-bold tracking-[0.05em] uppercase text-secondary mb-0.5">Diperbarui Oleh</p>
-                            <p class="text-xs font-semibold text-foreground truncate" x-text="activePeserta?.obs_updated_by ?? '-'"></p>
+                            <p class="text-xs font-semibold text-foreground truncate" x-text="activePeserta?.updated_by ?? '-'"></p>
                             <div class="flex items-center gap-1 mt-1 text-[10px] text-secondary">
                                 <i data-lucide="calendar-clock" class="size-3 shrink-0"></i>
-                                <span class="truncate" x-text="activePeserta?.obs_updated_at ?? '-'"></span>
+                                <span class="truncate" x-text="activePeserta?.updated_at ?? '-'"></span>
                             </div>
                         </div>
                     </div>
 
                 </div>
             </div>
+
         </div>
 
+        {{-- Footer (asli) dengan counter --}}
         <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-border bg-white shrink-0">
             <p class="text-xs text-secondary">
-                <span class="font-semibold text-foreground" x-text="activePeserta?.berkas?.length ?? 0"></span> dari <span class="font-semibold text-foreground">6</span> berkas diterima
+                <span class="font-semibold text-foreground" x-text="activePeserta?.berkas?.length ?? 0"></span>
+                dari <span class="font-semibold text-foreground">6</span> berkas diterima
             </p>
-            <button type="button" @click="modalOpen = false"
-                class="px-5 py-2.5 rounded-xl border border-border text-sm font-bold text-secondary hover:bg-muted hover:text-foreground transition-colors cursor-pointer shadow-sm">
-                Tutup
-            </button>
+            <div class="flex items-center gap-2">
+                <button type="button" @click="modalOpen = false"
+                    class="px-5 py-2.5 rounded-xl border border-border text-sm font-bold text-secondary hover:bg-muted hover:text-foreground transition-colors cursor-pointer shadow-sm">
+                    Tutup
+                </button>
+                @canany(['superadmin', 'admin', 'verifikator'])
+                <a :href="`/admin/data/${activePeserta?.id}/cetak`" target="_blank"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-hover shadow-sm transition-colors cursor-pointer">
+                    <i data-lucide="printer" class="size-4"></i>
+                    Cetak Bukti Daftar
+                </a>
+                @endcanany
+            </div>
         </div>
+
     </div>
 </div>

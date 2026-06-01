@@ -68,13 +68,15 @@
             <div class="flex flex-col gap-4">
                 <h3 class="font-medium text-sm text-secondary">Pengguna</h3>
                 <div class="flex flex-col gap-1">
+                    @can('superadmin')
                     <a href="{{route('admin.pengguna.index')}}" class="group cursor-pointer {{ request()->routeIs('admin.pengguna.index') ? 'active' : '' }}">
                         <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
                             <i data-lucide="users-round" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
                             <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Daftar Pengguna</span>
                         </div>
                     </a>
-                    <a href="#" class="group cursor-pointer">
+                    @endcan
+                    <a href="{{route('admin.profil.index')}}" class="group cursor-pointer {{ request()->routeIs('admin.profil.index') ? 'active' : '' }}">
                         <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
                             <i data-lucide="circle-user" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
                             <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Akun Pengguna</span>

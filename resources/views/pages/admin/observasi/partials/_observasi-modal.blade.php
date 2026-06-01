@@ -277,7 +277,7 @@
                                                 <span x-show="ach.level_label" class="text-[11px] font-bold text-gray-600 border border-gray-200 px-1.5 rounded" x-text="ach.level_label"></span>
                                             </div>
                                             <p x-show="ach.position" class="text-sm font-black text-gray-800 mt-1" x-text="ach.position"></p>
-                                            <p x-show="ach.ranks" class="text-xs text-gray-500 font-medium mt-1 font-mono leading-relaxed" x-text="ach.ranks"></p>
+                                            <p x-show="ach.ranks" class="text-xs text-gray-500 font-medium mt-1 font-mono leading-relaxed" x-html="ach.ranks"></p>
                                             <p x-show="!ach.level_label && !ach.position && !ach.ranks" class="text-xs text-gray-400 italic mt-1">Hanya melampirkan sertifikat umum.</p>
                                         </div>
                                     </div>

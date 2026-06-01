@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ObservationController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RegistrationDataController as AdminRegistrationDataController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
@@ -73,7 +74,7 @@ Route::get('/email/verified', fn() => view('pages.auth.email-verified'))->name('
 // ============================================================
 // ADMIN ROUTES (login required)
 // ============================================================
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', fn() => view('pages.admin.dashboard'))->name('dashboard');
     // Route::get('/observation', [ObservationController::class, 'index'])->name('observasi');
@@ -105,13 +106,19 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::put('/{id}',    [ObservationController::class, 'update'])->name('update');
     });
 
-    Route::prefix('user-data')->name('pengguna.')->group(function () {
+    Route::middleware(['role:superadmin'])->prefix('user-data')->name('pengguna.')->group(function () {
         Route::get('/',        [UserController::class, 'index'])->name('index');
         Route::post('/',       [UserController::class, 'store'])->name('store');
         Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
         Route::put('/{id}',    [UserController::class, 'update'])->name('update');
         Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
-        Route::post('/{id}/reset-password', [UserController::class, 'resetPassword'])->name('reset-password');
+    });
+
+    Route::prefix('profile')->name('profil.')->group(function () {
+        Route::get('/', [ProfileController::class, 'index'])->name('index');
+        Route::put('/data', [ProfileController::class, 'updateData'])->name('update-data');
+        Route::put('/password', [ProfileController::class, 'updatePassword'])->name('update-password');
+        Route::post('/photo', [ProfileController::class, 'updatePhoto'])->name('update-photo');
     });
 });
 
@@ -119,7 +126,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 // ============================================================
 // USER ROUTES (login + email verified)
 // ============================================================
-Route::middleware(['auth', 'verified'])->prefix('user')->group(function () {
+Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');

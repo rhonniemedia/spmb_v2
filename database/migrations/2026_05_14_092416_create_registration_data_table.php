@@ -39,6 +39,9 @@ return new class extends Migration
             $table->text('verification_notes')->nullable();
             $table->foreignUuid('verified_by')->nullable()->constrained('users')->onDelete('set null');
 
+            $table->foreignUuid('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignUuid('updated_by')->nullable()->constrained('users')->onDelete('set null');
+
             $table->dateTime('submitted_at')->nullable();
             $table->timestamps();
         });

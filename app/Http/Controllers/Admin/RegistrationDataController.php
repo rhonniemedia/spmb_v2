@@ -11,6 +11,7 @@ use App\Models\RegistrationData;
 use App\Models\RegistrationDocument;
 use App\Models\Requirement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -239,6 +240,11 @@ class RegistrationDataController extends Controller
                 'tka_math'            => $validated['tka_mtk'] ?? null,
                 'tka_indonesian'      => $validated['tka_indo'] ?? null,
                 'tka_average'         => $validated['rata_tka'] ?? null,
+
+                'verification_status' => 'verified',
+                'verified_by'         => Auth::id(),
+                'created_by'          => Auth::id(),
+                'submitted_at'        => now(),
             ]);
 
             // [C] Simpan Prestasi
@@ -496,6 +502,8 @@ class RegistrationDataController extends Controller
                 'tka_math'            => $validated['tka_mtk'] ?? null,
                 'tka_indonesian'      => $validated['tka_indo'] ?? null,
                 'tka_average'         => $validated['rata_tka'] ?? null,
+
+                'updated_by'          => Auth::id(),
             ]);
 
             // Update Prestasi: Hapus yang lama, insert yang baru (Lebih aman dari bentrok data)

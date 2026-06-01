@@ -48,11 +48,90 @@
                       </div>
                   </div>
               </div>
+
               <!-- Avatar -->
+              @php
+              // Mengambil data user yang sedang login
+              $authUser = Auth::user();
+              $authName = $authUser->name ?? 'User';
+
+              // Membuat inisial dinamis (2 huruf pertama dari kata ke-1 & ke-2)
+              $nameParts = explode(' ', $authName);
+              $authInitials = count($nameParts) >= 2
+              ? strtoupper(substr($nameParts[0], 0, 1) . substr($nameParts[1], 0, 1))
+              : strtoupper(substr($authName, 0, 2));
+              @endphp
+
               <div
-                  class="size-11 rounded-full bg-red-700 flex items-center justify-center ring-2 ring-white shadow-md cursor-pointer shrink-0"
-                  @click="openProfile = !openProfile">
-                  <span class="text-white font-black text-sm">RS</span>
+                  class="hidden md:flex items-center gap-3 pl-3 border-l border-border relative"
+                  x-data="{ openProfile: false }">
+
+                  {{-- Avatar inisial / Foto --}}
+                  <div
+                      class="size-11 rounded-full bg-primary flex items-center justify-center ring-2 ring-border cursor-pointer shrink-0 overflow-hidden"
+                      @click="openProfile = !openProfile">
+
+                      @if($authUser->photo)
+                      <img src="{{ asset('storage/' . $authUser->photo) }}" alt="Avatar" class="w-full h-full object-cover">
+                      @else
+                      <span class="text-white font-black text-sm">{{ $authInitials }}</span>
+                      @endif
+                  </div>
+
+                  <div
+                      x-show="openProfile"
+                      x-transition:enter="transition ease-out duration-200"
+                      x-transition:enter-start="opacity-0 scale-95"
+                      x-transition:enter-end="opacity-100 scale-100"
+                      x-transition:leave="transition ease-in duration-75"
+                      x-transition:leave-start="opacity-100 scale-100"
+                      x-transition:leave-end="opacity-0 scale-95"
+                      @click.away="openProfile = false"
+                      class="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-border z-[100]"
+                      style="display: none">
+                      <div class="p-2">
+
+                          {{-- Info user di atas --}}
+                          <div class="flex items-center gap-3 px-2 py-2 mb-1">
+                              <div class="size-9 rounded-full bg-primary flex items-center justify-center shrink-0 overflow-hidden">
+                                  @if($authUser->photo)
+                                  <img src="{{ asset('storage/' . $authUser->photo) }}" alt="Avatar" class="w-full h-full object-cover">
+                                  @else
+                                  <span class="text-white font-black text-xs">{{ $authInitials }}</span>
+                                  @endif
+                              </div>
+                              <div class="min-w-0">
+                                  <p class="font-bold text-sm text-foreground truncate">{{ $authName }}</p>
+                                  <p class="text-xs text-secondary capitalize">{{ $authUser->role }}</p>
+                              </div>
+                          </div>
+
+                          <hr class="my-1 border-border" />
+
+                          <a href="{{ route('admin.profil.index') }}"
+                              class="flex items-center gap-2 px-2 py-2 rounded-md text-sm text-secondary hover:bg-muted hover:text-primary transition-colors">
+                              <i data-lucide="user" class="size-4"></i> My Profile
+                          </a>
+
+                          <a href="#"
+                              class="flex items-center gap-2 px-2 py-2 rounded-md text-sm text-secondary hover:bg-muted hover:text-primary transition-colors">
+                              <i data-lucide="settings" class="size-4"></i> Account Settings
+                          </a>
+
+                          <hr class="my-1 border-border" />
+
+                          <a href="{{ route('logout') }}"
+                              class="flex items-center gap-2 px-2 py-2 rounded-md text-sm text-error hover:bg-error/10 transition-colors"
+                              onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                              <i data-lucide="log-out" class="size-4"></i>
+                              <span>Sign Out</span>
+                          </a>
+
+                          <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                              @csrf
+                          </form>
+                      </div>
+                  </div>
               </div>
           </div>
       </div>

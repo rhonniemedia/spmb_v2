@@ -21,6 +21,36 @@ $hasObservation = $p->observationData !== null;
 $obsData = $p->observationData;
 $achievements = $p->achievements ?? collect();
 
+// ── 1. TAMBAHAN: MENCARI NAMA ADMIN & TANGGAL OBSERVASI ──
+$observerName = 'Sistem / Belum';
+$updaterName = '-';
+$obsVerifiedAt = '-';
+$obsUpdatedAt = '-';
+
+if ($obsData) {
+// Cari Nama Observer
+if (!empty($obsData->observer_id)) {
+$observer = \App\Models\User::find($obsData->observer_id);
+if ($observer) $observerName = $observer->name;
+}
+
+// Cari Nama Updater
+if (!empty($obsData->updated_by)) {
+$updater = \App\Models\User::find($obsData->updated_by);
+if ($updater) $updaterName = $updater->name;
+}
+
+// Format Tanggal
+if (!empty($obsData->created_at)) {
+$obsVerifiedAt = $obsData->created_at->translatedFormat('d M Y, H:i');
+}
+
+if (!empty($obsData->updated_at) && $obsData->updated_at != $obsData->created_at) {
+$obsUpdatedAt = $obsData->updated_at->translatedFormat('d M Y, H:i');
+}
+}
+// ──────────────────────────────────────────────────────────
+
 // ── DATA GABUNGAN UNTUK MODAL DETAIL & MODAL OBSERVASI ──
 $alpineData = [
 // 1. Kebutuhan Modal Detail
@@ -47,11 +77,34 @@ $alpineData = [
 'has_observation' => $hasObservation,
 'has_achievement' => $achievements->isNotEmpty(),
 'achievements' => $achievements->map(function ($a) {
+
+// ── PROSES PARSING PERINGKAT (DIJABARKAN KE BAWAH) ──
+$ranksArray = is_string($a->class_ranks) ? json_decode($a->class_ranks, true) : $a->class_ranks;
+$rankStr = '';
+
+if (is_array($ranksArray) && $a->achievement_type === 'peringkat') {
+$parts = [];
+foreach ($ranksArray as $sem => $val) {
+if (!empty($val)) {
+// Menambahkan simbol bullet (•) agar lebih rapi
+$parts[] = "&bull; Semester $sem : Juara $val";
+}
+}
+// Menggabungkan dengan tag <br> agar teks turun ke bawah
+$rankStr = implode('<br>', $parts);
+
+} elseif ($a->achievement_type === 'kejuaraan') {
+$rankStr = 'Meraih juara di tingkat ' . ucfirst($a->level ?? '-');
+} elseif (in_array($a->achievement_type, ['organisasi', 'pramuka'])) {
+$rankStr = 'Pernah menjabat sebagai ' . ucfirst($a->leadership_position ?? '-');
+}
+// ──────────────────────────────────────────
+
 return [
 'type_label' => ucfirst($a->achievement_type),
-'level_label'=> ucfirst($a->level ?? ''),
+'level_label' => ucfirst($a->level ?? ''),
 'position' => $a->leadership_position,
-'ranks' => $a->class_ranks,
+'ranks' => $rankStr ?: 'Data tidak tersedia',
 ];
 })->toArray(),
 
@@ -73,6 +126,12 @@ return [
 
 'obs_status' => $obsData?->observation_status ?? 'pending',
 'observation_notes' => $obsData?->observation_notes ?? '',
+
+// ── 2. TAMBAHAN: MASUKKAN HASIL LOG KE ALPINE DATA ──
+'obs_verified_by' => $observerName,
+'obs_verified_at' => $obsVerifiedAt,
+'obs_updated_by' => $updaterName,
+'obs_updated_at' => $obsUpdatedAt,
 ];
 @endphp
 
@@ -126,6 +185,7 @@ return [
                 <i data-lucide="eye" class="size-4"></i>
             </button>
 
+            @canany(['superadmin', 'admin', 'observator'])
             @if(!$hasObservation)
             <button @click="openObservasi({{ json_encode($alpineData) }})" title="Mulai Observasi" class="flex items-center justify-center gap-1.5 p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors cursor-pointer text-xs font-semibold">
                 <i data-lucide="clipboard-list" class="size-4"></i>
@@ -135,6 +195,7 @@ return [
                 <i data-lucide="edit" class="size-4"></i>
             </button>
             @endif
+            @endcanany
         </div>
     </td>
 </tr>

@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,11 +15,24 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
-        // Mengatur tujuan pengalihan (redirect) untuk middleware 'guest' jika user SUDAH login
-        $middleware->redirectTo(
-            '/auth/login',       // Parameter 1 (guest): Jika belum login, dilempar ke sini
-            '/user/dashboard'    // Parameter 2 (auth): Jika sudah login tapi akses halaman 'guest', dilempar ke sini
-        );
+        // 1. Jika belum login (Guest) mau akses halaman Auth, lempar ke login
+        $middleware->redirectGuestsTo('/auth/login');
+
+        // 2. Jika SUDAH login tapi mau akses halaman Guest (seperti /login atau /register), lempar sesuai Role!
+        $middleware->redirectUsersTo(function (Request $request) {
+            $user = Auth::user();
+
+            if (in_array($user->role, ['superadmin', 'admin', 'verifikator', 'observator'])) {
+                return route('admin.dashboard');
+            }
+
+            return route('user.dashboard'); // Route dashboard untuk user biasa
+        });
+
+        // 3. Daftarkan Alias Middleware buatan kita
+        $middleware->alias([
+            'role' => RoleMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
