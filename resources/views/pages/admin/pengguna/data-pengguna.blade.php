@@ -28,108 +28,115 @@
 
     {{-- ═══════════════════════════════════════════
          TABEL PENGGUNA
+         #users-container = target HTMX (wrapper kosong, tanpa x-data)
+         div.user-app-root = tempat x-data Alpine
     ════════════════════════════════════════════ --}}
-    <div id="users-container"
-        class="flex flex-col rounded-2xl border border-border p-6 bg-white gap-6"
-        x-data="userApp()">
+    <div id="users-container">
 
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-                <h3 class="font-bold text-lg text-foreground">Daftar Akun Terdaftar</h3>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-                <div class="relative">
-                    <form action="{{ url()->current() }}" method="GET" class="flex flex-col sm:flex-row items-center gap-3">
+        <div class="flex flex-col rounded-2xl border border-border p-6 bg-white gap-6"
+            x-data="userApp()">
 
-                        <div class="relative w-full sm:w-auto">
-                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / email..."
-                                hx-get="{{ url()->current() }}"
-                                hx-include="closest form"
-                                hx-trigger="keyup changed delay:500ms, search"
-                                hx-target="#users-container"
-                                hx-select="#users-container"
-                                hx-swap="outerHTML"
-                                hx-push-url="true"
-                                class="pl-9 pr-9 py-2 rounded-xl border border-border bg-white text-sm focus:ring-1 focus:ring-primary outline-none w-full sm:w-[220px] transition-all" />
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-lg text-foreground">Daftar Akun Terdaftar</h3>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <div class="relative">
+                        <form action="{{ url()->current() }}" method="GET" class="flex flex-col sm:flex-row items-center gap-3">
 
-                            @if(request('search'))
-                            <button type="button"
-                                hx-get="{{ request()->fullUrlWithQuery(['search' => null]) }}"
-                                hx-target="#users-container" hx-select="#users-container"
-                                hx-swap="outerHTML" hx-push-url="true"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
-                                <i data-lucide="x" class="size-4"></i>
-                            </button>
-                            @endif
-                        </div>
+                            <div class="relative w-full sm:w-auto">
+                                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
+                                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / email..."
+                                    hx-get="{{ url()->current() }}"
+                                    hx-include="closest form"
+                                    hx-trigger="keyup changed delay:500ms, search"
+                                    hx-target="#users-container"
+                                    hx-select="#users-container"
+                                    hx-swap="innerHTML"
+                                    hx-push-url="true"
+                                    class="pl-9 pr-9 py-2 rounded-xl border border-border bg-white text-sm focus:ring-1 focus:ring-primary outline-none w-full sm:w-[220px] transition-all" />
 
-                        <div class="relative w-full sm:w-auto">
-                            <i data-lucide="filter" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
-                            <select name="filter_role"
-                                hx-get="{{ url()->current() }}"
-                                hx-include="closest form"
-                                hx-target="#users-container"
-                                hx-select="#users-container"
-                                hx-swap="outerHTML"
-                                hx-push-url="true"
-                                class="w-full sm:w-auto py-2 pl-9 pr-8 rounded-xl border border-border bg-white text-sm focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer font-medium text-gray-700">
-                                <option value="">Semua Role</option>
-                                <option value="superadmin" {{ request('filter_role') === 'superadmin' ? 'selected' : '' }}>Superadmin</option>
-                                <option value="admin" {{ request('filter_role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="verifikator" {{ request('filter_role') === 'verifikator' ? 'selected' : '' }}>Verifikator</option>
-                                <option value="observator" {{ request('filter_role') === 'observator' ? 'selected' : '' }}>Observator</option>
-                                <option value="user" {{ request('filter_role') === 'user' ? 'selected' : '' }}>User (Peserta)</option>
-                            </select>
-                        </div>
-                    </form>
+                                @if(request('search'))
+                                <button type="button"
+                                    hx-get="{{ request()->fullUrlWithQuery(['search' => null]) }}"
+                                    hx-target="#users-container" hx-select="#users-container"
+                                    hx-swap="innerHTML" hx-push-url="true"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
+                                    <i data-lucide="x" class="size-4"></i>
+                                </button>
+                                @endif
+                            </div>
+
+                            <div class="relative w-full sm:w-auto">
+                                <i data-lucide="filter" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
+                                <select name="filter_role"
+                                    hx-get="{{ url()->current() }}"
+                                    hx-include="closest form"
+                                    hx-target="#users-container"
+                                    hx-select="#users-container"
+                                    hx-swap="innerHTML"
+                                    hx-push-url="true"
+                                    class="w-full sm:w-auto py-2 pl-9 pr-8 rounded-xl border border-border bg-white text-sm focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer font-medium text-gray-700">
+                                    <option value="">Semua Role</option>
+                                    <option value="superadmin" {{ request('filter_role') === 'superadmin' ? 'selected' : '' }}>Superadmin</option>
+                                    <option value="admin" {{ request('filter_role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                                    <option value="verifikator" {{ request('filter_role') === 'verifikator' ? 'selected' : '' }}>Verifikator</option>
+                                    <option value="observator" {{ request('filter_role') === 'observator' ? 'selected' : '' }}>Observator</option>
+                                    <option value="user" {{ request('filter_role') === 'user' ? 'selected' : '' }}>User (Peserta)</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[860px] border-collapse">
+                    <thead class="border-b border-border">
+                        <tr>
+                            <th class="px-4 py-4 text-left text-sm font-bold text-foreground w-[30%]">
+                                Pengguna
+                                <p class="font-normal text-xs text-secondary">Nama & Alamat Email</p>
+                            </th>
+                            <th class="px-4 py-4 text-left text-sm font-bold text-foreground w-[30%]">
+                                Hak Akses (Role)
+                                <p class="font-normal text-xs text-secondary">Tingkat Otorisasi Sistem</p>
+                            </th>
+                            <th class="px-4 py-4 text-left text-sm font-bold text-foreground w-[30%]">
+                                Bergabung Pada
+                                <p class="font-normal text-xs text-secondary">Waktu Pembuatan Akun</p>
+                            </th>
+                            <th class="px-4 py-4 text-left text-sm font-bold text-foreground w-[10%]">
+                                Aksi
+                                <p class="font-normal text-xs text-secondary">Kelola Akun</p>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border bg-white">
+                        @forelse($users as $u)
+                        @include('pages.admin.pengguna.partials._row-user', ['u' => $u])
+                        @empty
+                        <tr>
+                            <td colspan="4" class="px-4 py-16 text-center">
+                                <div class="flex flex-col items-center gap-3 text-secondary">
+                                    <i data-lucide="users-2" class="size-10 text-border"></i>
+                                    <p class="font-medium">Tidak ada data pengguna ditemukan.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @include ('pages.admin.pengguna.partials._pagination', [
+            'peserta' => $users,
+            'target' => '#users-container'
+            ])
+
+            @include ('pages.admin.pengguna.partials._edit-modal')
+
         </div>
-
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[860px] border-collapse">
-                <thead class="border-b border-border">
-                    <tr>
-                        <th class="px-4 py-4 text-left text-sm font-bold text-foreground w-[30%]">
-                            Pengguna
-                            <p class="font-normal text-xs text-secondary">Nama & Alamat Email</p>
-                        </th>
-                        <th class="px-4 py-4 text-left text-sm font-bold text-foreground w-[30%]">
-                            Hak Akses (Role)
-                            <p class="font-normal text-xs text-secondary">Tingkat Otorisasi Sistem</p>
-                        </th>
-                        <th class="px-4 py-4 text-left text-sm font-bold text-foreground w-[30%]">
-                            Bergabung Pada
-                            <p class="font-normal text-xs text-secondary">Waktu Pembuatan Akun</p>
-                        </th>
-                        <th class="px-4 py-4 text-left text-sm font-bold text-foreground w-[10%]">
-                            Aksi
-                            <p class="font-normal text-xs text-secondary">Kelola Akun</p>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border bg-white">
-                    @forelse($users as $u)
-                    @include('pages.admin.pengguna.partials._row-user', ['u' => $u])
-                    @empty
-                    <tr>
-                        <td colspan="4" class="px-4 py-16 text-center">
-                            <div class="flex flex-col items-center gap-3 text-secondary">
-                                <i data-lucide="users-2" class="size-10 text-border"></i>
-                                <p class="font-medium">Tidak ada data pengguna ditemukan.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @include ('pages.admin.observasi.partials._pagination', ['peserta' => $users])
-
-        @include ('pages.admin.pengguna.partials._edit-modal')
-
     </div>
 </div>
 
@@ -391,5 +398,17 @@
             }
         };
     }
+</script>
+<script>
+    // Setelah HTMX selesai swap & DOM stabil, reinit Alpine + Lucide
+    document.addEventListener('htmx:afterSettle', function(e) {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+        const container = document.getElementById('users-container');
+        if (container && window.Alpine) {
+            Alpine.initTree(container);
+        }
+    });
 </script>
 @endpush
