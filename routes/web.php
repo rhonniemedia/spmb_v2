@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CetakBuktiDaftarController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ObservationController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RegistrationDataController as AdminRegistrationDataController;
@@ -77,7 +78,14 @@ Route::get('/email/verified', fn() => view('pages.auth.email-verified'))->name('
 // ============================================================
 Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/dashboard', fn() => view('pages.admin.dashboard'))->name('dashboard');
+    // Halaman utama dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // HTMX / fetch endpoints
+    Route::get('/dashboard/chart',       [DashboardController::class, 'chartData'])->name('dashboard.chart');
+    Route::get('/dashboard/applicants',  [DashboardController::class, 'applicants'])->name('dashboard.applicants');
+    Route::get('/dashboard/activities',  [DashboardController::class, 'activities'])->name('dashboard.activities');
+
     // Route::get('/observation', [ObservationController::class, 'index'])->name('observasi');
     // web.php
     Route::get('/verifikasi/create', fn() => view('pages.admin.verifikasi.partials.form'))->name('verifikasi.create');

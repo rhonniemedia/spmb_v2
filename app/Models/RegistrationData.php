@@ -104,4 +104,16 @@ class RegistrationData extends Model
     {
         return $this->hasOne(ObservationData::class, 'registration_id');
     }
+
+    public function choice1Concentration()
+    {
+        // Assuming 'choice_1' is the foreign key column in your registration_data table
+        return $this->belongsTo(Concentration::class, 'choice_1');
+    }
+
+    public function registrationDocuments()
+    {
+        // Assuming 'registration_data_id' is the foreign key on the registration_documents table
+        return $this->hasMany(RegistrationDocument::class, 'registration_data_id');
+    }
 }
