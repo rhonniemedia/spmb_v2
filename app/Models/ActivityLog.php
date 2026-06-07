@@ -19,6 +19,11 @@ class ActivityLog extends Model
         'context',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     // ── Relasi ──────────────────────────────────────────
 
     public function user(): BelongsTo
@@ -93,15 +98,40 @@ class ActivityLog extends Model
 
     /**
      * Kembalikan label waktu relatif (10 menit lalu, dst).
+     * Menggunakan diffForHumans() Carbon dengan locale Indonesia.
      */
     public function getTimeAgoAttribute(): string
     {
-        $diff = now()->diffInSeconds($this->created_at);
+        $created = $this->created_at;
 
-        if ($diff < 60)     return "{$diff} detik lalu";
-        if ($diff < 3600)   return now()->diffInMinutes($this->created_at) . ' menit lalu';
-        if ($diff < 86400)  return now()->diffInHours($this->created_at) . ' jam lalu';
+        if (! $created) return '-';
 
-        return $this->created_at->translatedFormat('d M Y');
+        $diffSeconds = $created->diffInSeconds(now());
+
+        // Baru saja (kurang dari 60 detik)
+        if ($diffSeconds < 60) {
+            return 'Baru saja';
+        }
+
+        // Kurang dari 1 jam → tampilkan menit
+        if ($diffSeconds < 3600) {
+            $menit = (int) floor($diffSeconds / 60);
+            return "{$menit} menit lalu";
+        }
+
+        // Kurang dari 24 jam → tampilkan jam
+        if ($diffSeconds < 86400) {
+            $jam = (int) floor($diffSeconds / 3600);
+            return "{$jam} jam lalu";
+        }
+
+        // Kurang dari 7 hari → tampilkan hari
+        if ($diffSeconds < 604800) {
+            $hari = (int) floor($diffSeconds / 86400);
+            return "{$hari} hari lalu";
+        }
+
+        // Lebih dari 7 hari → tampilkan tanggal
+        return $created->translatedFormat('d M Y, H:i');
     }
 }

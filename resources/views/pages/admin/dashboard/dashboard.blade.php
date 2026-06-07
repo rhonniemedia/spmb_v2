@@ -19,7 +19,7 @@
                 <i data-lucide="download-cloud" class="w-4 h-4"></i>
                 <span>Ekspor</span>
             </button>
-            <a href="{{ route('admin.verifikasi.show', ['noPendaftaran' => 'pending']) }}"
+            <a href="#"
                 class="flex items-center gap-2 px-4 py-3 bg-primary text-white rounded-full font-bold text-sm hover:bg-primary-hover transition-all duration-300 cursor-pointer">
                 <i data-lucide="shield-check" class="w-4 h-4"></i>
                 <span>Verifikasi</span>

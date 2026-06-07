@@ -73,8 +73,10 @@
                     <div class="rounded-xl px-3 py-2.5 bg-muted/50">
                         <p class="text-[11px] text-secondary mb-1">WhatsApp</p>
                         <div class="flex items-center gap-2">
-                            <p class="text-sm font-medium text-foreground font-mono" x-text="`+62${activePeserta?.phone?.replace(/^0/, '')}`"></p>
-                            <a :href="`https://wa.me/62${activePeserta?.phone?.replace(/^0/, '')}`"
+                            <p class="text-sm font-medium text-foreground font-mono"
+                                x-text="`+62${activePeserta?.phone?.replace(/^(0|\+?62)/, '')}`"></p>
+
+                            <a :href="`https://wa.me/62${activePeserta?.phone?.replace(/^(0|\+?62)/, '')}`"
                                 target="_blank"
                                 x-show="activePeserta?.phone !== '-'"
                                 class="inline-flex items-center justify-center size-5 rounded-md hover:opacity-80 transition-opacity shrink-0"

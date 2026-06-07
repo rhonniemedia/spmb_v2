@@ -10,7 +10,7 @@
                   <i data-lucide="search" class="size-5 text-secondary"></i>
               </button>
               <!-- Notif -->
-              <div class="relative" x-data="{ open: false }">
+              <!-- <div class="relative" x-data="{ open: false }">
                   <button @click="open = !open" class="size-11 flex items-center justify-center rounded-xl ring-1 ring-border hover:ring-primary transition-all duration-300 cursor-pointer relative">
                       <i data-lucide="bell" class="size-5 text-secondary"></i>
                       <span class="absolute -top-1 -right-1 h-5 px-1.5 rounded-full bg-error text-white text-xs font-medium flex items-center justify-center">3</span>
@@ -47,7 +47,7 @@
                           </div>
                       </div>
                   </div>
-              </div>
+              </div> -->
 
               <!-- Avatar -->
               @php
