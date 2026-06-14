@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -67,5 +68,32 @@ class Concentration extends Model
     {
         if ($this->quota === 0) return 0;
         return min(100, (int)(($this->applicant_count ?? 0) / $this->quota * 100));
+    }
+
+    public function selectionResults(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\SelectionResult::class, 'accepted_concentration_id');
+    }
+
+    protected function lucideIcon(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $map = [
+                    'fa-compass-drafting' => 'drafting-compass',
+                    'fa-microchip'        => 'cpu',
+                    'fa-network-wired'    => 'network',
+                    'fa-charging-station' => 'battery-charging',
+                    'fa-bolt'             => 'zap',
+                    'fa-gears'            => 'settings-2',
+                    'fa-fire-burner'      => 'flame',
+                    'fa-car'              => 'car',
+                    'fa-motorcycle'       => 'bike',
+                    'fa-building'         => 'building-2',
+                ];
+
+                return $map[$this->icon ?? ''] ?? ($this->icon ?? 'box');
+            }
+        );
     }
 }

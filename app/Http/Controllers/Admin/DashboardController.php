@@ -63,7 +63,9 @@ class DashboardController extends Controller
             ->get();
 
         // --- TABEL PENDAFTAR (Halaman pertama, 10 baris) ---
-        $applicants = $this->getApplicantsQuery()->paginate(10);
+        $applicants = $this->getApplicantsQuery()
+            ->paginate(10)
+            ->withPath(route('admin.dashboard.applicants'));
 
         // --- CHART RANGE DARI SPMB STEP 'pendaftaran-spmb' ---
         $spmbStep = SpmbStep::where('slug', 'pendaftaran-spmb')->first();
@@ -149,10 +151,12 @@ class DashboardController extends Controller
      */
     public function applicants(Request $request)
     {
-        $applicants = $this->getApplicantsQuery($request)->paginate(10);
+        $applicants = $this->getApplicantsQuery($request)
+            ->paginate(10)
+            ->withPath(route('admin.dashboard.applicants'));
 
         // Hanya return partial view (tanpa layout)
-        return view('admin.dashboard.partials.applicant-table', compact('applicants'));
+        return view('pages.admin.dashboard.partials.applicant-table', compact('applicants'));
     }
 
     // ── HTMX: Activity Feed (Partial HTML) ──────────────────────────────────
@@ -179,6 +183,8 @@ class DashboardController extends Controller
         $query = RegistrationData::with([
             'personalData:id,full_name,nick_name,photo,previous_school,previous_school_city,phone_number_encrypted',
             'choice1Concentration:id,name,alias,color',
+            'choice2Concentration:id,name,alias,color',
+            'choice3Concentration:id,name,alias,color',
             'registrationDocuments',
             'selectionResult',
         ])

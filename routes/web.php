@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CetakBuktiDaftarController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ObservationController;
+use App\Http\Controllers\Admin\PlacementController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RegistrationDataController as AdminRegistrationDataController;
 use App\Http\Controllers\Admin\UserController;
@@ -122,6 +123,15 @@ Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->pre
         Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
         Route::put('/{id}',    [UserController::class, 'update'])->name('update');
         Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+    });
+
+    // Penjenjangan
+    Route::prefix('selection')->name('penjenjangan.')->group(function () {
+        Route::get('/',                              [PlacementController::class, 'index'])->name('index');
+        Route::post('/run', [PlacementController::class, 'run'])->middleware('role:superadmin')->name('run');
+        Route::get('/detail/{concentration}',        [PlacementController::class, 'detail'])->name('detail');
+        Route::get('/rejected',                      [PlacementController::class, 'rejected'])->name('rejected');
+        Route::get('/history',                       [PlacementController::class, 'history'])->name('history');
     });
 
     Route::prefix('profile')->name('profil.')->group(function () {

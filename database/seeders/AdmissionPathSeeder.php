@@ -18,7 +18,7 @@ class AdmissionPathSeeder extends Seeder
                 'subtitle' => 'Pendaftaran umum tanpa syarat khusus',
                 'description' => 'Terbuka untuk seluruh lulusan SMP/MTs yang memenuhi persyaratan umum. Seleksi dilakukan berdasarkan nilai rapor dan hasil TKA yang telah diinputkan.',
                 'tags' => ['Terbuka umum', 'Langsung ke pilih jurusan'],
-                'quota_percentage' => 10,
+                'quota_percentage' => 65,
                 'color_theme' => 'red',
                 'icon' => 'fa-user-graduate',
                 'created_at' => now(),
@@ -29,7 +29,7 @@ class AdmissionPathSeeder extends Seeder
                 'subtitle' => 'Berdasarkan jarak domisili ke sekolah',
                 'description' => 'Diperuntukkan bagi calon peserta yang berdomisili di zona wilayah sekolah. Jarak dihitung dari titik koordinat rumah ke sekolah menggunakan formula geospatial.',
                 'tags' => ['Domisili KK', 'Prioritas utama'],
-                'quota_percentage' => 50,
+                'quota_percentage' => 10,
                 'color_theme' => 'green',
                 'icon' => 'fa-map-location-dot',
                 'created_at' => now(),
@@ -40,7 +40,7 @@ class AdmissionPathSeeder extends Seeder
                 'subtitle' => 'Nilai akademik & penghargaan kompetisi',
                 'description' => 'Diperuntukkan bagi peserta dengan nilai rapor unggul atau memiliki prestasi kompetisi akademik/non-akademik di tingkat kabupaten ke atas.',
                 'tags' => ['Sertifikat prestasi', 'Min. rata-rata 80'],
-                'quota_percentage' => 25,
+                'quota_percentage' => 10,
                 'color_theme' => 'amber',
                 'icon' => 'fa-trophy',
                 'created_at' => now(),
@@ -60,16 +60,18 @@ class AdmissionPathSeeder extends Seeder
         ];
 
         foreach ($pathways as $item) {
-            AdmissionPath::create([
-                'name' => $item['name'],
-                'subtitle' => $item['subtitle'],
-                'description' => $item['description'],
-                'tags' => $item['tags'], // Eloquent otomatis akan melakukan json_encode secara aman di sini
-                'quota_percentage' => $item['quota_percentage'],
-                'color_theme' => $item['color_theme'],
-                'icon' => $item['icon'], // Menyisipkan kolom icon yang sempat tertinggal
-                'is_active' => true,
-            ]);
+            AdmissionPath::updateOrCreate(
+                ['name' => $item['name']], // Kunci pencarian: Nama jalur
+                [
+                    'subtitle' => $item['subtitle'],
+                    'description' => $item['description'],
+                    'tags' => $item['tags'],
+                    'quota_percentage' => $item['quota_percentage'],
+                    'color_theme' => $item['color_theme'],
+                    'icon' => $item['icon'],
+                    'is_active' => true,
+                ]
+            );
         }
     }
 }

@@ -116,4 +116,14 @@ class RegistrationData extends Model
         // Assuming 'registration_data_id' is the foreign key on the registration_documents table
         return $this->hasMany(RegistrationDocument::class, 'registration_data_id');
     }
+
+    public function choice2Concentration()
+    {
+        return $this->belongsTo(Concentration::class, 'choice_2');
+    }
+
+    public function choice3Concentration()
+    {
+        return $this->belongsTo(Concentration::class, 'choice_3');
+    }
 }

@@ -125,11 +125,10 @@
     </div>
 
     <!-- ── Chart + Distribusi Jurusan ── -->
-    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 mb-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
 
-        <!-- Line Chart — data di-fetch dari /admin/dashboard/chart -->
-        <div class="flex flex-col rounded-2xl border border-border p-6 gap-4 bg-white">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="lg:col-span-2 flex flex-col h-full rounded-2xl border border-border p-6 gap-4 bg-white">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
                 <div>
                     <h3 class="font-bold text-lg text-foreground">Tren Pendaftar Harian</h3>
                     <p class="text-sm text-secondary" id="chartSubtitle">{{ $spmbChartRange['label'] ?? 'Periode SPMB' }} — total masuk per hari</p>
@@ -145,15 +144,12 @@
                     </button>
                 </div>
             </div>
-            <div class="w-full overflow-x-auto">
-                <div class="w-full h-[320px]">
-                    <canvas id="trendChart"></canvas>
-                </div>
+            <div class="w-full relative flex-1 min-h-[250px] mt-2">
+                <canvas id="trendChart"></canvas>
             </div>
         </div>
 
-        <!-- Donut + Legenda — data dari $concentrations -->
-        <div class="flex flex-col rounded-2xl border border-border p-6 gap-4 bg-white">
+        <div class="lg:col-span-1 flex flex-col rounded-2xl border border-border p-6 gap-4 bg-white">
             <div>
                 <h3 class="font-bold text-lg text-foreground">Distribusi Jurusan</h3>
                 <p class="text-sm text-secondary">Peminat per program keahlian</p>
@@ -225,20 +221,34 @@
                 @php
                 $ratio = $concentration->demand_ratio;
                 $percent = $concentration->quota_bar_percent;
-                // Tentukan warna badge berdasarkan rasio
+
+                // Variabel diubah menjadi $jmlPeminat agar tidak bentrok dengan Paginator
+                $quota = $concentration->quota ?? 0;
+                $jmlPeminat = $concentration->applicant_count ?? 0;
+                $displayPercentage = $quota > 0 ? ($jmlPeminat / $quota) * 100 : 0;
+
+                // Tentukan warna badge berdasarkan rasio bawaan
                 $badgeClass = $ratio >= 4 ? 'bg-error/10 text-error-dark'
                 : ($ratio >= 3 ? 'bg-warning/10 text-warning-dark'
                 : 'bg-success/10 text-success-dark');
-                // Warna progress bar
-                $barColor = $concentration->color ?? '#FF1443';
+
+                // Warna progress bar disamakan dengan konversi Donut Chart
+                $rawColor = $concentration->color ?? '';
+                if (str_starts_with($rawColor, '#')) {
+                $barColor = $rawColor;
+                } elseif (isset($twColors[$rawColor])) {
+                $barColor = $twColors[$rawColor];
+                } else {
+                $barColor = '#6B7280'; // Default gray
+                }
                 @endphp
                 <div class="py-3 first:pt-0 last:pb-0">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-sm font-semibold text-foreground">{{ $concentration->name }}</span>
                         <span class="text-xs text-secondary">
-                            {{ number_format($concentration->applicant_count) }} / {{ number_format($concentration->quota ?? 0) }} kursi
+                            {{ number_format($jmlPeminat) }} / {{ number_format($quota) }} kursi
                             <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $badgeClass }} ml-1">
-                                {{ $ratio }}x
+                                {{ number_format($displayPercentage, 0) }}%
                             </span>
                         </span>
                     </div>
@@ -279,53 +289,98 @@
 
     <!-- ── Tabel Peserta ── -->
     <div class="flex flex-col rounded-2xl border border-border p-6 bg-white gap-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
             <div>
                 <h3 class="font-bold text-lg text-foreground">Peserta Terbaru</h3>
                 <p class="text-sm text-secondary">Pendaftar terakhir masuk sistem</p>
             </div>
-            <div class="flex items-stretch gap-2">
-                <div class="relative flex">
-                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary"></i>
-                    <input type="text" id="searchInput" placeholder="Cari peserta..."
-                        hx-get="{{ route('admin.dashboard.applicants') }}"
-                        hx-trigger="keyup changed delay:400ms"
-                        hx-target="#applicant-table-wrapper"
-                        hx-include="#filterStatus, #filterConcentration"
-                        name="search"
-                        class="pl-9 pr-4 h-10 rounded-xl border border-border bg-white text-sm focus:ring-1 focus:ring-primary outline-none w-[180px] transition-all" />
-                </div>
 
-                {{-- Filter Status --}}
-                <select id="filterStatus" name="status"
-                    hx-get="{{ route('admin.dashboard.applicants') }}"
-                    hx-trigger="change"
-                    hx-target="#applicant-table-wrapper"
-                    hx-include="#searchInput, #filterConcentration"
-                    class="h-10 px-3 rounded-xl border border-border bg-white text-sm text-secondary focus:ring-1 focus:ring-primary outline-none cursor-pointer">
-                    <option value="">Semua Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="verified">Verified</option>
-                    <option value="rejected">Rejected</option>
-                </select>
+            <div class="flex items-center gap-2 flex-wrap">
+                {{--
+                    CATATAN: id pada setiap input (applicant-search, applicant-status, applicant-concentration)
+                    wajib ada karena digunakan oleh hx-vals di tombol pagination pada partial applicant-table.
+                    Jangan ubah id-id tersebut tanpa mengubah partial yang bersangkutan.
+                --}}
+                <form id="applicant-filter-form" action="{{ route('admin.dashboard') }}" method="GET" class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto" onsubmit="event.preventDefault();">
 
-                {{-- Filter Konsentrasi --}}
-                <select id="filterConcentration" name="concentration"
-                    hx-get="{{ route('admin.dashboard.applicants') }}"
-                    hx-trigger="change"
-                    hx-target="#applicant-table-wrapper"
-                    hx-include="#searchInput, #filterStatus"
-                    class="h-10 px-3 rounded-xl border border-border bg-white text-sm text-secondary focus:ring-1 focus:ring-primary outline-none cursor-pointer">
-                    <option value="">Semua Jurusan</option>
-                    @foreach($concentrations as $c)
-                    <option value="{{ $c->id }}">{{ $c->alias ?? $c->name }}</option>
-                    @endforeach
-                </select>
+                    {{-- Search Input --}}
+                    <div class="relative w-full sm:w-auto">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
+                        <input
+                            id="applicant-search"
+                            type="text"
+                            name="search"
+                            placeholder="Cari peserta..."
+                            hx-get="{{ route('admin.dashboard.applicants') }}"
+                            hx-include="#applicant-filter-form"
+                            hx-trigger="input changed delay:500ms"
+                            hx-target="#applicant-table-wrapper"
+                            hx-swap="innerHTML"
+                            class="pl-9 pr-9 py-2 h-10 rounded-xl border border-border bg-white text-sm focus:ring-1 focus:ring-primary outline-none w-full sm:w-[220px] transition-all" />
 
-                <a href="{{ route('admin.pendaftar.index') }}"
-                    class="flex items-center gap-1.5 px-4 h-10 bg-primary text-white rounded-full font-bold text-xs hover:bg-primary-hover transition-all cursor-pointer">
-                    <i data-lucide="shield-check" class="size-3.5"></i>Verifikasi
-                </a>
+                        {{-- Tombol X Clear Search (menggunakan AlpineJS) --}}
+                        <button type="button"
+                            x-data="{ show: false }"
+                            x-init="
+                                const input = $el.previousElementSibling;
+                                show = input.value.length > 0;
+                                input.addEventListener('input', () => show = input.value.length > 0);
+                            "
+                            x-show="show"
+                            style="display: none;"
+                            @click="
+                                const input = $el.previousElementSibling;
+                                input.value = '';
+                                input.dispatchEvent(new Event('input'));
+                            "
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
+                            <i data-lucide="x" class="size-4"></i>
+                        </button>
+                    </div>
+
+                    {{-- Filter Status --}}
+                    <div class="relative w-full sm:w-auto">
+                        <i data-lucide="filter" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
+                        <select
+                            id="applicant-status"
+                            name="status"
+                            hx-get="{{ route('admin.dashboard.applicants') }}"
+                            hx-include="#applicant-filter-form"
+                            hx-trigger="change"
+                            hx-target="#applicant-table-wrapper"
+                            hx-swap="innerHTML"
+                            class="w-full sm:w-auto h-10 pl-9 pr-8 rounded-xl border border-border bg-white text-sm text-secondary focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer font-medium">
+                            <option value="">Semua Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="verified">Verified</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+
+                    {{-- Filter Konsentrasi --}}
+                    <div class="relative w-full sm:w-auto">
+                        <i data-lucide="book-open" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
+                        <select
+                            id="applicant-concentration"
+                            name="concentration"
+                            hx-get="{{ route('admin.dashboard.applicants') }}"
+                            hx-include="#applicant-filter-form"
+                            hx-trigger="change"
+                            hx-target="#applicant-table-wrapper"
+                            hx-swap="innerHTML"
+                            class="w-full sm:w-auto h-10 pl-9 pr-8 rounded-xl border border-border bg-white text-sm text-secondary focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer font-medium">
+                            <option value="">Semua Jurusan</option>
+                            @foreach($concentrations as $c)
+                            <option value="{{ $c->id }}">{{ $c->alias ?? $c->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <a href="{{ route('admin.pendaftar.index') }}"
+                        class="flex items-center justify-center gap-1.5 px-5 h-10 bg-primary text-white rounded-xl sm:rounded-full font-bold text-xs hover:bg-primary-hover transition-all cursor-pointer w-full sm:w-auto">
+                        <i data-lucide="shield-check" class="size-3.5"></i>Verifikasi
+                    </a>
+                </form>
             </div>
         </div>
 

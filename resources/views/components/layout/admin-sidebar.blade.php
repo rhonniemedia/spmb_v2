@@ -49,7 +49,7 @@
                             <!-- <span class="ml-auto h-5 min-w-5 px-1.5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">24</span> -->
                         </div>
                     </a>
-                    <a href="#" class="group cursor-pointer">
+                    <a href="{{route('admin.penjenjangan.index')}}" class="group cursor-pointer {{ request()->routeIs('admin.penjenjangan.index') ? 'active' : '' }}">
                         <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
                             <i data-lucide="bar-chart-3" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
                             <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Hasil Seleksi</span>

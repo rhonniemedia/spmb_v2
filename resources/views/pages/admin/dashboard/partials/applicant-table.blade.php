@@ -2,11 +2,10 @@
     <table class="w-full text-left text-sm">
         <thead class="uppercase tracking-wider border-b border-border text-secondary font-semibold text-xs">
             <tr>
-                <th scope="col" class="px-4 py-3">Peserta</th>
-                <th scope="col" class="px-4 py-3">Asal Sekolah & Kontak</th>
-                <th scope="col" class="px-4 py-3">Pilihan Jurusan</th>
-                <th scope="col" class="px-4 py-3">Waktu Daftar</th>
-                <th scope="col" class="px-4 py-3">Status</th>
+                <th scope="col" class="px-4 py-3 w-[30%]">Peserta</th>
+                <th scope="col" class="px-4 py-3 w-[30%]">Asal Sekolah & Kontak</th>
+                <th scope="col" class="px-4 py-3 w-[25%]">Pilihan Jurusan</th>
+                <th scope="col" class="px-4 py-3 w-[15%]">Status & Waktu</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-border">
@@ -21,15 +20,21 @@
             'linear-gradient(135deg,#8B5CF6,#A78BFA)'
             ];
             $color = $colors[$loop->index % 4];
-            // phone_number_encrypted → diakses via accessor 'phone_number' di model PersonalData
-            // Jika model belum punya accessor, kolom ini tidak akan muncul
             $phone = $applicant->personalData?->phone_number ?? null;
             $schoolCity = $applicant->personalData->previous_school_city ?? null;
+
+            // Logika Status yang diperbarui (Tanpa border, warna lebih soft untuk background)
             $status = $applicant->verification_status;
             $badgeClass = match($status) {
-            'verified' => 'bg-success/10 text-success-dark border-success/20',
-            'rejected' => 'bg-error/10 text-error-dark border-error/20',
-            default => 'bg-warning/10 text-warning-dark border-warning/20',
+            'verified' => 'bg-success/10 text-success-dark',
+            'rejected' => 'bg-error/10 text-error-dark',
+            default => 'bg-warning/10 text-warning-dark',
+            };
+            // Tambahan ikon untuk mempercantik status
+            $statusIcon = match($status) {
+            'verified' => 'check-circle-2',
+            'rejected' => 'x-circle',
+            default => 'clock',
             };
             $statusText = match($status) {
             'verified' => 'Terverifikasi',
@@ -105,23 +110,27 @@
                     </div>
                 </td>
 
-                {{-- Waktu Daftar --}}
-                <td class="px-4 py-4 text-secondary text-sm">
-                    {{ $applicant->submitted_at ? \Carbon\Carbon::parse($applicant->submitted_at)->translatedFormat('d M Y, H:i') : '-' }}
-                </td>
-
-                {{-- Status --}}
+                {{-- Kolom Gabungan: Status (Atas) dan Waktu Daftar (Bawah) --}}
                 <td class="px-4 py-4">
-                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold border {{ $badgeClass }}">
-                        {{ $statusText }}
-                    </span>
-                </td>
+                    <div class="flex flex-col items-start gap-1.5">
+                        {{-- Status Badge Baru --}}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold {{ $badgeClass }}">
+                            <i data-lucide="{{ $statusIcon }}" class="size-3"></i>
+                            {{ $statusText }}
+                        </span>
 
+                        {{-- Teks Waktu --}}
+                        <span class="text-[10px] text-secondary font-medium flex items-center gap-1">
+                            <i data-lucide="calendar" class="size-3"></i>
+                            {{ $applicant->submitted_at ? \Carbon\Carbon::parse($applicant->submitted_at)->translatedFormat('d M Y, H:i') : '-' }}
+                        </span>
+                    </div>
+                </td>
 
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="px-4 py-10 text-center">
+                <td colspan="4" class="px-4 py-10 text-center">
                     <div class="flex flex-col items-center justify-center gap-3">
                         <div class="size-12 rounded-full bg-slate-50 flex items-center justify-center">
                             <i data-lucide="file-search" class="size-6 text-secondary/50"></i>
@@ -140,27 +149,70 @@
 
 {{-- Pagination HTMX --}}
 @if($applicants->hasPages())
-<div class="mt-4 px-4 flex items-center justify-between">
-    <p class="text-xs text-secondary">
-        Menampilkan {{ $applicants->firstItem() }}–{{ $applicants->lastItem() }} dari {{ $applicants->total() }} pendaftar
-    </p>
-    <div class="flex gap-2">
-        @if(!$applicants->onFirstPage())
-        <button hx-get="{{ $applicants->previousPageUrl() }}"
+<div class="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 px-4 mt-4">
+    <span class="text-sm text-secondary text-center">
+        Menampilkan <span class="font-semibold text-foreground">{{ $applicants->firstItem() ?? 0 }}</span>
+        sampai <span class="font-semibold text-foreground">{{ $applicants->lastItem() ?? 0 }}</span>
+        dari <span class="font-semibold text-foreground">{{ number_format($applicants->total() ?? 0, 0, ',', '.') }}</span> pendaftar
+    </span>
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+
+        {{-- Tombol Previous --}}
+        @if ($applicants->onFirstPage())
+        <button class="p-2 rounded-lg border border-border bg-white hover:bg-muted cursor-not-allowed opacity-50 transition-colors" disabled>
+            <i data-lucide="chevron-left" class="size-4"></i>
+        </button>
+        @else
+        <button type="button"
+            hx-get="{{ route('admin.dashboard.applicants') }}"
             hx-target="#applicant-table-wrapper"
-            hx-include="#searchInput, #filterStatus, #filterConcentration"
-            class="px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-secondary hover:bg-slate-50 transition-colors">
-            ← Sebelumnya
+            hx-vals="js:{page: {{ $applicants->currentPage() - 1 }}, search: document.querySelector('#applicant-search')?.value ?? '', status: document.querySelector('#applicant-status')?.value ?? '', concentration: document.querySelector('#applicant-concentration')?.value ?? ''}"
+            class="p-2 rounded-lg border border-border bg-white hover:bg-muted cursor-pointer transition-colors">
+            <i data-lucide="chevron-left" class="size-4"></i>
         </button>
         @endif
-        @if($applicants->hasMorePages())
-        <button hx-get="{{ $applicants->nextPageUrl() }}"
-            hx-target="#applicant-table-wrapper"
-            hx-include="#searchInput, #filterStatus, #filterConcentration"
-            class="px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-secondary hover:bg-slate-50 transition-colors">
-            Selanjutnya →
-        </button>
-        @endif
+
+        {{-- Nomor Halaman Dinamis (1, 2, ..., n) --}}
+        @php
+        $curr = $applicants->currentPage();
+        $last = $applicants->lastPage();
+        $pages = collect([1, $curr - 1, $curr, $curr + 1, $last])
+        ->filter(fn($p) => $p >= 1 && $p <= $last)
+            ->unique()->sort()->values();
+            @endphp
+
+            @foreach ($pages as $i => $page)
+            @if ($i > 0 && $page - $pages[$i - 1] > 1)
+            <span class="px-1 text-secondary text-sm">…</span>
+            @endif
+
+            @if ($page === $curr)
+            <button class="w-9 h-9 rounded-lg bg-primary text-white text-sm font-bold" disabled>{{ $page }}</button>
+            @else
+            <button type="button"
+                hx-get="{{ route('admin.dashboard.applicants') }}"
+                hx-target="#applicant-table-wrapper"
+                hx-vals="js:{page: {{ $page }}, search: document.querySelector('#applicant-search')?.value ?? '', status: document.querySelector('#applicant-status')?.value ?? '', concentration: document.querySelector('#applicant-concentration')?.value ?? ''}"
+                class="w-9 h-9 rounded-lg border border-border bg-white hover:bg-muted text-sm cursor-pointer transition-colors">
+                {{ $page }}
+            </button>
+            @endif
+            @endforeach
+
+            {{-- Tombol Next --}}
+            @if ($applicants->hasMorePages())
+            <button type="button"
+                hx-get="{{ route('admin.dashboard.applicants') }}"
+                hx-target="#applicant-table-wrapper"
+                hx-vals="js:{page: {{ $applicants->currentPage() + 1 }}, search: document.querySelector('#applicant-search')?.value ?? '', status: document.querySelector('#applicant-status')?.value ?? '', concentration: document.querySelector('#applicant-concentration')?.value ?? ''}"
+                class="p-2 rounded-lg border border-border bg-white hover:bg-muted cursor-pointer transition-colors">
+                <i data-lucide="chevron-right" class="size-4"></i>
+            </button>
+            @else
+            <button class="p-2 rounded-lg border border-border bg-white hover:bg-muted cursor-not-allowed opacity-50 transition-colors" disabled>
+                <i data-lucide="chevron-right" class="size-4"></i>
+            </button>
+            @endif
     </div>
 </div>
 @endif
