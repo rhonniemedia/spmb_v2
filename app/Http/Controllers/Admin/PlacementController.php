@@ -84,15 +84,20 @@ class PlacementController extends Controller
         // Bangun $resultsByPath sebagai LengthAwarePaginator per jalur
         $resultsByPath = collect();
 
+        // Parameter pencarian global (berlaku untuk semua tab)
+        $search = trim($request->get('search', ''));
+
         foreach ($admissionPaths as $path) {
             // Key konsisten: lowercase + spasi → underscore (slug-safe)
             $key = str_replace(' ', '_', strtolower($path->name));
 
             // Parameter halaman per jalur: ?page_reguler=2, ?page_prestasi=1, dst.
+            // Reset ke halaman 1 saat ada pencarian baru
             $pageParam = 'page_' . $key;
             $page      = (int) $request->get($pageParam, 1);
 
             // Query per jalur dengan pagination
+            // Filter menggunakan path_id (jalur saat DITERIMA), bukan jalur asal pendaftaran.
             $query = SelectionResult::with([
                 'registration.personalData',
                 'registration.admissionPath',
@@ -100,8 +105,19 @@ class PlacementController extends Controller
                 ->where('batch', $latestBatch)
                 ->where('accepted_concentration_id', $concentration->id)
                 ->where('status', 'accepted')
-                ->whereHas('registration.admissionPath', fn($q) => $q->where('name', $path->name))
+                ->where('path_id', $path->id)
                 ->orderBy('rank_in_concentration');
+
+            // Terapkan filter pencarian berdasarkan nama atau nomor pendaftaran
+            if ($search !== '') {
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('registration.personalData', function ($q2) use ($search) {
+                        $q2->where('full_name', 'like', '%' . $search . '%');
+                    })->orWhereHas('registration', function ($q2) use ($search) {
+                        $q2->where('registration_number', 'like', '%' . $search . '%');
+                    });
+                });
+            }
 
             $total = $query->count();
             $items = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
@@ -158,7 +174,8 @@ class PlacementController extends Controller
             'latestBatch',
             'resultsByPath',
             'quotaPerJalur',
-            'admissionPaths'
+            'admissionPaths',
+            'search'
         ));
     }
 
@@ -166,11 +183,12 @@ class PlacementController extends Controller
      * Daftar peserta yang tidak diterima (rejected) di batch terbaru.
      * GET /admin/penjenjangan/rejected
      */
-    public function rejected()
+    public function rejected(Request $request)
     {
         $latestBatch = SelectionResult::max('batch') ?? 0;
+        $search      = trim($request->get('search', ''));
 
-        $rejected = SelectionResult::with([
+        $query = SelectionResult::with([
             'registration.personalData',
             'registration.admissionPath',
             'registration.choice1',
@@ -178,11 +196,21 @@ class PlacementController extends Controller
             'registration.choice3',
         ])
             ->where('batch', $latestBatch)
-            ->where('status', 'rejected')
-            ->orderByDesc('final_score')
-            ->paginate(20);
+            ->where('status', 'rejected');
 
-        return view('pages.admin.penjenjangan.rejected', compact('rejected', 'latestBatch'));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('registration.personalData', function ($q2) use ($search) {
+                    $q2->where('full_name', 'like', '%' . $search . '%');
+                })->orWhereHas('registration', function ($q2) use ($search) {
+                    $q2->where('registration_number', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        $rejected = $query->orderByDesc('final_score')->paginate(10)->withQueryString();
+
+        return view('pages.admin.penjenjangan.rejected', compact('rejected', 'latestBatch', 'search'));
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ObservationController;
 use App\Http\Controllers\Admin\PlacementController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RegistrationDataController as AdminRegistrationDataController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\AnnouncementController;
@@ -132,6 +133,16 @@ Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->pre
         Route::get('/detail/{concentration}',        [PlacementController::class, 'detail'])->name('detail');
         Route::get('/rejected',                      [PlacementController::class, 'rejected'])->name('rejected');
         Route::get('/history',                       [PlacementController::class, 'history'])->name('history');
+    });
+
+    // ============================================================
+    // LAPORAN / CETAK PDF (TAMBAHKAN DI SINI)
+    // ============================================================
+    Route::prefix('report')->name('laporan.')->group(function () {
+        Route::get('/summary', [ReportController::class, 'rekapitulasi'])->name('rekapitulasi');
+        Route::get('/applicants', [ReportController::class, 'peminat'])->name('peminat');
+        Route::get('/applicants-by-major', [ReportController::class, 'peminatJurusan'])->name('peminat-jurusan');
+        Route::get('/receipt', [ReportController::class, 'tandaTerima'])->name('tanda-terima');
     });
 
     Route::prefix('profile')->name('profil.')->group(function () {

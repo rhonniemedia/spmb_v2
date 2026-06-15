@@ -88,6 +88,42 @@ class PlacementService
             $results  = collect();
             $summary  = [];
 
+            // ── PISAHKAN: gagal observasi langsung tolak ─────────────
+            // Hanya peserta dengan observation_status = 'failed' yang diblokir.
+            // Status null/pending tetap masuk penjenjangan.
+            $observasiGagal = $registrations->filter(
+                fn($r) => $r->observationData?->observation_status === 'failed'
+            );
+            $registrations = $registrations->reject(
+                fn($r) => $r->observationData?->observation_status === 'failed'
+            );
+
+            foreach ($observasiGagal as $reg) {
+                $results->push([
+                    'id'                        => \Illuminate\Support\Str::uuid()->toString(),
+                    'registration_id'           => $reg->id,
+                    'path_id'                   => $reg->admissionPath?->id,
+                    'batch'                     => $batch,
+                    'status'                    => 'rejected',
+                    'accepted_concentration_id' => null,
+                    'accepted_in_choice'        => null,
+                    'score_rapor'               => 0,
+                    'score_tka'                 => 0,
+                    'score_observasi'           => 0,
+                    'score_prestasi'            => 0,
+                    'final_score'               => 0,
+                    'rank_in_path'              => null,
+                    'rank_in_concentration'     => null,
+                    'processed_by'              => $processedById,
+                    'processed_at'              => $processedAt,
+                    'selection_notes'           => 'Tidak lulus observasi',
+                    'created_at'                => now(),
+                    'updated_at'                => now(),
+                ]);
+            }
+
+            Log::info("PlacementService: {$observasiGagal->count()} peserta ditolak (gagal observasi), {$registrations->count()} dilanjut penjenjangan.");
+
             // ── URUTAN PEMROSESAN JALUR ─────────────────────────────
             $jalurOrder = [
                 self::JALUR_ZONASI,
@@ -150,9 +186,12 @@ class PlacementService
                 results: $results,
             );
 
-            // ── [BARU] PELIMPAHAN FISIK KE JALUR REGULER ────
-            // Ambil semua hasil sementara yang statusnya 'rejected'
-            $rejectedItems = $results->where('status', 'rejected');
+            // ── PELIMPAHAN FISIK KE JALUR REGULER ──────────────────
+            // Hanya rejected dari jalur non-reguler (bukan gagal observasi)
+            // yang boleh dilimpahkan ke antrean reguler.
+            $idGagalObservasi = $observasiGagal->pluck('id')->flip();
+            $rejectedItems = $results->where('status', 'rejected')
+                ->reject(fn($item) => $idGagalObservasi->has($item['registration_id']));
 
             foreach ($rejectedItems as $key => $item) {
                 // Cari data pendaftaran aslinya
@@ -276,7 +315,7 @@ class PlacementService
             ];
         });
 
-        return $this->executeAllocationRounds($scoredData, $jalurKey, $quotaMap, $filledSlots, $batch, $processedById, $processedAt, $results);
+        return $this->executeAllocationRounds($scoredData, $jalurKey, $quotaMap, $filledSlots, $batch, $processedById, $processedAt, $results, $admissionPath->id);
     }
 
     /**
@@ -313,7 +352,7 @@ class PlacementService
                 ];
             });
 
-        return $this->executeAllocationRounds($scoredData, self::JALUR_PRESTASI, $quotaMap, $filledSlots, $batch, $processedById, $processedAt, $results);
+        return $this->executeAllocationRounds($scoredData, self::JALUR_PRESTASI, $quotaMap, $filledSlots, $batch, $processedById, $processedAt, $results, $admissionPath->id);
     }
 
     /**
@@ -369,7 +408,7 @@ class PlacementService
         });
 
         // Lempar ke sistem putaran (Rounds) agar memprioritaskan Pilihan 1, lalu 2, dst.
-        return $this->executeAllocationRounds($scoredData, self::JALUR_REGULER, $quotaMap, $filledSlots, $batch, $processedById, $processedAt, $results);
+        return $this->executeAllocationRounds($scoredData, self::JALUR_REGULER, $quotaMap, $filledSlots, $batch, $processedById, $processedAt, $results, $admissionPath->id);
     }
 
     /**
@@ -384,7 +423,7 @@ class PlacementService
         ?string $processedById,
         \Carbon\Carbon $processedAt,
         Collection &$results,
-        ?int $pathId = null
+        ?string $pathId = null
     ): array {
         $rankMap = [];
         $accepted = 0;
@@ -472,7 +511,7 @@ class PlacementService
         ?int $rankInPath,
         ?string $processedById,
         \Carbon\Carbon $processedAt,
-        ?int $pathId = null
+        ?string $pathId = null
     ): array {
         return [
             'id'                        => \Illuminate\Support\Str::uuid()->toString(),

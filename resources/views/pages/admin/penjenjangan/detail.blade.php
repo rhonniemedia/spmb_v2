@@ -105,10 +105,36 @@
             {{-- ── Card Tabel — wrapper dengan id untuk target AJAX pagination ── --}}
             <div id="tab-content-{{ $key }}" class="flex flex-col rounded-2xl border border-border p-6 bg-white gap-6">
 
-                {{-- Header --}}
-                <div>
-                    <h3 class="font-bold text-lg text-foreground">Peserta Diterima — {{ $path->name }}</h3>
-                    <p class="text-sm text-secondary">{{ $terisi }} peserta lolos di jalur ini</p>
+                {{-- Header + Search Form --}}
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-lg text-foreground">Peserta Diterima — {{ $path->name }}</h3>
+                        <p class="text-sm text-secondary">
+                            @if($search)
+                            <span class="font-semibold text-foreground">{{ number_format($terisi, 0, ',', '.') }}</span> hasil
+                            untuk <span class="font-semibold text-primary">"{{ $search }}"</span>
+                            @else
+                            {{ number_format($terisi, 0, ',', '.') }} peserta lolos di jalur ini
+                            @endif
+                        </p>
+                    </div>
+                    <div class="relative shrink-0">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
+                        <input
+                            type="text"
+                            id="search-input-{{ $key }}"
+                            value="{{ $search }}"
+                            placeholder="Nama / no. pendaftaran…"
+                            oninput="handleSearch('{{ $key }}', this)"
+                            class="pl-9 pr-8 py-2 text-sm border border-border rounded-lg bg-white text-foreground placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all w-56" />
+                        <button
+                            id="search-clear-{{ $key }}"
+                            type="button"
+                            onclick="clearSearch('{{ $key }}')"
+                            class="{{ $search ? '' : 'hidden' }} absolute right-2.5 top-1/2 -translate-y-1/2 text-secondary hover:text-foreground transition-colors cursor-pointer">
+                            <i data-lucide="x" class="size-4"></i>
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Tabel --}}
@@ -116,20 +142,18 @@
                     <table class="w-full min-w-[640px] border-collapse">
                         <thead class="border-b border-border">
                             <tr>
-                                <th class="px-4 py-3 text-left text-sm font-bold text-foreground w-10">#</th>
-                                <th class="px-4 py-3 text-left text-sm font-bold text-foreground">Peserta</th>
-                                <th class="px-4 py-3 text-left text-sm font-bold text-foreground">Sekolah Asal</th>
-                                <th class="px-4 py-3 text-center text-sm font-bold text-foreground">Pilihan</th>
+                                <th class="w-[25%] px-4 py-3 text-left text-sm font-bold text-foreground">Peserta</th>
+                                <th class="w-[25%] px-4 py-3 text-left text-sm font-bold text-foreground">Sekolah Asal</th>
+                                <th class="w-[20%] px-4 py-3 text-center text-sm font-bold text-foreground">Pilihan</th>
                                 @if(in_array($key, ['reguler', 'prestasi']))
-                                <th class="px-4 py-3 text-center text-sm font-bold text-foreground">Skor</th>
+                                <th class="w-[20%] px-4 py-3 text-center text-sm font-bold text-foreground">Skor</th>
                                 @endif
-                                <th class="px-4 py-3 text-center text-sm font-bold text-foreground">Ranking</th>
+                                <th class="w-[10%] px-4 py-3 text-center text-sm font-bold text-foreground">Ranking</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-border">
                             @forelse($results as $i => $r)
                             @php
-                            $rowNum = ($results->firstItem() ?? 1) + $loop->index;
                             $fullName = $r->registration->personalData->full_name ?? 'Tanpa Nama';
                             $init = strtoupper(substr($fullName, 0, 2));
                             $grads = ['linear-gradient(135deg,#FF1443,#FF6B6B)', 'linear-gradient(135deg,#3B82F6,#93C5FD)', 'linear-gradient(135deg,#F59E0B,#FCD34D)', 'linear-gradient(135deg,#8B5CF6,#A78BFA)'];
@@ -137,7 +161,6 @@
                             $choiceColors = [1 => 'bg-red-100 text-red-700 border-red-200', 2 => 'bg-yellow-100 text-yellow-800 border-yellow-300', 3 => 'bg-gray-700 text-white border-gray-800'];
                             @endphp
                             <tr class="hover:bg-muted/50 transition-colors">
-                                <td class="px-4 py-4 text-sm font-bold text-secondary">{{ $rowNum }}</td>
                                 <td class="px-4 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="h-10 w-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
@@ -172,8 +195,14 @@
                             <tr>
                                 <td colspan="6" class="px-4 py-16 text-center">
                                     <div class="flex flex-col items-center gap-3 text-secondary">
+                                        @if($search)
+                                        <i data-lucide="search-x" class="size-10 text-border"></i>
+                                        <p class="font-medium">Tidak ada hasil untuk "{{ $search }}"</p>
+                                        <a href="{{ request()->url() }}" class="text-xs text-primary hover:underline">Hapus pencarian</a>
+                                        @else
                                         <i data-lucide="inbox" class="size-10 text-border"></i>
                                         <p class="font-medium">Tidak ada peserta diterima di jalur ini</p>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -268,6 +297,86 @@
         if (window.lucide) lucide.createIcons();
     });
 
+    // Debounce timer per tab agar request tidak dikirim setiap ketukan
+    const _searchTimers = {};
+
+    function handleSearch(tabKey, input) {
+        const clearBtn = document.getElementById('search-clear-' + tabKey);
+        if (clearBtn) clearBtn.classList.toggle('hidden', input.value === '');
+
+        clearTimeout(_searchTimers[tabKey]);
+        _searchTimers[tabKey] = setTimeout(() => {
+            submitSearch(tabKey, input.value.trim());
+        }, 400);
+    }
+
+    function clearSearch(tabKey) {
+        const input = document.getElementById('search-input-' + tabKey);
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+        const clearBtn = document.getElementById('search-clear-' + tabKey);
+        if (clearBtn) clearBtn.classList.add('hidden');
+        submitSearch(tabKey, '');
+    }
+
+    function submitSearch(tabKey, query) {
+        // Bangun URL dengan search param, reset page tab ini ke 1
+        const url = new URL(window.location.href);
+        if (query) {
+            url.searchParams.set('search', query);
+        } else {
+            url.searchParams.delete('search');
+        }
+        // Reset halaman tab aktif ke 1 saat query berubah
+        url.searchParams.delete('page_' + tabKey);
+
+        const wrapperSelector = '#tab-content-' + tabKey;
+        const wrapperEl = document.querySelector(wrapperSelector);
+        if (!wrapperEl) return;
+
+        wrapperEl.style.opacity = '0.45';
+        wrapperEl.style.pointerEvents = 'none';
+
+        fetch(url.toString(), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'text/html'
+                }
+            })
+            .then(r => {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.text();
+            })
+            .then(html => {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const newWrapper = doc.querySelector(wrapperSelector);
+                if (newWrapper) wrapperEl.innerHTML = newWrapper.innerHTML;
+                if (window.lucide) lucide.createIcons();
+                // Sinkronisasi input & tombol X setelah inject (AJAX bawa nilai dari server)
+                const newInput = document.getElementById('search-input-' + tabKey);
+                if (newInput) {
+                    newInput.value = query;
+                    newInput.oninput = function() {
+                        handleSearch(tabKey, this);
+                    };
+                }
+                const newClear = document.getElementById('search-clear-' + tabKey);
+                if (newClear) {
+                    newClear.classList.toggle('hidden', !query);
+                    newClear.onclick = function() {
+                        clearSearch(tabKey);
+                    };
+                }
+            })
+            .catch(err => console.error('Search error:', err))
+            .finally(() => {
+                wrapperEl.style.opacity = '1';
+                wrapperEl.style.pointerEvents = 'auto';
+            });
+    }
+
     /**
      * Navigasi pagination per-tab via AJAX tanpa reload halaman.
      *
@@ -298,6 +407,15 @@
         wrapperEl.style.opacity = '0.45';
         wrapperEl.style.transition = 'opacity 0.15s ease';
         wrapperEl.style.pointerEvents = 'none';
+
+        // Tambahkan parameter search ke URL pagination agar pencarian tetap aktif saat ganti halaman
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchVal = searchInput ? searchInput.value.trim() : '';
+        if (searchVal) {
+            const urlObj = new URL(url, window.location.origin);
+            urlObj.searchParams.set('search', searchVal);
+            url = urlObj.toString();
+        }
 
         fetch(url, {
                 headers: {
