@@ -148,8 +148,19 @@ return [
 
     <td class="px-4 py-4">
         <div class="text-sm font-medium text-foreground uppercase">{{ $p->personalData->previous_school ?? '-' }}</div>
+
         @if($phone !== '-')
-        <a href="https://wa.me/62{{ ltrim($phone, '0') }}" target="_blank" class="mt-1 inline-flex items-center gap-x-1.5 text-xs text-secondary hover:text-green-600 hover:underline transition-colors">
+        @php
+        // 1. Bersihkan semua karakter selain angka (seperti tanda +, spasi, atau strip)
+        $waNumber = preg_replace('/[^0-9]/', '', $phone);
+
+        // 2. Jika nomor diawali dengan angka '0', ganti menjadi '62'
+        if (str_starts_with($waNumber, '0')) {
+        $waNumber = '62' . substr($waNumber, 1);
+        }
+        @endphp
+
+        <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="mt-1 inline-flex items-center gap-x-1.5 text-xs text-secondary hover:text-green-600 hover:underline transition-colors">
             <i data-lucide="phone" class="size-3"></i>
             <span>{{ $phone }}</span>
         </a>

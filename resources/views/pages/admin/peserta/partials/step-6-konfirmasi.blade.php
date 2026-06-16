@@ -232,16 +232,25 @@
             <button type="button"
                 @click="submitForm()"
                 :disabled="!adminVerify1 || !adminVerify2 || submitting"
-                :class="(adminVerify1 && adminVerify2 && !submitting)
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
-                class="px-6 py-2.5 text-sm font-bold rounded-xl transition-all flex items-center gap-2">
-                <template x-if="!submitting">
-                    <span class="flex items-center gap-2"><i data-lucide="save" class="size-4"></i> Simpan Data Pendaftar</span>
-                </template>
-                <template x-if="submitting">
-                    <span class="flex items-center gap-2"><i data-lucide="loader-circle" class="size-4 animate-spin"></i> Menyimpan...</span>
-                </template>
+                :class="{
+                    'bg-gray-200 text-gray-400 cursor-not-allowed': (!adminVerify1 || !adminVerify2) && !submitting,
+                    'bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer': adminVerify1 && adminVerify2 && !submitting,
+                    'bg-blue-600 text-white opacity-75 cursor-wait': submitting
+                }"
+                class="px-6 py-2.5 text-sm font-bold rounded-xl transition-all flex items-center justify-center min-w-[220px]">
+
+                {{-- Tampilan Normal --}}
+                <span x-show="!submitting" class="flex items-center gap-2">
+                    <i data-lucide="save" class="size-4"></i>
+                    <span>Simpan Data Pendaftar</span>
+                </span>
+
+                {{-- Tampilan Loading --}}
+                <span x-show="submitting" style="display: none;" class="flex items-center gap-2">
+                    <i data-lucide="loader-circle" class="size-4 animate-spin"></i>
+                    <span>Menyimpan...</span>
+                </span>
+
             </button>
         </div>
 

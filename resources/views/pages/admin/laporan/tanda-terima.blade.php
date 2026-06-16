@@ -93,7 +93,7 @@
         <h1>TANDA TERIMA PENGEMBALIAN BERKAS ASLI</h1>
         <h2>SISTEM PENERIMAAN MURID BARU (SPMB)</h2>
         <h2>SMK NEGERI 1 REJANG LEBONG</h2>
-        <h2>TAHUN 2026</h2>
+        <h2>TAHUN {{ now()->year }}</h2>
     </div>
 
     <table>

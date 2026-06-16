@@ -47,11 +47,54 @@
                 <i data-lucide="user-x" class="size-4"></i>
                 <span>Peserta Ditolak</span>
             </a>
-            @canany(['superadmin'])
+            {{-- DROPDOWN CETAK HASIL (ALPINE.JS) --}}
+            @if($latestBatch > 0)
+            <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                {{-- Tombol Utama --}}
+                <button type="button" @click="open = !open"
+                    class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold text-sm transition-all duration-300 cursor-pointer shadow-sm shadow-emerald-600/30">
+                    <i data-lucide="printer" class="size-4"></i>
+                    <span>Laporan</span>
+                    <i data-lucide="chevron-down" class="size-4 transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
+                </button>
+
+                {{-- Isi Dropdown dengan Animasi Transisi --}}
+                <div x-show="open"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 translate-y-2"
+                    style="display: none;"
+                    class="absolute right-0 mt-2 w-56 bg-white border border-border rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-50 p-2">
+
+                    <div class="px-3 pt-2 pb-1">
+                        <span class="text-xs font-bold text-secondary uppercase tracking-wider">Cetak Laporan</span>
+                    </div>
+                    <div class="h-px bg-border my-2"></div>
+
+                    <div class="flex flex-col gap-1">
+                        <a href="{{ route('admin.laporan.penjenjangan') }}" target="_blank" @click="open = false"
+                            class="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground rounded-xl hover:bg-muted transition-colors">
+                            <i data-lucide="file-check-2" class="size-4 text-secondary group-hover:text-emerald-600 transition-colors"></i>
+                            <span>Peserta Diterima</span>
+                        </a>
+
+                        <a href="{{ route('admin.laporan.penjenjangan-ditolak') }}" target="_blank" @click="open = false"
+                            class="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground rounded-xl hover:bg-muted transition-colors">
+                            <i data-lucide="file-x-2" class="size-4 text-secondary group-hover:text-red-500 transition-colors"></i>
+                            <span>Peserta Ditolak</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endif
+            @canany(['superadmin', 'admin'])
             <button onclick="confirmRun()"
-                class="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-full font-semibold text-sm transition-all duration-300 cursor-pointer shadow-sm shadow-primary/30">
+                class="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-full font-semibold text-sm transition-all duration-300 cursor-pointer shadow-sm shadow-primary/30">
                 <i data-lucide="play-circle" class="size-4"></i>
-                <span>Jalankan Penjenjangan</span>
+                <span>Jenjang</span>
             </button>
             @endcanany
         </div>
@@ -190,7 +233,7 @@
 
                                 <div>
                                     <p class="font-semibold text-sm text-foreground">{{ $c->name }}</p>
-                                    <p class="text-xs text-secondary font-mono">{{ $c->code }}</p>
+                                    <p class="text-xs text-secondary">{{ $c->code }} {{ $c->alias }}</p>
                                 </div>
                             </div>
                         </td>

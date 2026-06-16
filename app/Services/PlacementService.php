@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Log;
 class PlacementService
 {
     // ── BOBOT SKOR ───────────────────────────────────────
-    const WEIGHT_RAPOR     = 0.40;
+    const WEIGHT_RAPOR     = 0.50;
     const WEIGHT_TKA       = 0.20;
-    const WEIGHT_OBSERVASI = 0.30;
+    const WEIGHT_OBSERVASI = 0.20;
     const WEIGHT_PRESTASI  = 0.10;
 
     // ── TIPE JALUR (sesuaikan dengan kolom `name` di admission_paths) ──
@@ -83,6 +83,10 @@ class PlacementService
                 'achievements',
             ])
                 ->where('verification_status', 'verified')
+                ->whereHas('observationData', function ($query) {
+                    // Abaikan peserta yang belum punya data observasi atau masih 'pending'
+                    $query->whereIn('observation_status', ['passed', 'failed']);
+                })
                 ->get();
 
             $results  = collect();
@@ -148,8 +152,8 @@ class PlacementService
                 });
             }
 
-            // ── STEP 1: ZONASI (tanpa skor, urutan daftar) ──────────
-            $summary[self::JALUR_ZONASI] = $this->processJalurTanpaSkor(
+            // ── STEP 1: ZONASI (skor berbobot tanpa prestasi, ranking by final_score) ──
+            $summary[self::JALUR_ZONASI] = $this->processJalurTanpaPrestasi(
                 peserta: $pesertaPerJalur[self::JALUR_ZONASI],
                 jalurKey: self::JALUR_ZONASI,
                 admissionPath: $admissionPaths->get(self::JALUR_ZONASI),
@@ -161,8 +165,8 @@ class PlacementService
                 results: $results,
             );
 
-            // ── STEP 2: AFIRMASI (tanpa skor, urutan daftar) ────────
-            $summary[self::JALUR_AFIRMASI] = $this->processJalurTanpaSkor(
+            // ── STEP 2: AFIRMASI (skor berbobot tanpa prestasi, ranking by final_score) ──
+            $summary[self::JALUR_AFIRMASI] = $this->processJalurTanpaPrestasi(
                 peserta: $pesertaPerJalur[self::JALUR_AFIRMASI],
                 jalurKey: self::JALUR_AFIRMASI,
                 admissionPath: $admissionPaths->get(self::JALUR_AFIRMASI),
@@ -174,7 +178,7 @@ class PlacementService
                 results: $results,
             );
 
-            // ── STEP 3: PRESTASI (ranking achievement_score) ────────
+            // ── STEP 3: PRESTASI (skor berbobot penuh termasuk prestasi) ────────
             $summary[self::JALUR_PRESTASI] = $this->processJalurPrestasi(
                 peserta: $pesertaPerJalur[self::JALUR_PRESTASI],
                 admissionPath: $admissionPaths->get(self::JALUR_PRESTASI),
@@ -284,10 +288,12 @@ class PlacementService
     }
 
     /**
-     * Proses jalur TANPA SKOR (Zonasi & Afirmasi).
-     * Urutan ditentukan oleh submitted_at (siapa cepat).
+     * Proses jalur TANPA PRESTASI (Zonasi & Afirmasi).
+     * Skor berbobot: rapor (40%) + tka (20%) + observasi (30%).
+     * Komponen prestasi dipaksa 0 karena tidak relevan di jalur ini.
+     * Ranking berdasarkan final_score DESC.
      */
-    private function processJalurTanpaSkor(
+    private function processJalurTanpaPrestasi(
         Collection   $peserta,
         string       $jalurKey,
         ?AdmissionPath $admissionPath,
@@ -302,17 +308,37 @@ class PlacementService
             return ['total' => 0, 'accepted' => 0, 'rejected' => 0];
         }
 
-        // Urutan FCFS: submitted_at ascending, standarisasi format data
-        $scoredData = $peserta->sortBy('submitted_at')->values()->map(function ($reg) {
+        // Hitung skor berbobot tanpa komponen prestasi
+        $scored = $peserta->map(function ($reg) {
+            $rapor     = (float) ($reg->report_average ?? 0);
+            $tka       = (float) ($reg->tka_average ?? 0);
+            $observasi = (float) ($reg->observationData?->physical_score ?? 0)
+                + (float) ($reg->observationData?->special_trait_score ?? 0);
+            $observasi = min($observasi / 2, 100);
+
+            // Prestasi dipaksa 0 — tidak relevan di jalur Zonasi & Afirmasi
+            $prestasi  = 0;
+
+            $scoreRapor     = $rapor     * self::WEIGHT_RAPOR;
+            $scoreTka       = $tka       * self::WEIGHT_TKA;
+            $scoreObservasi = $observasi * self::WEIGHT_OBSERVASI;
+            $scorePrestasi  = $prestasi  * self::WEIGHT_PRESTASI; // selalu 0
+            $finalScore     = $scoreRapor + $scoreTka + $scoreObservasi + $scorePrestasi;
+
             return [
-                'reg' => $reg,
-                'score_rapor' => 0,
-                'score_tka' => 0,
-                'score_observasi' => 0,
-                'score_prestasi' => 0,
-                'final_score' => 0,
-                'rank_in_path' => null,
+                'reg'             => $reg,
+                'score_rapor'     => round($scoreRapor, 2),
+                'score_tka'       => round($scoreTka, 2),
+                'score_observasi' => round($scoreObservasi, 2),
+                'score_prestasi'  => round($scorePrestasi, 2),
+                'final_score'     => round($finalScore, 2),
             ];
+        })->sortByDesc('final_score')->values();
+
+        $rank = 1;
+        $scoredData = $scored->map(function ($item) use (&$rank) {
+            $item['rank_in_path'] = $rank++;
+            return $item;
         });
 
         return $this->executeAllocationRounds($scoredData, $jalurKey, $quotaMap, $filledSlots, $batch, $processedById, $processedAt, $results, $admissionPath->id);
@@ -320,7 +346,9 @@ class PlacementService
 
     /**
      * Proses jalur PRESTASI.
-     * Ranking berdasarkan achievement_score DESC.
+     * Skor berbobot PENUH: rapor (40%) + tka (20%) + observasi (30%) + prestasi (10%).
+     * Komponen prestasi (achievement_score) ikut dihitung karena siswa memiliki bukti prestasi.
+     * Jika peserta ini nantinya dilimpahkan ke Reguler, prestasi akan dipaksa 0 di sana.
      */
     private function processJalurPrestasi(
         Collection   $peserta,
@@ -336,29 +364,46 @@ class PlacementService
             return ['total' => 0, 'accepted' => 0, 'rejected' => 0];
         }
 
+        // Hitung skor berbobot penuh termasuk komponen prestasi
+        $scored = $peserta->map(function ($reg) {
+            $rapor     = (float) ($reg->report_average ?? 0);
+            $tka       = (float) ($reg->tka_average ?? 0);
+            $observasi = (float) ($reg->observationData?->physical_score ?? 0)
+                + (float) ($reg->observationData?->special_trait_score ?? 0);
+            $observasi = min($observasi / 2, 100);
+            $prestasi  = (float) ($reg->observationData?->achievement_score ?? 0);
+
+            $scoreRapor     = $rapor     * self::WEIGHT_RAPOR;
+            $scoreTka       = $tka       * self::WEIGHT_TKA;
+            $scoreObservasi = $observasi * self::WEIGHT_OBSERVASI;
+            $scorePrestasi  = $prestasi  * self::WEIGHT_PRESTASI;
+            $finalScore     = $scoreRapor + $scoreTka + $scoreObservasi + $scorePrestasi;
+
+            return [
+                'reg'             => $reg,
+                'score_rapor'     => round($scoreRapor, 2),
+                'score_tka'       => round($scoreTka, 2),
+                'score_observasi' => round($scoreObservasi, 2),
+                'score_prestasi'  => round($scorePrestasi, 2),
+                'final_score'     => round($finalScore, 2),
+            ];
+        })->sortByDesc('final_score')->values();
+
         $rank = 1;
-        $scoredData = $peserta->sortByDesc(fn($r) => $r->observationData?->achievement_score ?? 0)
-            ->values()
-            ->map(function ($reg) use (&$rank) {
-                $finalScore = (float) ($reg->observationData?->achievement_score ?? 0);
-                return [
-                    'reg' => $reg,
-                    'score_rapor' => 0,
-                    'score_tka' => 0,
-                    'score_observasi' => 0,
-                    'score_prestasi' => $finalScore,
-                    'final_score' => $finalScore,
-                    'rank_in_path' => $rank++,
-                ];
-            });
+        $scoredData = $scored->map(function ($item) use (&$rank) {
+            $item['rank_in_path'] = $rank++;
+            return $item;
+        });
 
         return $this->executeAllocationRounds($scoredData, self::JALUR_PRESTASI, $quotaMap, $filledSlots, $batch, $processedById, $processedAt, $results, $admissionPath->id);
     }
 
     /**
      * Proses jalur REGULER.
-     * Ranking berdasarkan skor gabungan berbobot.
-     * Catatan: Nilai prestasi dipaksa 0 agar adil bagi semua peserta reguler.
+     * Skor berbobot: rapor (40%) + tka (20%) + observasi (30%).
+     * Komponen prestasi dipaksa 0 — jalur ini adalah jalur umum tanpa keistimewaan prestasi.
+     * Peserta dari jalur lain yang gagal (Zonasi, Afirmasi, Prestasi) juga dilimpahkan ke sini
+     * dan dinilai ulang dengan formula yang sama (prestasi tetap 0).
      */
     private function processJalurReguler(
         Collection   $peserta,
@@ -382,13 +427,13 @@ class PlacementService
                 + (float) ($reg->observationData?->special_trait_score ?? 0);
             $observasi = min($observasi / 2, 100);
 
-            // PENGUBAHAN: Paksa nilai prestasi menjadi 0
+            // Prestasi dipaksa 0 — tidak relevan di jalur Reguler
             $prestasi  = 0;
 
             $scoreRapor     = $rapor     * self::WEIGHT_RAPOR;
             $scoreTka       = $tka       * self::WEIGHT_TKA;
             $scoreObservasi = $observasi * self::WEIGHT_OBSERVASI;
-            $scorePrestasi  = $prestasi  * self::WEIGHT_PRESTASI; // Hasilnya pasti 0
+            $scorePrestasi  = $prestasi  * self::WEIGHT_PRESTASI; // selalu 0
             $finalScore     = $scoreRapor + $scoreTka + $scoreObservasi + $scorePrestasi;
 
             return [

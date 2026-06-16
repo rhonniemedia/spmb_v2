@@ -143,6 +143,8 @@ Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->pre
         Route::get('/applicants', [ReportController::class, 'peminat'])->name('peminat');
         Route::get('/applicants-by-major', [ReportController::class, 'peminatJurusan'])->name('peminat-jurusan');
         Route::get('/receipt', [ReportController::class, 'tandaTerima'])->name('tanda-terima');
+        Route::get('/placement', [ReportController::class, 'penjenjangan'])->name('penjenjangan');
+        Route::get('/placement-rejected', [ReportController::class, 'penjenjanganDitolak'])->name('penjenjangan-ditolak');
     });
 
     Route::prefix('profile')->name('profil.')->group(function () {

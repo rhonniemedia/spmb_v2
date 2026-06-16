@@ -49,6 +49,11 @@ class RegistrationData extends Model
         return $this->hasOne(SelectionResult::class, 'registration_id');
     }
 
+    public function selectionResults(): HasMany
+    {
+        return $this->hasMany(SelectionResult::class, 'registration_id');
+    }
+
     /**
      * Relasi Ekstensi: Jalur Afirmasi (1:1 Bersyarat)
      */

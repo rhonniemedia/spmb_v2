@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Concentration;
 use App\Models\RegistrationData;
+use App\Models\SelectionResult;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -188,5 +189,183 @@ class ReportController extends Controller
         ))->setPaper('A4', 'landscape');
 
         return $pdf->stream('Tanda_Terima_Berkas_' . date('Ymd') . '.pdf');
+    }
+
+    /**
+     * Helper khusus untuk mapping data Selection Result (Penjenjangan)
+     */
+    private function mapSelectionData($selectionResults)
+    {
+        return $selectionResults->map(function ($result) {
+            $reg = $result->registration;
+            $personal = $reg->personalData ?? null;
+            $obs = $reg->observationData ?? null;
+
+            // Mapping Data Pribadi
+            $result->registration_number = $reg->registration_number ?? '-';
+            $result->student_name = $personal->full_name ?? '-';
+            $result->gender = $personal->gender ?? '-';
+            $result->asal_sekolah = $personal->previous_school ?? '-';
+
+            // Mapping Tanggal
+            $result->tanggal_daftar = $reg->created_at ? $reg->created_at->format('d/m/Y') : '-';
+            $result->tanggal_observasi = $obs ? $obs->created_at->format('d/m/Y') : '-';
+
+            // Nilai Akhir & Observasi
+            $result->nilai_akhir = number_format($result->final_score ?? 0, 2);
+            $result->hasilObservasi = (object) [
+                'total_nilai' => $obs->total_score ?? '-',
+                'buta_warna' => $obs->color_blind_check ?? 'no',
+                'tato' => $obs->tattoo ?? 'no',
+                'bekas_tato' => $obs->tattoo_scar ?? 'no',
+                'tindik' => $obs->piercing ?? 'no'
+            ];
+
+            // Bypass class error warna merah di blade
+            $result->input_rapor = 'ya';
+
+            // ── Keterangan Pilihan, Jalur & Urutan Sorting ──
+            $choiceNumber = $result->accepted_in_choice ?? '-';
+            $pathName = strtolower($reg->admissionPath->name ?? 'reguler');
+
+            $pathInitial = 'R';
+            $pathOrder = 4;
+
+            if (str_contains($pathName, 'prestasi')) {
+                $pathInitial = 'P';
+                $pathOrder = 1;
+            } elseif (str_contains($pathName, 'afirmasi')) {
+                $pathInitial = 'A';
+                $pathOrder = 2;
+            } elseif (str_contains($pathName, 'zonasi')) {
+                $pathInitial = 'Z';
+                $pathOrder = 3;
+            }
+
+            $result->pilihan_jalur = ($choiceNumber !== '-') ? $choiceNumber . $pathInitial : '-';
+            $result->path_order = $pathOrder;
+
+            // ── LOGIKA BARU: Keterangan Observasi / Penolakan ──
+            $keterangan = [];
+            if (($obs->color_blind_check ?? 'no') === 'yes') $keterangan[] = 'Buta Warna';
+            if (($obs->tattoo ?? 'no') === 'yes' || ($obs->tattoo_scar ?? 'no') === 'yes') $keterangan[] = 'Tato/Bekas Tato';
+            if (($obs->piercing ?? 'no') === 'yes') $keterangan[] = 'Tindik';
+
+            $result->keterangan = count($keterangan) > 0 ? implode(', ', $keterangan) : 'Tidak Terjenjang';
+
+            return $result;
+        });
+    }
+
+    /**
+     * 5. Cetak Hasil Penjenjangan
+     */
+    public function penjenjangan(Request $request)
+    {
+        $latestBatch = SelectionResult::max('batch') ?? 0;
+
+        if ($latestBatch == 0) {
+            return back()->with('error', 'Belum ada data penjenjangan untuk dicetak.');
+        }
+
+        $dataKeahlian = Concentration::where('status', 'active')->orderBy('name')->get();
+
+        // --- A. PESERTA DITERIMA ---
+        $acceptedResults = SelectionResult::with([
+            'registration.personalData',
+            'registration.observationData',
+            'registration.choice1',
+            'registration.admissionPath' // <-- PENTING: Tambahkan relasi ini
+        ])
+            ->where('batch', $latestBatch)
+            ->where('status', 'accepted')
+            ->orderBy('rank_in_concentration')
+            ->get();
+
+        // Kelompokkan yang diterima berdasarkan ID Jurusan
+        $pendaftarPerKeahlian = $acceptedResults->groupBy('accepted_concentration_id')->map(function ($group) {
+            // Lakukan mapping terlebih dahulu untuk mendapatkan 'path_order'
+            $mappedData = $this->mapSelectionData($group);
+
+            // Urutkan berdasarkan Jalur (Prestasi -> Afirmasi -> Zonasi -> Reguler), 
+            // lalu urutkan berdasarkan ranking asli dalam jurusan tersebut
+            return $mappedData->sortBy([
+                ['path_order', 'asc'],
+                ['rank_in_concentration', 'asc']
+            ])->values(); // Gunakan .values() untuk mereset nomor urut array
+        });
+
+        // --- B. PESERTA DITOLAK (TIDAK DIJENJANGKAN) ---
+        $rejectedResults = SelectionResult::with([
+            'registration.personalData',
+            'registration.observationData',
+            'registration.choice1',
+            'registration.admissionPath' // <-- PENTING: Tambahkan relasi ini
+        ])
+            ->where('batch', $latestBatch)
+            ->where('status', 'rejected')
+            ->orderByDesc('final_score')
+            ->get();
+
+        $tidakDijenjang = $this->mapSelectionData($rejectedResults);
+
+        // --- C. PESERTA BELUM TERJENJANG (Data Valid tapi Belum Masuk Batch) ---
+        // 1. Ambil semua ID pendaftar yang sudah diproses di batch ini
+        $processedIds = SelectionResult::where('batch', $latestBatch)->pluck('registration_id');
+
+        // 2. Filter pendaftar yang ID-nya tidak ada di dalam daftar $processedIds
+        $unprocessed = RegistrationData::with(['personalData', 'choice1', 'observationData'])
+            ->where('verification_status', 'verified')
+            ->whereNotIn('id', $processedIds)
+            ->orderByDesc('created_at')
+            ->get();
+
+        $belumTerjenjang = $this->mapPendaftarData($unprocessed);
+
+        $tanggalHariIni = $this->getTanggalCetak();
+
+        $pdf = Pdf::loadView('pages.admin.laporan.daftar-jenjang-jurusan', compact(
+            'dataKeahlian',
+            'pendaftarPerKeahlian',
+            'tidakDijenjang',
+            'belumTerjenjang',
+            'tanggalHariIni'
+        ))->setPaper('A4', 'landscape');
+
+        return $pdf->stream('Hasil_Penjenjangan_Batch_' . $latestBatch . '.pdf');
+    }
+
+    /**
+     * 6. Cetak Daftar Peserta Ditolak (Tidak Dijenjangkan)
+     */
+    public function penjenjanganDitolak(Request $request)
+    {
+        $latestBatch = SelectionResult::max('batch') ?? 0;
+
+        if ($latestBatch == 0) {
+            return back()->with('error', 'Belum ada data penjenjangan untuk dicetak.');
+        }
+
+        $rejectedResults = SelectionResult::with([
+            'registration.personalData',
+            'registration.observationData',
+            'registration.choice1',
+            'registration.admissionPath' // Penting untuk mapping 1R, 2A, dst
+        ])
+            ->where('batch', $latestBatch)
+            ->where('status', 'rejected')
+            ->orderByDesc('final_score')
+            ->get();
+
+        $tidakDijenjang = $this->mapSelectionData($rejectedResults);
+        $tanggalHariIni = $this->getTanggalCetak();
+
+        $pdf = Pdf::loadView('pages.admin.laporan.daftar-ditolak', compact(
+            'tidakDijenjang',
+            'tanggalHariIni',
+            'latestBatch'
+        ))->setPaper('A4', 'landscape');
+
+        return $pdf->stream('Daftar_Ditolak_Batch_' . $latestBatch . '.pdf');
     }
 }

@@ -33,6 +33,15 @@
             @php
             $theme = $j->color_theme ?? 'blue';
             $namaJalur = strtolower($j->name);
+
+            // Mapping icon FontAwesome dari database menjadi format Lucide Icon
+            $lucideIcon = match($j->icon) {
+            'fa-user-graduate' => 'graduation-cap',
+            'fa-map-location-dot' => 'map-pin',
+            'fa-trophy' => 'trophy',
+            'fa-hand-holding-heart' => 'heart-handshake',
+            default => 'route' // Ikon default jika tidak ada yang cocok
+            };
             @endphp
             <label class="cursor-pointer block" @click="jalur_name = '{{ $namaJalur }}'">
                 <input type="radio" name="jalur" value="{{ $j->id }}" x-model="jalur" class="sr-only">
@@ -41,7 +50,8 @@
                     class="relative border-2 rounded-2xl p-4 transition-all h-full">
                     <div class="flex items-start gap-3 mb-1">
                         <div class="w-8 h-8 rounded-lg bg-{{$theme}}-100 flex items-center justify-center shrink-0">
-                            <i data-lucide="{{ $j->icon ?? 'route' }}" class="size-4 text-{{$theme}}-600"></i>
+                            {{-- Panggil variabel $lucideIcon di sini --}}
+                            <i data-lucide="{{ $lucideIcon }}" class="size-4 text-{{$theme}}-600"></i>
                         </div>
                         <div class="text-sm font-black text-gray-900">{{ $j->name }}</div>
                     </div>

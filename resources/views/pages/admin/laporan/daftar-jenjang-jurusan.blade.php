@@ -114,6 +114,11 @@
             background-color: #f8d7da;
             color: #721c24;
         }
+
+        .today-cell {
+            background-color: #003366;
+            color: white;
+        }
     </style>
 </head>
 
@@ -123,14 +128,14 @@
         <h2>DAFTAR PENJENJANGAN SEMENTARA</h2>
         <h2>SISTEM PENERIMAAN MURID BARU</h2>
         <h2 class="school-name">SMK NEGERI 1 REJANG LEBONG</h2>
-        <h2>TAHUN 2025</h2>
+        <h2>TAHUN {{ now()->year }}</h2>
     </div>
 
     @foreach ($dataKeahlian as $keahlian)
     <div class="concentration-date">
         <table>
             <tr>
-                <td class="text-left" style="width: 50%;">Konsentrasi Keahlian: {{ $keahlian->nama_keahlian }} ({{ $keahlian->alias }})</td>
+                <td class="text-left" style="width: 50%;">Konsentrasi Keahlian: {{ $keahlian->name }} ({{ $keahlian->alias }})</td>
                 <td class="text-right" style="width: 50%;">Tanggal: {{ $tanggalHariIni }}</td>
             </tr>
         </table>
@@ -142,16 +147,16 @@
                 <th style="text-align: center;" colspan="2">NOMOR</th>
                 <th style="text-align: center;" rowspan="2">NAMA</th>
                 <th style="text-align: center;" rowspan="2">JK</th>
-                <th style="text-align: center;" colspan="2">NILAI</th>
+                {{-- Ubah colspan="2" menjadi rowspan="2" untuk NILAI AKHIR --}}
+                <th style="text-align: center;" rowspan="2">NILAI AKHIR</th>
                 <th style="text-align: center;" colspan="2">TANGGAL</th>
-                <th style="text-align: center;" rowspan="2">ASA SEKOLAH</th>
+                <th style="text-align: center;" rowspan="2">ASAL SEKOLAH</th>
                 <th style="text-align: center;" rowspan="2">KET</th>
             </tr>
             <tr>
                 <th style="text-align: center;">URUT</th>
                 <th style="text-align: center;">REGISTRASI</th>
-                <th style="text-align: center;">AKHIR</th>
-                <th style="text-align: center;">SELEKSI</th>
+                {{-- Kolom AKHIR dan SELEKSI dihapus dari sini --}}
                 <th style="text-align: center;">VERIFIKASI</th>
                 <th style="text-align: center;">OBSERVASI</th>
             </tr>
@@ -164,34 +169,32 @@
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $pendaftar->registration_number }}</td>
-                <td class="text-left">{{ Str::upper($pendaftar->student_name) }}</td>
+                <td class="text-left">{{ strtoupper($pendaftar->student_name) }}</td>
                 <td>{{ $pendaftar->gender }}</td>
                 <td @class([ 'sel-error'=> $pendaftar->input_rapor == 'tidak', ])>
                     {{ $pendaftar->nilai_akhir }}
                 </td>
-                <td>{{ $pendaftar->hasilObservasi->total_nilai ?? '-' }}</td>
+                {{-- Kolom nilai observasi (seleksi) dihapus dari sini --}}
                 @php
-                    $isToday = false;
-                    try {
-                        $isToday = \Carbon\Carbon::createFromFormat('d/m/Y', $pendaftar->tanggal_daftar)->isToday();
-                    } catch (\Exception $e) {
-                        // Tangani jika format salah, bisa juga dibiarkan kosong
-                    }
+                $isToday = false;
+                try {
+                $isToday = \Carbon\Carbon::createFromFormat('d/m/Y', $pendaftar->tanggal_daftar)->isToday();
+                } catch (\Exception $e) {
+                // Tangani jika format salah
+                }
                 @endphp
-                <td style="{{ $isToday ? 'background-color: #003366; color: white;' : '' }}">
-                    {{ $pendaftar->tanggal_daftar }}
+                <td class="{{ $isToday ? 'today-cell' : '' }}"> {{ $pendaftar->tanggal_daftar }}
                 </td>
                 <td>{{ $pendaftar->tanggal_observasi ?? '-' }}</td>
-                <td class="text-left">{{ Str::upper($pendaftar->asal_sekolah) }}</td>
-                <td>{{ $pendaftar->pilihan ?? '-' }}</td>
+                <td class="text-left">{{ strtoupper($pendaftar->asal_sekolah) }}</td>
+                <td>{{ $pendaftar->pilihan_jalur ?? '-' }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="7" class="text-center">Belum ada pendaftar pada Konsentrasi Keahlian ini.</td>
+                {{-- Ubah colspan menjadi 9 agar sesuai dengan jumlah kolom tabel yang baru --}}
+                <td colspan="9" class="text-center">Belum ada pendaftar pada Konsentrasi Keahlian ini.</td>
             </tr>
             @endforelse
-
-            <!-- Tambahkan baris dinamis lainnya -->
         </tbody>
     </table>
 
@@ -225,8 +228,8 @@
             <td width="30%">
                 Rejang Lebong, {{ $tanggalHariIni }}<br>
                 Ketua,<br><br><br><br><br>
-                <strong>Meilinda, M.Pd</strong><br>
-                NIP 198405202009032006
+                <strong>Tiar Hadi Saputra, M.Pd</strong><br>
+                NIP 199107312022211006
             </td>
         </tr>
     </table>
@@ -269,7 +272,7 @@
             <tr>
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $pendaftar->registration_number }}</td>
-                <td class="text-left">{{ Str::upper($pendaftar->student_name) }}</td>
+                <td class="text-left">{{ strtoupper($pendaftar->student_name) }}</td>
                 <td>{{ $pendaftar->gender }}</td>
                 <td @class([ 'sel-error'=> $pendaftar->input_rapor == 'tidak', ])>
                     {{ $pendaftar->nilai_akhir }}
@@ -277,7 +280,7 @@
                 <td>{{ $pendaftar->hasilObservasi->total_nilai ?? '-' }}</td>
                 <td>{{ $pendaftar->tanggal_daftar }}</td>
                 <td>{{ $pendaftar->tanggal_observasi ?? '-' }}</td>
-                <td class="text-left">{{ Str::upper($pendaftar->asal_sekolah) }}</td>
+                <td class="text-left">{{ strtoupper($pendaftar->asal_sekolah) }}</td>
                 <td>TIDAK TERJENJANG</td>
             </tr>
             @endforeach
@@ -336,7 +339,7 @@
             <tr>
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $pendaftar->registration_number }}</td>
-                <td class="text-left">{{ Str::upper($pendaftar->student_name) }}</td>
+                <td class="text-left">{{ strtoupper($pendaftar->student_name) }}</td>
                 <td>{{ $pendaftar->gender }}</td>
                 <td @class([ 'sel-error'=> $pendaftar->input_rapor == 'tidak', ])>
                     {{ $pendaftar->nilai_akhir }}
@@ -345,7 +348,7 @@
                 <td>{{ $pendaftar->hasilObservasi->total_nilai ?? '-' }}</td>
                 <td>{{ $pendaftar->tanggal_daftar }}</td>
                 <td>{{ $pendaftar->tanggal_observasi ?? '-' }}</td>
-                <td class="text-left">{{ Str::upper($pendaftar->asal_sekolah) }}</td>
+                <td class="text-left">{{ strtoupper($pendaftar->asal_sekolah) }}</td>
                 <td>
                     @php
                     $keterangan = [];
