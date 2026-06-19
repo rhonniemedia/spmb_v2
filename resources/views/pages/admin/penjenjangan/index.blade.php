@@ -37,6 +37,7 @@
             </p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
+            {{-- Tombol Riwayat & Peserta Ditolak (Bisa diakses semua/umum) --}}
             <a href="{{ route('admin.penjenjangan.history') }}"
                 class="flex items-center gap-2 px-4 py-2.5 ring-1 ring-border hover:ring-primary rounded-full text-foreground font-semibold text-sm transition-all duration-300 cursor-pointer bg-white">
                 <i data-lucide="history" class="size-4"></i>
@@ -47,10 +48,11 @@
                 <i data-lucide="user-x" class="size-4"></i>
                 <span>Peserta Ditolak</span>
             </a>
-            {{-- DROPDOWN CETAK HASIL (ALPINE.JS) --}}
+
+            {{-- DROPDOWN CETAK HASIL / LAPORAN (Hanya Superadmin & Admin) --}}
+            @canany(['superadmin', 'admin'])
             @if($latestBatch > 0)
             <div class="relative" x-data="{ open: false }" @click.outside="open = false">
-                {{-- Tombol Utama --}}
                 <button type="button" @click="open = !open"
                     class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold text-sm transition-all duration-300 cursor-pointer shadow-sm shadow-emerald-600/30">
                     <i data-lucide="printer" class="size-4"></i>
@@ -58,7 +60,6 @@
                     <i data-lucide="chevron-down" class="size-4 transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
                 </button>
 
-                {{-- Isi Dropdown dengan Animasi Transisi --}}
                 <div x-show="open"
                     x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 translate-y-2"
@@ -90,6 +91,9 @@
                 </div>
             </div>
             @endif
+            @endcanany
+
+            {{-- TOMBOL JENJANG (Hanya Superadmin & Admin) --}}
             @canany(['superadmin', 'admin'])
             <button onclick="confirmRun()"
                 class="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-full font-semibold text-sm transition-all duration-300 cursor-pointer shadow-sm shadow-primary/30">
