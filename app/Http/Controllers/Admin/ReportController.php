@@ -226,7 +226,19 @@ class ReportController extends Controller
 
             // ── Keterangan Pilihan, Jalur & Urutan Sorting ──
             $choiceNumber = $result->accepted_in_choice ?? '-';
-            $pathName = strtolower($reg->admissionPath->name ?? 'reguler');
+
+            // --- FIX TAMPILAN JALUR ---
+            // Deteksi apakah anak diterima di jalur aslinya, atau dilimpahkan ke Reguler.
+            $originalPathId = $reg->admissionPath->id ?? null;
+            $acceptedPathId = $result->path_id ?? null;
+
+            // Jika path_id berbeda (berarti dia dilimpahkan), atau diterima di Pilihan 2/3,
+            // maka otomatis dia berstatus Reguler.
+            if ($acceptedPathId !== $originalPathId || in_array($choiceNumber, [2, 3])) {
+                $pathName = 'reguler';
+            } else {
+                $pathName = strtolower($reg->admissionPath->name ?? 'reguler');
+            }
 
             $pathInitial = 'R';
             $pathOrder = 4;
@@ -248,7 +260,7 @@ class ReportController extends Controller
             // ── LOGIKA BARU: Keterangan Observasi / Penolakan ──
             $keterangan = [];
             if (($obs->color_blind_check ?? 'no') === 'yes') $keterangan[] = 'Buta Warna';
-            if (($obs->tattoo ?? 'no') === 'yes' || ($obs->tattoo_scar ?? 'no') === 'yes') $keterangan[] = 'Tato/Bekas Tato';
+            if (($obs->tattoo ?? 'no') === 'yes' || ($obs->tattoo_scar ?? 'no') === 'yes') $keterangan[] = 'Tato';
             if (($obs->piercing ?? 'no') === 'yes') $keterangan[] = 'Tindik';
 
             $result->keterangan = count($keterangan) > 0 ? implode(', ', $keterangan) : 'Tidak Terjenjang';
@@ -258,7 +270,8 @@ class ReportController extends Controller
     }
 
     /**
-     * 5. Cetak Hasil Penjenjangan
+     * 5. Cetak Hasil Penjenjangan (Diterima & Ditolak)
+     * Query 'belumTerjenjang' dihapus dari sini karena sudah dipindah.
      */
     public function penjenjangan(Request $request)
     {
@@ -275,32 +288,27 @@ class ReportController extends Controller
             'registration.personalData',
             'registration.observationData',
             'registration.choice1',
-            'registration.admissionPath' // <-- PENTING: Tambahkan relasi ini
+            'registration.admissionPath'
         ])
             ->where('batch', $latestBatch)
             ->where('status', 'accepted')
             ->orderBy('rank_in_concentration')
             ->get();
 
-        // Kelompokkan yang diterima berdasarkan ID Jurusan
         $pendaftarPerKeahlian = $acceptedResults->groupBy('accepted_concentration_id')->map(function ($group) {
-            // Lakukan mapping terlebih dahulu untuk mendapatkan 'path_order'
             $mappedData = $this->mapSelectionData($group);
-
-            // Urutkan berdasarkan Jalur (Prestasi -> Afirmasi -> Zonasi -> Reguler), 
-            // lalu urutkan berdasarkan ranking asli dalam jurusan tersebut
             return $mappedData->sortBy([
                 ['path_order', 'asc'],
                 ['rank_in_concentration', 'asc']
-            ])->values(); // Gunakan .values() untuk mereset nomor urut array
+            ])->values();
         });
 
-        // --- B. PESERTA DITOLAK (TIDAK DIJENJANGKAN) ---
+        // --- B. PESERTA DITOLAK ---
         $rejectedResults = SelectionResult::with([
             'registration.personalData',
             'registration.observationData',
             'registration.choice1',
-            'registration.admissionPath' // <-- PENTING: Tambahkan relasi ini
+            'registration.admissionPath'
         ])
             ->where('batch', $latestBatch)
             ->where('status', 'rejected')
@@ -308,31 +316,49 @@ class ReportController extends Controller
             ->get();
 
         $tidakDijenjang = $this->mapSelectionData($rejectedResults);
+        $tanggalHariIni = $this->getTanggalCetak();
 
-        // --- C. PESERTA BELUM TERJENJANG (Data Valid tapi Belum Masuk Batch) ---
-        // 1. Ambil semua ID pendaftar yang sudah diproses di batch ini
+        // Tidak perlu passing 'belumTerjenjang' lagi ke sini
+        $pdf = Pdf::loadView('pages.admin.laporan.daftar-jenjang-jurusan', compact(
+            'dataKeahlian',
+            'pendaftarPerKeahlian',
+            'tidakDijenjang',
+            'tanggalHariIni'
+        ))->setPaper('A4', 'landscape');
+
+        return $pdf->stream('Hasil_Penjenjangan_Batch_' . $latestBatch . '.pdf');
+    }
+
+    /**
+     * 7. Cetak Daftar Peserta Pending (Belum Terjenjang)
+     * Method baru yang dipanggil oleh route 'penjenjangan-pending'
+     */
+    public function penjenjanganDipending(Request $request)
+    {
+        $latestBatch = SelectionResult::max('batch') ?? 0;
+
+        // Ambil semua ID pendaftar yang sudah diproses di batch ini
         $processedIds = SelectionResult::where('batch', $latestBatch)->pluck('registration_id');
 
-        // 2. Filter pendaftar yang ID-nya tidak ada di dalam daftar $processedIds
+        // Filter pendaftar yang ID-nya tidak ada di dalam daftar $processedIds
+        // Pastikan status berkasnya sudah verified agar masuk kriteria
         $unprocessed = RegistrationData::with(['personalData', 'choice1', 'observationData'])
             ->where('verification_status', 'verified')
             ->whereNotIn('id', $processedIds)
             ->orderByDesc('created_at')
             ->get();
 
+        // Menggunakan helper mapPendaftarData yang sudah Anda buat
         $belumTerjenjang = $this->mapPendaftarData($unprocessed);
-
         $tanggalHariIni = $this->getTanggalCetak();
 
-        $pdf = Pdf::loadView('pages.admin.laporan.daftar-jenjang-jurusan', compact(
-            'dataKeahlian',
-            'pendaftarPerKeahlian',
-            'tidakDijenjang',
+        // Pastikan path ke file blade sudah benar sesuai struktur folder Anda
+        $pdf = Pdf::loadView('pages.admin.laporan.daftar-jenjang-pending', compact(
             'belumTerjenjang',
             'tanggalHariIni'
         ))->setPaper('A4', 'landscape');
 
-        return $pdf->stream('Hasil_Penjenjangan_Batch_' . $latestBatch . '.pdf');
+        return $pdf->stream('Daftar_Belum_Terjenjang.pdf');
     }
 
     /**

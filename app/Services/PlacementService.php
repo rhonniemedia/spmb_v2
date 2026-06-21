@@ -457,7 +457,9 @@ class PlacementService
     }
 
     /**
-     * Mengeksekusi penempatan peserta dalam 3 putaran (Pilihan 1 dulu, lalu 2, lalu 3).
+     * Mengeksekusi penempatan peserta.
+     * Jalur non-reguler hanya memproses Pilihan 1.
+     * Jalur reguler memproses Pilihan 1, 2, dan 3.
      */
     private function executeAllocationRounds(
         Collection $pesertaDatas,
@@ -477,8 +479,12 @@ class PlacementService
         // Buat salinan antrean peserta
         $unplaced = collect($pesertaDatas);
 
-        // Putaran 1, 2, dan 3
-        for ($choiceLevel = 1; $choiceLevel <= 3; $choiceLevel++) {
+        // Tentukan batas putaran pilihan jurusan
+        // Zonasi, Afirmasi, Prestasi hanya Pilihan 1. Reguler sampai Pilihan 3.
+        $maxRounds = ($jalurKey === self::JALUR_REGULER) ? 3 : 1;
+
+        // Putaran seleksi berdasarkan pilihan
+        for ($choiceLevel = 1; $choiceLevel <= $maxRounds; $choiceLevel++) {
             foreach ($unplaced as $key => $item) {
                 $reg = $item['reg'];
                 $concId = match ($choiceLevel) {

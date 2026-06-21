@@ -79,13 +79,19 @@
                         <a href="{{ route('admin.laporan.penjenjangan') }}" target="_blank" @click="open = false"
                             class="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground rounded-xl hover:bg-muted transition-colors">
                             <i data-lucide="file-check-2" class="size-4 text-secondary group-hover:text-emerald-600 transition-colors"></i>
-                            <span>Peserta Diterima</span>
+                            <span>Diterima</span>
+                        </a>
+
+                        <a href="{{ route('admin.laporan.penjenjangan-pending') }}" target="_blank" @click="open = false"
+                            class="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground rounded-xl hover:bg-muted transition-colors">
+                            <i data-lucide="file-clock" class="size-4 text-secondary group-hover:text-amber-500 transition-colors"></i>
+                            <span>Pending</span>
                         </a>
 
                         <a href="{{ route('admin.laporan.penjenjangan-ditolak') }}" target="_blank" @click="open = false"
                             class="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground rounded-xl hover:bg-muted transition-colors">
                             <i data-lucide="file-x-2" class="size-4 text-secondary group-hover:text-red-500 transition-colors"></i>
-                            <span>Peserta Ditolak</span>
+                            <span>Ditolak</span>
                         </a>
                     </div>
                 </div>

@@ -145,6 +145,7 @@ Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->pre
         Route::get('/receipt', [ReportController::class, 'tandaTerima'])->name('tanda-terima');
         Route::get('/placement', [ReportController::class, 'penjenjangan'])->name('penjenjangan');
         Route::get('/placement-rejected', [ReportController::class, 'penjenjanganDitolak'])->name('penjenjangan-ditolak');
+        Route::get('/placement-pending', [ReportController::class, 'penjenjanganDipending'])->name('penjenjangan-pending');
     });
 
     Route::prefix('profile')->name('profil.')->group(function () {
