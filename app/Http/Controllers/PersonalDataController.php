@@ -89,6 +89,16 @@ class PersonalDataController extends Controller
             'is_special_condition'   => 'required|in:yes,no',
             'special_condition_type' => 'nullable|string|max:100',
             'condition_description'  => 'nullable|string|max:500',
+            // --- Field Baru ---
+            'height'                 => 'required|integer|min:50|max:250',
+            'weight'                 => 'required|integer|min:10|max:300',
+            'medical_history'        => 'nullable|string|max:100',
+            'interest_art'           => 'nullable|string|max:100',
+            'interest_sport'         => 'nullable|string|max:100',
+            'interest_organization'  => 'nullable|string|max:100',
+            'extracurricular_choice' => 'required|string|max:100',
+            'fl2sn_category'         => 'nullable|string|max:100',
+            'o2sn_category'          => 'nullable|string|max:100',
         ];
 
         // Tulis pesan langsung menyebutkan nama aliasnya agar key JSON yang return tetap aman (nik, nisn, full_name)
@@ -106,6 +116,17 @@ class PersonalDataController extends Controller
             'child_order.min'                 => 'Kolom Anak Ke- minimal bernilai 1.',
             'number_of_siblings.required'     => 'Kolom Jumlah Saudara wajib diisi.',
             'is_special_condition.required'   => 'Pilihan pada kolom Kondisi Khusus tidak valid.',
+
+            // --- Pesan Validasi Field Baru ---
+            'height.required'                 => 'Kolom Tinggi Badan wajib diisi.',
+            'height.integer'                  => 'Tinggi badan harus berupa angka.',
+            'height.min'                      => 'Tinggi badan tidak valid (minimal 50 cm).',
+            'height.max'                      => 'Tinggi badan tidak valid (maksimal 250 cm).',
+            'weight.required'                 => 'Kolom Berat Badan wajib diisi.',
+            'weight.integer'                  => 'Berat badan harus berupa angka.',
+            'weight.min'                      => 'Berat badan tidak valid (minimal 10 kg).',
+            'weight.max'                      => 'Berat badan tidak valid (maksimal 300 kg).',
+            'extracurricular_choice.required' => 'Pilihan Ekstrakurikuler yang Ingin Diikuti wajib diisi.',
 
             // Pesan umum untuk string/max jika ada yang terlewat
             'string'                          => 'Kolom harus berupa teks.',
@@ -128,6 +149,17 @@ class PersonalDataController extends Controller
         $personal->is_special_condition = $validated['is_special_condition'];
         $personal->special_condition_type = $validated['special_condition_type'] ?? null;
         $personal->condition_description  = $validated['condition_description'] ?? null;
+
+        // --- Simpan Field Baru ---
+        $personal->height                 = $validated['height'];
+        $personal->weight                 = $validated['weight'];
+        $personal->medical_history        = $validated['medical_history'] ?? null;
+        $personal->interest_art           = $validated['interest_art'] ?? null;
+        $personal->interest_sport         = $validated['interest_sport'] ?? null;
+        $personal->interest_organization  = $validated['interest_organization'] ?? null;
+        $personal->extracurricular_choice = $validated['extracurricular_choice'];
+        $personal->fl2sn_category         = $validated['fl2sn_category'] ?? null;
+        $personal->o2sn_category          = $validated['o2sn_category'] ?? null;
 
         // Encrypted via mutators
         $personal->nik      = $validated['nik'];
@@ -410,6 +442,17 @@ class PersonalDataController extends Controller
         if ($request->has('is_special_condition')) $personal->is_special_condition = $request->is_special_condition;
         if ($request->has('special_condition_type')) $personal->special_condition_type = $request->special_condition_type;
         if ($request->has('condition_description')) $personal->condition_description  = $request->condition_description;
+
+        // --- Draft Field Baru Step 1 ---
+        if ($request->filled('height'))                 $personal->height = $request->height;
+        if ($request->filled('weight'))                 $personal->weight = $request->weight;
+        if ($request->has('medical_history'))           $personal->medical_history = $request->medical_history;
+        if ($request->has('interest_art'))              $personal->interest_art = $request->interest_art;
+        if ($request->has('interest_sport'))            $personal->interest_sport = $request->interest_sport;
+        if ($request->has('interest_organization'))     $personal->interest_organization = $request->interest_organization;
+        if ($request->filled('extracurricular_choice')) $personal->extracurricular_choice = $request->extracurricular_choice;
+        if ($request->has('fl2sn_category'))            $personal->fl2sn_category = $request->fl2sn_category;
+        if ($request->has('o2sn_category'))             $personal->o2sn_category = $request->o2sn_category;
 
         // -- Step 2 fields --
         if ($request->filled('address'))      $personal->address      = $request->address;

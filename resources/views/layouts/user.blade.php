@@ -21,6 +21,18 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+    <!-- Lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"
+        onload="window.lucideLoaded=true; if(window.initLucide) window.initLucide()"></script>
+    <script>
+        window.initLucide = function() {
+            if (window.lucide) lucide.createIcons();
+        };
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.lucideLoaded) window.initLucide();
+        });
+    </script>
+
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -75,6 +87,66 @@
             event.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
             event.detail.headers['Accept'] = 'application/json';
         });
+    </script>
+
+    <script>
+        function countdown() {
+            return {
+                days: 0,
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+                init() {
+                    const target = new Date("2026-07-10T08:00:00").getTime();
+                    const tick = () => {
+                        const now = Date.now();
+                        const dist = target - now;
+                        if (dist <= 0) {
+                            this.days = this.hours = this.minutes = this.seconds = 0;
+                            return;
+                        }
+                        this.days = Math.floor(dist / 86400000);
+                        this.hours = Math.floor((dist % 86400000) / 3600000);
+                        this.minutes = Math.floor((dist % 3600000) / 60000);
+                        this.seconds = Math.floor((dist % 60000) / 1000);
+                    };
+                    tick();
+                    setInterval(tick, 1000);
+                }
+            };
+        }
+    </script>
+
+    <script>
+        function countdownDaftarUlang() {
+            return {
+                days: 0,
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+                expired: false,
+                init() {
+                    // Deadline daftar ulang: 18 Juli 2026 pukul 16.00
+                    const target = new Date("2026-07-18T16:00:00").getTime();
+                    const tick = () => {
+                        const now = Date.now();
+                        const dist = target - now;
+                        if (dist <= 0) {
+                            this.days = this.hours = this.minutes = this.seconds = 0;
+                            this.expired = true;
+                            return;
+                        }
+                        this.expired = false;
+                        this.days = Math.floor(dist / 86400000);
+                        this.hours = Math.floor((dist % 86400000) / 3600000);
+                        this.minutes = Math.floor((dist % 3600000) / 60000);
+                        this.seconds = Math.floor((dist % 60000) / 1000);
+                    };
+                    tick();
+                    setInterval(tick, 1000);
+                }
+            };
+        }
     </script>
 
     @stack('scripts')

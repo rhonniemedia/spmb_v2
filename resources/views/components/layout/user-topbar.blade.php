@@ -3,7 +3,7 @@
 
         <a href="{{ url('/') }}" class="flex items-center gap-[10px] no-underline flex-shrink-0 mr-8">
             <div class="w-9 h-9 rounded-[10px] bg-primary flex items-center justify-center shadow-primary-sm">
-                <i class="fa-solid fa-graduation-cap text-white text-sm"></i>
+                <i data-lucide="graduation-cap" class="text-white w-4 h-4"></i>
             </div>
             <div>
                 <div class="text-sm font-black leading-tight text-[#080C1A]">Portal SPMB</div>
@@ -16,29 +16,29 @@
             @php
             // 1. Definisikan rute awal yang selalu muncul di depan
             $navLinks = [
-            ['label' => 'Dashboard', 'icon' => 'fa-gauge', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard')],
-            ['label' => 'Biodata', 'icon' => 'fa-id-card', 'route' => 'biodata', 'active' => request()->routeIs('biodata')],
+            ['label' => 'Dashboard', 'icon' => 'layout-dashboard', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard')],
+            ['label' => 'Biodata', 'icon' => 'id-card', 'route' => 'biodata', 'active' => request()->routeIs('biodata')],
             ];
 
             // 2. LOGIKABARU: Sisipkan Daftar Ulang secara dinamis di sini (sebelum Bantuan & Pengumuman)
             if (isset($g_isDaftarUlangActive) && $g_isDaftarUlangActive) {
             $navLinks[] = [
             'label' => 'Daftar Ulang',
-            'icon' => 'fa-clipboard-check',
+            'icon' => 'clipboard-check',
             'route' => 'daftar-ulang',
             'active' => request()->routeIs('daftar-ulang')
             ];
             }
 
             // 3. Tambahkan rute penutup di bagian akhir array
-            $navLinks[] = ['label' => 'Bantuan', 'icon' => 'fa-circle-question', 'route' => 'bantuan', 'active' => request()->routeIs('bantuan')];
-            $navLinks[] = ['label' => 'Pengumuman', 'icon' => 'fa-bullhorn', 'route' => 'pengumuman', 'active' => request()->routeIs('pengumuman')];
+            $navLinks[] = ['label' => 'Bantuan', 'icon' => 'circle-help', 'route' => 'bantuan', 'active' => request()->routeIs('bantuan')];
+            $navLinks[] = ['label' => 'Pengumuman', 'icon' => 'megaphone', 'route' => 'pengumuman', 'active' => request()->routeIs('pengumuman')];
             @endphp
 
             @foreach($navLinks as $link)
             <a href="{{ $link['route'] !== '#' ? route($link['route']) : '#' }}"
                 class="inline-flex items-center gap-[7px] px-[14px] py-[7px] rounded-full text-[13px] font-semibold no-underline transition-all whitespace-nowrap {{ $link['active'] ? 'bg-primary-light text-primary' : 'text-[#6A7686] hover:bg-gray-50 hover:text-[#080C1A]' }}">
-                <i class="fa-solid {{ $link['icon'] }} text-xs w-[14px] text-center"></i>
+                <i data-lucide="{{ $link['icon'] }}" class="w-[14px] h-[14px] shrink-0"></i>
                 {{ $link['label'] }}
                 @if(isset($link['badge']))
                 <span class="{{ $link['badgeColor'] }} text-white text-[10px] font-bold px-1.5 py-0 rounded-full min-w-[18px] text-center">
@@ -56,15 +56,14 @@
             $allNotifications = auth()->user()->notifications()->take(5)->get();
             @endphp
 
-            <!-- Wrapper Lonceng Notifikasi dengan Alpine.js -->
             <div class="relative" x-data="{ openNotif: false }">
 
                 <button @click="openNotif = !openNotif"
                     hx-get="{{ route('notifications.dropdown') }}"
                     hx-trigger="click, every 15s, refresh-notifications from:body"
                     hx-target="#notification-list"
-                    class="relative w-[34px] h-[34px] rounded-[10px] bg-gray-50 border border-gray-200 flex items-center justify-center cursor-pointer text-[#6A7686] text-[13px] hover:border-primary hover:text-primary transition-all focus:outline-none">
-                    <i class="fa-solid fa-bell"></i>
+                    class="relative w-[34px] h-[34px] rounded-[10px] bg-gray-50 border border-gray-200 flex items-center justify-center cursor-pointer text-[#6A7686] hover:border-primary hover:text-primary transition-all focus:outline-none">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
 
                     <div id="notification-badge">
                         @if($unreadNotifications->count() > 0)
@@ -102,7 +101,7 @@
                             class="flex gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 {{ $notification->read_at ? 'opacity-60' : 'bg-primary/5' }}">
 
                             <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                                <i class="fa-solid {{ $notification->data['icon'] ?? 'fa-info' }} {{ $notification->data['color'] ?? 'text-gray-500' }} text-sm"></i>
+                                <i data-lucide="{{ str_replace('fa-', '', $notification->data['icon'] ?? 'info') }}" class="{{ $notification->data['color'] ?? 'text-gray-500' }} w-4 h-4"></i>
                             </div>
 
                             <div class="flex-1 min-w-0">
@@ -112,14 +111,14 @@
                                 <p class="text-[11px] text-[#6A7686] mt-0.5 line-clamp-2 leading-relaxed">
                                     {{ $notification->data['message'] }}
                                 </p>
-                                <span class="text-[9px] text-gray-400 block mt-1">
-                                    <i class="fa-regular fa-clock mr-0.5"></i> {{ $notification->created_at->diffForHumans() }}
+                                <span class="text-[9px] text-gray-400 block mt-1 flex items-center">
+                                    <i data-lucide="clock" class="w-2.5 h-2.5 mr-1"></i> {{ $notification->created_at->diffForHumans() }}
                                 </span>
                             </div>
                         </a>
                         @empty
-                        <div class="text-center py-8 text-gray-400">
-                            <i class="fa-solid fa-bell-slash text-xl mb-1 block text-gray-300"></i>
+                        <div class="text-center py-8 text-gray-400 flex flex-col items-center">
+                            <i data-lucide="bell-off" class="w-6 h-6 mb-2 text-gray-300"></i>
                             <span class="text-xs">Belum ada pemberitahuan</span>
                         </div>
                         @endforelse
@@ -152,7 +151,7 @@
                         {{ Auth::user()->real_name }}
                     </span>
 
-                    <i class="fa-solid fa-chevron-down text-[10px] text-[#6A7686] transition-transform"
+                    <i data-lucide="chevron-down" class="w-3 h-3 text-[#6A7686] transition-transform"
                         :class="profileOpen ? 'rotate-180' : ''"></i>
                 </div>
 
@@ -164,13 +163,13 @@
                     x-transition:enter-end="opacity-100 scale-100"
                     class="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-lg py-2 px-2 z-[210]">
                     <a href="#" class="flex items-center gap-2 px-3 py-2 text-[13px] text-[#6A7686] hover:bg-gray-50 hover:text-primary font-medium rounded-lg transition-all">
-                        <i class="fa-solid fa-user-gear w-4 text-center"></i> Pengaturan Profil
+                        <i data-lucide="user-cog" class="w-4 h-4 shrink-0"></i> Pengaturan Profil
                     </a>
                     <hr class="my-1 border-gray-100">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-red-500 hover:bg-red-50 font-bold rounded-lg transition-all">
-                            <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> Keluar Sistem
+                            <i data-lucide="log-out" class="w-4 h-4 shrink-0"></i> Keluar Sistem
                         </button>
                     </form>
                 </div>
@@ -178,12 +177,12 @@
 
             <button @click="mobileMenu = !mobileMenu"
                 class="lg:hidden w-[34px] h-[34px] rounded-[10px] bg-gray-50 border border-gray-200 flex items-center justify-center cursor-pointer text-[#6A7686] hover:border-primary transition-all">
-                <i class="fa-solid" :class="mobileMenu ? 'fa-xmark' : 'fa-bars'"></i>
+                <i data-lucide="menu" class="w-5 h-5" x-show="!mobileMenu"></i>
+                <i data-lucide="x" class="w-5 h-5" x-show="mobileMenu" x-cloak></i>
             </button>
         </div>
     </div>
 
-    <!-- Mobile Menu -->
     <div x-show="mobileMenu"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 -translate-y-4"
@@ -193,7 +192,7 @@
             @foreach($navLinks as $link)
             <a href="{{ $link['route'] !== '#' ? route($link['route']) : '#' }}"
                 class="flex items-center gap-3 px-3 py-[10px] rounded-[10px] text-[13px] font-semibold transition-all {{ $link['active'] ? 'bg-primary/10 text-primary' : 'text-[#6A7686] hover:bg-gray-50' }}">
-                <i class="fa-solid {{ $link['icon'] }} w-5"></i>
+                <i data-lucide="{{ $link['icon'] }}" class="w-5 h-5 shrink-0"></i>
                 {{ $link['label'] }}
             </a>
             @endforeach
@@ -219,7 +218,7 @@
                     @forelse($mobileNotifs as $notif)
                     <a href="{{ route('notifications.read', $notif->id) }}"
                         class="flex items-start gap-3 px-3 py-[10px] rounded-[10px] bg-primary/5 border border-primary/10 mx-2 transition-colors hover:bg-primary/10">
-                        <i class="fa-solid {{ $notif->data['icon'] ?? 'fa-info' }} {{ $notif->data['color'] ?? 'text-gray-500' }} mt-0.5 text-xs"></i>
+                        <i data-lucide="{{ str_replace('fa-', '', $notif->data['icon'] ?? 'info') }}" class="{{ $notif->data['color'] ?? 'text-gray-500' }} w-3.5 h-3.5 mt-0.5 shrink-0"></i>
                         <div class="flex-1">
                             <div class="text-xs font-bold text-gray-800 leading-tight">{{ $notif->data['title'] }}</div>
                             <div class="text-[11px] text-[#6A7686] line-clamp-1 mt-0.5">{{ $notif->data['message'] }}</div>

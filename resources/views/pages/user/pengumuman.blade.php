@@ -8,8 +8,8 @@
         BREADCRUMB
 ════════════════════════════════════════════════════ --}}
 <div class="flex items-center gap-1.5 text-[13px] text-[#6A7686] mb-4">
-    <a href="{{ route('dashboard') }}" class="text-primary no-underline font-semibold hover:underline">
-        <i class="fa-solid fa-house"></i> Beranda
+    <a href="{{ route('dashboard') }}" class="flex items-center gap-1.5 text-primary no-underline font-semibold hover:underline">
+        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Beranda
     </a>
     <span class="text-gray-300">/</span>
     <a href="{{ route('dashboard') }}" class="text-primary no-underline font-semibold hover:underline">Dashboard</a>
@@ -18,48 +18,63 @@
 </div>
 
 {{-- ══════════════════════════════════════════
-        HERO BANNER
-══════════════════════════════════════════ --}}
-<div class="relative rounded-[20px] overflow-hidden mb-5 p-6 md:p-7 flex flex-col md:flex-row items-center justify-between gap-5"
-    style="background: linear-gradient(135deg, #FF1443 0%, #D90F38 50%, #B00F30 100%);">
-    {{-- Decorative circles --}}
-    <div class="absolute -top-10 -right-10 w-[200px] h-[200px] bg-white/[0.06] rounded-full pointer-events-none"></div>
-    <div class="absolute -bottom-[60px] right-24 w-[160px] h-[160px] bg-white/[0.04] rounded-full pointer-events-none"></div>
+            HERO BANNER
+    ══════════════════════════════════════════ --}}
+<div class="relative overflow-hidden rounded-2xl bg-[#080c1a] mb-6">
+    <div class="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-[#ff1443]/20 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-60 h-60 rounded-full bg-[#ff1443]/10 blur-2xl pointer-events-none"></div>
+    <div class="absolute top-8 right-1/3 w-3 h-3 rounded-full bg-[#30b22d]/40 pointer-events-none"></div>
+    <div class="absolute top-14 right-1/4 w-2 h-2 rounded-full bg-[#f59e0b]/40 pointer-events-none"></div>
+    <div class="absolute top-6 right-1/2 w-2 h-2 rounded-full bg-[#3b82f6]/40 pointer-events-none"></div>
 
-    {{-- Left --}}
-    <div class="relative z-10 w-full md:flex-1 text-center md:text-left">
-        <div class="inline-flex items-center gap-1.5 bg-white/15 text-white text-sm font-bold px-3 py-1 rounded-full mb-3 border border-white/25">
-            <i class="fa-solid fa-circle-dot text-[10px] animate-pulse"></i> Info SPMB 2026
-        </div>
-        <h1 class="text-xl md:text-2xl font-black text-white mb-1 leading-tight">
-            Pengumuman Hasil Seleksi Segera Hadir!
-        </h1>
-        <p class="text-sm text-white/80 leading-relaxed mb-5 max-w-[540px]">
-            Pantau terus halaman ini. Pengumuman penerimaan peserta didik baru akan dipublikasikan pada
-            <span class="text-white font-bold">10 Juni 2026</span>.
-        </p>
-        <a href="#daftar-pengumuman"
-            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-[#FF1443] text-[13px] font-black rounded-full no-underline shadow-md hover:bg-gray-50 transition-all">
-            <i class="fa-solid fa-list-ul"></i> Lihat Semua Pengumuman
-        </a>
-    </div>
+    <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 p-8 md:p-10">
 
-    {{-- Right: Stats Card --}}
-    <div class="relative z-10 w-full md:w-auto">
-        <div class="bg-white/10 border border-white/20 rounded-[16px] px-6 py-5 backdrop-blur-md text-center shadow-xl">
-            <div class="text-[12px] text-white/70 font-semibold uppercase tracking-widest mb-3">Total Pengumuman</div>
-            <div class="text-[36px] font-black text-white leading-none mb-1">{{ $announcements->count() }}</div>
-            <div class="text-sm text-white/70 mb-3">pengumuman aktif</div>
-            @php
-            $newToday = $announcements->filter(fn($a) => $a->created_at->isToday())->count();
-            @endphp
-            <div class="inline-flex items-center justify-center gap-1.5 bg-white/15 px-3 py-1.5 rounded-full">
-                <span class="pulse-dot"></span>
-                <span class="text-[12px] font-bold text-white">
-                    {{ $newToday }} baru hari ini
-                </span>
+        <div class="w-full lg:flex-1 text-center md:text-left">
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-1.5 text-xs text-white font-bold mb-5 backdrop-blur-md">
+                <i class="fa-solid fa-circle-dot text-[#30b22d] animate-pulse"></i>
+                Info SPMB 2026
+            </span>
+            <h2 class="text-3xl md:text-4xl font-bold text-white leading-tight">
+                Pengumuman Hasil<br class="hidden md:block" />
+                <span class="text-[#ff1443]">Seleksi Segera Hadir!</span>
+            </h2>
+            <p class="mt-4 text-[#6a7686] leading-7 max-w-2xl mx-auto md:mx-0">
+                Pantau terus halaman ini. Pengumuman penerimaan peserta didik baru akan dipublikasikan pada <span class="text-white font-bold">10 Juni 2026</span>.
+            </p>
+            <div class="mt-7 flex flex-wrap justify-center md:justify-start gap-3">
+                <a href="#daftar-pengumuman" class="flex items-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white px-6 py-3 font-bold transition-all duration-200 cursor-pointer no-underline">
+                    <i class="fa-solid fa-list-ul"></i>
+                    Lihat Semua Pengumuman
+                </a>
             </div>
         </div>
+
+        <div class="hidden lg:block flex-shrink-0">
+            <div class="bg-white/10 border border-white/20 rounded-[16px] px-6 py-8 backdrop-blur-md text-center shadow-xl w-[220px] flex flex-col justify-center items-center">
+                <div class="text-[12px] text-white/70 font-semibold uppercase tracking-widest mb-4">
+                    Total Pengumuman
+                </div>
+
+                <div class="text-[46px] font-black text-white leading-none mb-2">
+                    {{ $announcements->count() }}
+                </div>
+
+                <div class="text-[12px] text-white/60 font-medium mb-6">
+                    Pengumuman Aktif
+                </div>
+
+                @php
+                $newToday = $announcements->filter(fn($a) => $a->created_at->isToday())->count();
+                @endphp
+                <div class="inline-flex items-center justify-center gap-2 bg-[#30b22d]/20 border border-[#30b22d]/30 px-4 py-2 rounded-full w-full">
+                    <span class="w-2 h-2 rounded-full bg-[#30b22d] animate-[pulse_1.5s_infinite]"></span>
+                    <span class="text-[10px] font-bold text-[#30b22d] uppercase tracking-widest">
+                        {{ $newToday }} Baru Hari Ini
+                    </span>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -270,25 +285,33 @@
     <div class="space-y-5 animate-fade-in lg:sticky lg:top-[76px]">
 
         {{-- Ringkasan Kategori --}}
-        <div class="bg-white border border-gray-200 rounded-card shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-100">
-                <h3 class="text-base font-black text-[#080C1A]">Ringkasan</h3>
-                <p class="text-[13px] text-[#6A7686] font-medium">Jumlah per kategori</p>
+        <div class="bg-white rounded-2xl border border-[#e5e7eb] flex flex-col overflow-hidden mb-6">
+            <div class="p-6 border-b border-[#e5e7eb] flex items-center justify-between">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-[#ff1443]"></i>
+                        <h3 class="font-bold text-base text-[#080c1a]">Ringkasan</h3>
+                    </div>
+                    <p class="text-sm text-[#6a7686] mt-0.5">Jumlah pengumuman per kategori.</p>
+                </div>
             </div>
-            <div class="p-5 space-y-3">
+
+            <div class="p-6 flex flex-col gap-5 flex-1">
                 @forelse($summary as $key => $s)
                 <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-[13px] font-bold text-[#080C1A]">{{ $s['label'] }}</span>
-                        <span class="text-[12px] font-black {{ $s['text'] }}">{{ $s['count'] }} pengumuman</span>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[13px] font-bold text-[#080c1a]">{{ $s['label'] }}</span>
+                        <span class="text-[12px] font-bold text-[#6a7686]">{{ $s['count'] }} pengumuman</span>
                     </div>
-                    <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div class="{{ $s['color'] }} h-full rounded-full transition-all duration-500"
+                    <div class="h-2 bg-[#eff2f7] rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500 {{ $s['color'] }} progress-bar"
                             style="width: {{ $s['total'] > 0 ? ($s['count'] / $s['total']) * 100 : 0 }}%"></div>
                     </div>
                 </div>
                 @empty
-                <p class="text-[13px] text-[#6A7686]">Tidak ada data.</p>
+                <div class="text-center py-4">
+                    <p class="text-[13px] text-[#6a7686]">Tidak ada data.</p>
+                </div>
                 @endforelse
             </div>
         </div>

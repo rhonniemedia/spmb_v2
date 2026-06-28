@@ -73,6 +73,18 @@ return new class extends Migration
             $table->enum('is_special_condition', ['yes', 'no'])->default('no');
             $table->string('special_condition_type')->nullable()->default('none');
             $table->text('condition_description')->nullable();
+
+            // --- GROUP 5: HEALTH & INTEREST (Tambahan Baru) ---
+            $table->integer('height')->nullable();
+            $table->integer('weight')->nullable();
+            $table->string('medical_history', 100)->nullable();
+            $table->string('interest_art', 100)->nullable();
+            $table->string('interest_sport', 100)->nullable();
+            $table->string('interest_organization', 100)->nullable();
+            $table->string('extracurricular_choice', 100)->nullable();
+            $table->string('fl2sn_category', 100)->nullable();
+            $table->string('o2sn_category', 100)->nullable();
+
             $table->string('photo')->nullable();
             $table->enum('profile_status', ['draft', 'final'])->default('draft');
 

@@ -170,42 +170,7 @@
                     </p>
                 </div>
 
-                {{-- BARIS 3: Nama Panggilan & Jenis Kelamin (2 Kolom) --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
-                            Nama Panggilan
-                        </label>
-                        <input
-                            type="text"
-                            name="nick_name"
-                            placeholder="Nama sehari-hari"
-                            value="{{ old('nick_name', $personalData?->nick_name) }}"
-                            :class="err1('nick_name') ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 bg-white focus:border-gray-400 focus:ring-gray-100'"
-                            class="w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:bg-white transition-all outline-none text-[14px]">
-                        <p class="text-[11px] text-red-600 font-semibold mt-1"
-                            x-show="err1('nick_name')" x-text="err1('nick_name')">
-                        </p>
-                    </div>
-                    <div>
-                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
-                            Jenis Kelamin <span class="text-primary">*</span>
-                        </label>
-                        <select
-                            name="gender"
-                            :class="err1('gender') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
-                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
-                            <option value="">Pilih</option>
-                            <option value="L" @selected(old('gender', $personalData?->gender) === 'L')>Laki-laki</option>
-                            <option value="P" @selected(old('gender', $personalData?->gender) === 'P')>Perempuan</option>
-                        </select>
-                        <p class="text-[11px] text-red-600 font-semibold mt-1"
-                            x-show="err1('gender')" x-text="err1('gender')">
-                        </p>
-                    </div>
-                </div>
-
-                {{-- BARIS 4: Tempat Lahir & Tanggal Lahir (2 Kolom) --}}
+                {{-- BARIS 3: Tempat Lahir & Tanggal Lahir (2 Kolom) --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
@@ -238,8 +203,24 @@
                     </div>
                 </div>
 
-                {{-- BARIS 5: Agama & Golongan Darah (2 Kolom) --}}
+                {{-- BARIS 4: Jenis Kelamin & Agama (2 Kolom) --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            Jenis Kelamin <span class="text-primary">*</span>
+                        </label>
+                        <select
+                            name="gender"
+                            :class="err1('gender') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Pilih jenis kelamin</option>
+                            <option value="L" @selected(old('gender', $personalData?->gender) === 'L')>Laki-laki</option>
+                            <option value="P" @selected(old('gender', $personalData?->gender) === 'P')>Perempuan</option>
+                        </select>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('gender')" x-text="err1('gender')">
+                        </p>
+                    </div>
                     <div>
                         <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
                             Agama <span class="text-primary">*</span>
@@ -255,23 +236,6 @@
                         </select>
                         <p class="text-[11px] text-red-600 font-semibold mt-1"
                             x-show="err1('religion')" x-text="err1('religion')">
-                        </p>
-                    </div>
-                    <div>
-                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
-                            Golongan Darah
-                        </label>
-                        <select
-                            name="blood_type"
-                            :class="err1('blood_type') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
-                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
-                            <option value="">Pilih / Tidak tahu</option>
-                            @foreach(['A','B','AB','O'] as $gol)
-                            <option value="{{ $gol }}" @selected(old('blood_type', $personalData?->blood_type) === $gol)>{{ $gol }}</option>
-                            @endforeach
-                        </select>
-                        <p class="text-[11px] text-red-600 font-semibold mt-1"
-                            x-show="err1('blood_type')" x-text="err1('blood_type')">
                         </p>
                     </div>
                 </div>
@@ -338,7 +302,7 @@
             </div>
         </div>
 
-        <!-- ── GROUP 3 — KONDISI KHUSUS ──────────────────────────────── -->
+        <!-- ── GROUP 3 — DATA KESEHATAN DAN KONDISI ─────────────────── -->
         <div class="relative rounded-2xl border-2 border-dashed transition-all duration-300 border-gray-300 bg-gray-50/30 shadow-sm"
             x-data="{ hasSpecial: '{{ old('is_special_condition', $personalData?->is_special_condition ?? 'no') }}' }">
 
@@ -348,18 +312,129 @@
                         <i class="fa-solid fa-heart-pulse text-white text-sm"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-black text-gray-700">Kondisi Khusus</h3>
-                        <p class="text-[11px] text-gray-500">Informasi kebutuhan khusus (jika ada)</p>
+                        <h3 class="text-base font-black text-gray-700">Data Kesehatan dan Kondisi</h3>
+                        <p class="text-[11px] text-gray-500">Informasi kesehatan dan kebutuhan khusus (jika ada)</p>
                     </div>
                     <div class="ml-auto">
-                        <span class="text-[10px] font-bold text-gray-500 bg-gray-200 px-2.5 py-1 rounded-full">
-                            <i class="fa-regular fa-circle mr-1"></i> Opsional
+                        <span class="text-[10px] font-bold text-white bg-gray-500 px-2.5 py-1 rounded-full">
+                            <i class="fa-regular fa-circle-check mr-1"></i> Wajib
                         </span>
                     </div>
                 </div>
             </div>
 
             <div class="px-6 py-5 space-y-4">
+
+                {{-- BARIS A: Golongan Darah & Penyakit yang Pernah Diderita (2 Kolom) --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            Golongan Darah
+                        </label>
+                        <select
+                            name="blood_type"
+                            :class="err1('blood_type') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Pilih / Tidak tahu</option>
+                            @foreach(['A','B','AB','O'] as $gol)
+                            <option value="{{ $gol }}" @selected(old('blood_type', $personalData?->blood_type) === $gol)>{{ $gol }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('blood_type')" x-text="err1('blood_type')">
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            Penyakit yang Pernah Diderita
+                        </label>
+                        <select
+                            name="medical_history"
+                            :class="err1('medical_history') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Pilih / Tidak ada</option>
+
+                            @php
+                            $daftarPenyakit = [
+                            'asma' => 'Asma',
+                            'diabetes' => 'Diabetes Melitus',
+                            'jantung' => 'Penyakit Jantung',
+                            'epilepsi' => 'Epilepsi / Kejang',
+                            'tbc' => 'TBC (Tuberkulosis)',
+                            'thalasemia' => 'Thalasemia',
+                            'hemofilia' => 'Hemofilia',
+                            'hepatitis' => 'Hepatitis',
+                            'alergi_obat' => 'Alergi Obat',
+                            'alergi_makanan' => 'Alergi Makanan',
+                            'hipertensi' => 'Hipertensi (Tekanan Darah Tinggi)',
+                            'anemia' => 'Anemia / Kurang Darah',
+                            'ginjal' => 'Penyakit Ginjal',
+                            'maag' => 'Maag / Gastritis',
+                            'skoliosis' => 'Skoliosis',
+                            'lainnya' => 'Lainnya',
+                            ];
+                            @endphp
+
+                            @foreach($daftarPenyakit as $value => $label)
+                            <option value="{{ $value }}" @selected(old('medical_history', $personalData?->medical_history) === $value)>
+                                {{ $label }}
+                            </option>
+                            @endforeach
+                        </select>
+                        <p class="text-[10px] text-gray-400 mt-1" x-show="!err1('medical_history')">Pilih salah satu yang paling relevan</p>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('medical_history')" x-text="err1('medical_history')">
+                        </p>
+                    </div>
+                </div>
+
+                {{-- BARIS B: Tinggi Badan & Berat Badan (2 Kolom) --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            Tinggi Badan <span class="text-primary">*</span>
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="number"
+                                name="height"
+                                min="50" max="250"
+                                placeholder="Contoh: 155"
+                                value="{{ old('height', $personalData?->height) }}"
+                                :class="err1('height') ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 bg-white focus:border-gray-400 focus:ring-gray-100'"
+                                class="w-full pl-4 pr-14 py-2.5 rounded-xl border focus:ring-2 focus:bg-white transition-all outline-none text-[14px]">
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 text-sm font-semibold">cm</span>
+                        </div>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('height')" x-text="err1('height')">
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            Berat Badan <span class="text-primary">*</span>
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="number"
+                                name="weight"
+                                min="10" max="300"
+                                placeholder="Contoh: 50"
+                                value="{{ old('weight', $personalData?->weight) }}"
+                                :class="err1('weight') ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 bg-white focus:border-gray-400 focus:ring-gray-100'"
+                                class="w-full pl-4 pr-14 py-2.5 rounded-xl border focus:ring-2 focus:bg-white transition-all outline-none text-[14px]">
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 text-sm font-semibold">kg</span>
+                        </div>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('weight')" x-text="err1('weight')">
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Divider sebelum Kondisi Khusus --}}
+                <div class="border-t border-dashed border-gray-200 pt-1">
+                    <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-0">Kondisi / Kebutuhan Khusus</p>
+                </div>
+
                 <div>
                     <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
                         Apakah memiliki kondisi/kebutuhan khusus?
@@ -382,39 +457,34 @@
 
                 <div x-show="hasSpecial === 'yes'" x-transition.duration.200ms>
                     <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">Jenis Kondisi / Hambatan</label>
-                    <div class="relative">
-                        <select
-                            name="special_condition_type"
-                            :class="err1('special_condition_type') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
-                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
-                            <option value="">Pilih jenis kondisi</option>
+                    <select
+                        name="special_condition_type"
+                        :class="err1('special_condition_type') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                        class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                        <option value="">Pilih jenis kondisi</option>
 
-                            @php
-                            $daftarKondisi = [
-                            'disabilitas_fisik' => 'Disabilitas Fisik / Hambatan Motorik',
-                            'disabilitas_netra' => 'Disabilitas Netra / Kurang Lihat (Low Vision)',
-                            'disabilitas_rungu' => 'Disabilitas Rungu / Kurang Dengar',
-                            'autisme' => 'Autisme / Spektrum Autis',
-                            'gpph_adhd' => 'GPPH / ADHD / ADD',
-                            'lamban_belajar' => 'Lamban Belajar (Slow Learner)',
-                            'kesulitan_belajar' => 'Kesulitan Belajar Spesifik (Disleksia/Disgrafia/Diskalkulia)',
-                            'disabilitas_intel_ringan' => 'Disabilitas Intelektual Ringan',
-                            'hambatan_perilaku_emosi' => 'Hambatan Perilaku dan Emosi',
-                            'cerdas_istimewa_cibi' => 'Cerdas Istimewa Bakat Istimewa (CIBI)',
-                            'lainnya' => 'Lainnya'
-                            ];
-                            @endphp
+                        @php
+                        $daftarKondisi = [
+                        'disabilitas_fisik' => 'Disabilitas Fisik / Hambatan Motorik',
+                        'disabilitas_netra' => 'Disabilitas Netra / Kurang Lihat (Low Vision)',
+                        'disabilitas_rungu' => 'Disabilitas Rungu / Kurang Dengar',
+                        'autisme' => 'Autisme / Spektrum Autis',
+                        'gpph_adhd' => 'GPPH / ADHD / ADD',
+                        'lamban_belajar' => 'Lamban Belajar (Slow Learner)',
+                        'kesulitan_belajar' => 'Kesulitan Belajar Spesifik (Disleksia/Disgrafia/Diskalkulia)',
+                        'disabilitas_intel_ringan' => 'Disabilitas Intelektual Ringan',
+                        'hambatan_perilaku_emosi' => 'Hambatan Perilaku dan Emosi',
+                        'cerdas_istimewa_cibi' => 'Cerdas Istimewa Bakat Istimewa (CIBI)',
+                        'lainnya' => 'Lainnya'
+                        ];
+                        @endphp
 
-                            @foreach($daftarKondisi as $value => $label)
-                            <option value="{{ $value }}" @selected(old('special_condition_type', $personalData?->special_condition_type) === $value)>
-                                {{ $label }}
-                            </option>
-                            @endforeach
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </div>
-                    </div>
+                        @foreach($daftarKondisi as $value => $label)
+                        <option value="{{ $value }}" @selected(old('special_condition_type', $personalData?->special_condition_type) === $value)>
+                            {{ $label }}
+                        </option>
+                        @endforeach
+                    </select>
                     <p class="text-[11px] text-red-600 font-semibold mt-1"
                         x-show="err1('special_condition_type')" x-text="err1('special_condition_type')">
                     </p>
@@ -432,6 +502,251 @@
                         x-show="err1('condition_description')" x-text="err1('condition_description')">
                     </p>
                 </div>
+            </div>
+        </div>
+
+        <!-- ── GROUP 4 — MINAT DAN BAKAT ─────────────────────────────── -->
+        <div class="relative rounded-2xl border-2 border-dashed transition-all duration-300 border-gray-300 bg-gray-50/30 shadow-sm">
+
+            <div class="px-6 py-4 border-b border-dashed border-gray-200 bg-gray-100/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-gray-500 flex items-center justify-center shadow-sm">
+                        <i class="fa-solid fa-star text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-gray-700">Minat dan Bakat</h3>
+                        <p class="text-[11px] text-gray-500">Kesenian, olahraga, organisasi, dan kegiatan yang diminati</p>
+                    </div>
+                    <div class="ml-auto">
+                        <span class="text-[10px] font-bold text-white bg-gray-500 px-2.5 py-1 rounded-full">
+                            <i class="fa-regular fa-circle-check mr-1"></i> Wajib
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-5 space-y-4">
+
+                {{-- BARIS 1: Minat Kesenian & Minat Olahraga (2 Kolom) --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            Minat dalam Kesenian
+                        </label>
+                        <select
+                            name="interest_art"
+                            :class="err1('interest_art') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Pilih bidang kesenian</option>
+                            @php
+                            $daftarKesenian = [
+                            'seni_musik' => 'Seni Musik (Vokal / Instrumen)',
+                            'seni_tari' => 'Seni Tari / Tari Tradisional',
+                            'seni_rupa' => 'Seni Rupa / Menggambar / Lukis',
+                            'seni_teater' => 'Seni Teater / Drama',
+                            'seni_baca_puisi' => 'Baca Puisi / Deklamasi',
+                            'seni_kriya' => 'Seni Kriya / Kerajinan Tangan',
+                            'seni_fotografi' => 'Fotografi / Videografi',
+                            'seni_sastra' => 'Sastra / Penulisan Kreatif',
+                            'tidak_ada' => 'Tidak ada minat khusus',
+                            ];
+                            @endphp
+                            @foreach($daftarKesenian as $value => $label)
+                            <option value="{{ $value }}" @selected(old('interest_art', $personalData?->interest_art) === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('interest_art')" x-text="err1('interest_art')">
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            Minat dalam Olahraga
+                        </label>
+                        <select
+                            name="interest_sport"
+                            :class="err1('interest_sport') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Pilih cabang olahraga</option>
+                            @php
+                            $daftarOlahraga = [
+                            'sepak_bola' => 'Sepak Bola',
+                            'bola_basket' => 'Bola Basket',
+                            'bola_voli' => 'Bola Voli',
+                            'bulu_tangkis' => 'Bulu Tangkis',
+                            'tenis_meja' => 'Tenis Meja',
+                            'renang' => 'Renang',
+                            'atletik' => 'Atletik (Lari / Lompat / Lempar)',
+                            'pencak_silat' => 'Pencak Silat',
+                            'taekwondo' => 'Taekwondo / Karate / Beladiri',
+                            'senam' => 'Senam',
+                            'panahan' => 'Panahan',
+                            'catur' => 'Catur',
+                            'lainnya_olahraga'=> 'Lainnya',
+                            'tidak_ada' => 'Tidak ada minat khusus',
+                            ];
+                            @endphp
+                            @foreach($daftarOlahraga as $value => $label)
+                            <option value="{{ $value }}" @selected(old('interest_sport', $personalData?->interest_sport) === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('interest_sport')" x-text="err1('interest_sport')">
+                        </p>
+                    </div>
+                </div>
+
+                {{-- BARIS 2: Minat Organisasi & Ekstrakurikuler yang Ingin Diikuti (2 Kolom) --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            Minat dalam Organisasi
+                        </label>
+                        <select
+                            name="interest_organization"
+                            :class="err1('interest_organization') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Pilih jenis organisasi</option>
+                            @php
+                            $daftarOrganisasi = [
+                            'osis' => 'OSIS (Organisasi Siswa Intra Sekolah)',
+                            'pramuka' => 'Pramuka',
+                            'pmr' => 'PMR (Palang Merah Remaja)',
+                            'rohis' => 'Rohis / Kerohanian',
+                            'paskibra' => 'Paskibra / Baris-Berbaris',
+                            'kir' => 'KIR (Karya Ilmiah Remaja)',
+                            'jurnalistik' => 'Jurnalistik / Pers',
+                            'pik_remaja' => 'PIK Remaja / Konseling Sebaya',
+                            'tidak_ada' => 'Tidak ada minat khusus',
+                            ];
+                            @endphp
+                            @foreach($daftarOrganisasi as $value => $label)
+                            <option value="{{ $value }}" @selected(old('interest_organization', $personalData?->interest_organization) === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('interest_organization')" x-text="err1('interest_organization')">
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            Ekstrakurikuler yang Ingin Diikuti <span class="text-primary">*</span>
+                        </label>
+                        <select
+                            name="extracurricular_choice"
+                            :class="err1('extracurricular_choice') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Pilih ekstrakurikuler</option>
+                            @php
+                            $daftarEkskul = [
+                            'pramuka' => 'Pramuka',
+                            'basket' => 'Basket',
+                            'voli' => 'Voli',
+                            'futsal' => 'Futsal / Sepak Bola',
+                            'badminton' => 'Badminton / Bulu Tangkis',
+                            'tenis_meja' => 'Tenis Meja',
+                            'renang' => 'Renang',
+                            'atletik' => 'Atletik',
+                            'beladiri' => 'Beladiri (Silat / Karate / Taekwondo)',
+                            'band_musik' => 'Band / Musik',
+                            'paduan_suara' => 'Paduan Suara / Vokal',
+                            'tari' => 'Tari / Seni Tari',
+                            'teater_drama' => 'Teater / Drama',
+                            'kir' => 'KIR (Karya Ilmiah Remaja)',
+                            'paskibra' => 'Paskibra / Baris-Berbaris',
+                            'pmr' => 'PMR (Palang Merah Remaja)',
+                            'rohis' => 'Rohis / Kerohanian',
+                            'jurnalistik' => 'Jurnalistik / Majalah Sekolah',
+                            'english_club' => 'English Club / Debat',
+                            'desain_grafis' => 'Desain Grafis / Multimedia',
+                            'robotik' => 'Robotik / Coding',
+                            'tidak_ada' => 'Belum menentukan',
+                            ];
+                            @endphp
+                            @foreach($daftarEkskul as $value => $label)
+                            <option value="{{ $value }}" @selected(old('extracurricular_choice', $personalData?->extracurricular_choice) === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('extracurricular_choice')" x-text="err1('extracurricular_choice')">
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Divider FL2SN & O2SN --}}
+                <div class="border-t border-dashed border-gray-200 pt-1">
+                    <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-0">Prestasi Kompetisi</p>
+                </div>
+
+                {{-- BARIS 3: FL2SN & O2SN (2 Kolom) --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            FL2SN yang Pernah Diikuti
+                            <span class="font-normal text-gray-400 normal-case tracking-normal">(Festival &amp; Lomba Seni Siswa Nasional)</span>
+                        </label>
+                        <select
+                            name="fl2sn_category"
+                            :class="err1('fl2sn_category') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Belum pernah / Tidak ada</option>
+                            @php
+                            $daftarFL2SN = [
+                            'menyanyi_solo' => 'Menyanyi Solo',
+                            'seni_tari' => 'Seni Tari',
+                            'seni_lukis' => 'Seni Lukis',
+                            'kriya' => 'Seni Kriya / Membatik',
+                            'baca_puisi' => 'Baca Puisi',
+                            'teater' => 'Teater',
+                            'desain_poster' => 'Desain Poster',
+                            'cipta_puisi' => 'Cipta dan Baca Puisi',
+                            'pantomim' => 'Pantomim',
+                            'lainnya_fl2sn' => 'Lainnya',
+                            ];
+                            @endphp
+                            @foreach($daftarFL2SN as $value => $label)
+                            <option value="{{ $value }}" @selected(old('fl2sn_category', $personalData?->fl2sn_category) === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('fl2sn_category')" x-text="err1('fl2sn_category')">
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-[12px] font-black text-[#6A7686] uppercase tracking-wide block mb-1.5">
+                            O2SN yang Pernah Diikuti
+                            <span class="font-normal text-gray-400 normal-case tracking-normal">(Olimpiade Olahraga Siswa Nasional)</span>
+                        </label>
+                        <select
+                            name="o2sn_category"
+                            :class="err1('o2sn_category') ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-white'"
+                            class="w-full px-4 py-2.5 rounded-xl border focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:bg-white transition-all outline-none text-[14px] appearance-none">
+                            <option value="">Belum pernah / Tidak ada</option>
+                            @php
+                            $daftarO2SN = [
+                            'atletik' => 'Atletik',
+                            'renang' => 'Renang',
+                            'bulu_tangkis' => 'Bulu Tangkis',
+                            'senam' => 'Senam',
+                            'pencak_silat' => 'Pencak Silat',
+                            'karate' => 'Karate',
+                            'taekwondo' => 'Taekwondo',
+                            'tenis_meja' => 'Tenis Meja',
+                            'catur' => 'Catur',
+                            'panahan' => 'Panahan',
+                            'lainnya_o2sn' => 'Lainnya',
+                            ];
+                            @endphp
+                            @foreach($daftarO2SN as $value => $label)
+                            <option value="{{ $value }}" @selected(old('o2sn_category', $personalData?->o2sn_category) === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-red-600 font-semibold mt-1"
+                            x-show="err1('o2sn_category')" x-text="err1('o2sn_category')">
+                        </p>
+                    </div>
+                </div>
+
             </div>
         </div>
 

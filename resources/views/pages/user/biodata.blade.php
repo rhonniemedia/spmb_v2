@@ -105,8 +105,8 @@
             BREADCRUMB
     ══════════════════════════════════════════ --}}
     <div x-show="!isSubmitted" class="flex items-center gap-1.5 text-[13px] text-[#6A7686] mb-4">
-        <a href="{{ route('dashboard') }}" class="text-[#FF1443] no-underline font-semibold">
-            <i class="fa-solid fa-house"></i> Beranda
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-1.5 text-[#FF1443] no-underline font-semibold">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Beranda
         </a>
         <span class="text-gray-300">/</span>
         <a href="{{ route('dashboard') }}" class="text-[#FF1443] no-underline font-semibold">Dashboard</a>
@@ -116,44 +116,67 @@
 
     {{-- ══════════════════════════════════════════
         HERO BANNER
-══════════════════════════════════════════ --}}
-    <div x-show="!isSubmitted"
-        class="relative rounded-[20px] overflow-hidden mb-5 p-6 md:p-7 flex flex-col md:flex-row items-center justify-between gap-5"
-        style="background: linear-gradient(135deg, #FF1443 0%, #D90F38 50%, #B00F30 100%);">
-        {{-- Decorative circles --}}
-        <div class="absolute -top-10 -right-10 w-[200px] h-[200px] bg-white/[0.06] rounded-full pointer-events-none"></div>
-        <div class="absolute -bottom-[60px] right-24 w-[160px] h-[160px] bg-white/[0.04] rounded-full pointer-events-none"></div>
+    ══════════════════════════════════════════ --}}
+    <div x-show="!isSubmitted" class="relative overflow-hidden rounded-2xl bg-[#080c1a] mb-6">
+        <!-- Decorative -->
+        <div class="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-[#ff1443]/20 blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-60 h-60 rounded-full bg-[#ff1443]/10 blur-2xl pointer-events-none"></div>
+        <!-- Confetti dots decoration -->
+        <div class="absolute top-8 right-1/3 w-3 h-3 rounded-full bg-[#30b22d]/40 pointer-events-none"></div>
+        <div class="absolute top-14 right-1/4 w-2 h-2 rounded-full bg-[#f59e0b]/40 pointer-events-none"></div>
+        <div class="absolute top-6 right-1/2 w-2 h-2 rounded-full bg-[#3b82f6]/40 pointer-events-none"></div>
 
-        {{-- Left --}}
-        <div class="relative z-10 w-full md:flex-1 text-center md:text-left">
-            <div class="inline-flex items-center gap-1.5 bg-white/15 text-white text-sm font-bold px-3 py-1 rounded-full mb-3 border border-white/25">
-                <i class="fa-solid fa-id-card"></i> Formulir Biodata
-            </div>
-            <h1 class="text-xl md:text-2xl font-black text-white mb-1 leading-tight">Kelengkapan Data Diri</h1>
-            <p class="text-sm text-white/80 leading-relaxed mb-5 max-w-[540px]">
-                Lengkapi seluruh data berikut dengan benar dan jujur. Data akan digunakan dalam proses seleksi penerimaan peserta didik baru.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-                <a href="{{ route('dashboard') }}"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-[#FF1443] text-[13px] font-black rounded-full no-underline shadow-md hover:bg-gray-50 transition-all">
-                    <i class="fa-solid fa-gauge"></i> Kembali ke Dashboard
-                </a>
-                <span class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/15 text-white text-[13px] font-bold rounded-full border border-white/25 cursor-default">
-                    <i class="fa-solid fa-id-badge"></i> Akun Terverifikasi: {{ auth()->user()?->email_verified_at?->format('d M Y, H:i') }} WIB
+        <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 p-8 md:p-10">
+            <!-- Left Side -->
+            <div class="w-full lg:flex-1 text-center md:text-left">
+                <span class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-1.5 text-xs text-white font-bold mb-5 backdrop-blur-md">
+                    <i class="fa-solid fa-id-card"></i>
+                    Formulir Biodata
                 </span>
-            </div>
-        </div>
-
-        {{-- Right: Progress Card --}}
-        <div class="relative z-10 w-full md:w-auto flex-shrink-0">
-            <div class="bg-white/10 border border-white/20 rounded-[16px] px-6 py-5 backdrop-blur-md text-center shadow-xl min-w-[180px]">
-                <div class="text-[12px] text-white/70 font-semibold uppercase tracking-widest mb-2">Progress Pengisian</div>
-                <div class="text-[28px] font-black text-white leading-none mb-1" x-text="progressPct + '%'"></div>
-                <div class="h-1.5 bg-white/25 rounded-full overflow-hidden mb-2">
-                    <div class="h-full bg-white rounded-full transition-all duration-500"
-                        :style="'width:' + progressPct + '%'"></div>
+                <h2 class="text-3xl md:text-4xl font-bold text-white leading-tight">
+                    Kelengkapan<br />
+                    <span class="text-[#ff1443]">Data Diri</span>
+                </h2>
+                <p class="mt-4 text-[#6a7686] leading-7 max-w-2xl mx-auto md:mx-0">
+                    Lengkapi seluruh data berikut dengan <span class="text-white font-semibold">benar dan jujur</span>. Data akan digunakan dalam proses seleksi penerimaan peserta didik baru.
+                </p>
+                <div class="mt-7 flex flex-wrap justify-center md:justify-start gap-3">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white px-6 py-3 font-bold transition-all duration-200 cursor-pointer no-underline">
+                        <i class="fa-solid fa-house"></i>
+                        Kembali ke Dashboard
+                    </a>
+                    <span class="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 text-white/80 px-6 py-3 font-medium transition-all duration-200 cursor-default">
+                        <i class="fa-solid fa-shield-check text-[#30b22d]"></i>
+                        Akun Terverifikasi
+                    </span>
                 </div>
-                <div class="text-[12px] text-white/70 font-semibold" x-text="'Langkah ' + step + ' dari ' + totalSteps"></div>
+            </div>
+
+            <!-- Right Side: Progress Card styled like Tahap Saat Ini -->
+            <div class="hidden lg:block flex-shrink-0">
+                <div class="bg-white/10 border border-white/20 rounded-[16px] px-6 py-8 backdrop-blur-md text-center shadow-xl w-[200px] flex flex-col justify-center items-center">
+                    <div class="text-[12px] text-white/70 font-semibold uppercase tracking-widest mb-5">
+                        Progress Pengisian
+                    </div>
+
+                    <!-- Circular Progress Visual -->
+                    <div class="relative flex items-center justify-center w-20 h-20 mb-5">
+                        <svg class="w-20 h-20 transform -rotate-90">
+                            <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="6" fill="transparent" class="text-white/10" />
+                            <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="6" fill="transparent" class="text-[#ff1443] transition-all duration-500" stroke-dasharray="226.19" :stroke-dashoffset="226.19 - (progressPct / 100) * 226.19" stroke-linecap="round" />
+                        </svg>
+                        <div class="absolute flex flex-col items-center justify-center">
+                            <span class="text-xl font-bold text-white leading-none" x-text="progressPct + '%'"></span>
+                        </div>
+                    </div>
+
+                    <div class="text-[14px] font-bold text-white leading-tight">
+                        Langkah <span x-text="step"></span>
+                    </div>
+                    <div class="text-[11px] text-white/60 mt-2 font-medium">
+                        dari <span x-text="totalSteps"></span> Tahapan
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -187,73 +210,86 @@
             <div class="sticky top-[80px] flex flex-col gap-4">
 
                 {{-- Kelengkapan Biodata --}}
-                <div class="bg-white border border-gray-200 rounded-[20px] shadow-sm overflow-hidden">
-                    <div class="px-5 py-4" style="background: linear-gradient(135deg,#FF1443,#D90F38);">
-                        <h3 class="text-base font-black text-white mb-0.5">Kelengkapan Biodata</h3>
-                        <p class="text-[13px] text-white/80">Update otomatis saat berpindah step</p>
+                <div class="bg-white rounded-2xl border border-[#e5e7eb] flex flex-col overflow-hidden">
+
+                    <!-- Header -->
+                    <div class="p-6 border-b border-[#e5e7eb] flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-folder-open text-[#ff1443]"></i>
+                                <h3 class="font-bold text-base text-[#080c1a]">Kelengkapan Biodata</h3>
+                            </div>
+                            <p class="text-sm text-[#6a7686] mt-0.5">Tahapan pengisian biodata.</p>
+                        </div>
+                        <span class="text-[11px] font-bold bg-[#ff1443]/10 text-[#ff1443] px-3 py-1 rounded-full shrink-0" x-text="step + ' / ' + totalSteps + ' Aktif'"></span>
                     </div>
 
-                    {{-- MODIFIKASI LIST STEP --}}
-                    <div class="px-5 py-3 space-y-1">
+                    <!-- Progress Bar -->
+                    <div class="px-5 pt-4 pb-3">
+                        <div class="flex justify-between text-xs text-[#6a7686] mb-1.5">
+                            <span>Progress Total</span>
+                            <span class="font-bold text-[#080c1a]" x-text="progressPct + '%'"></span>
+                        </div>
+                        <div class="h-2 rounded-full bg-[#eff2f7]">
+                            <div class="h-2 rounded-full bg-gradient-to-r from-[#ff1443] to-[#f43f5e] transition-all duration-500 progress-bar" :style="'width: ' + progressPct + '%'"></div>
+                        </div>
+                    </div>
+
+                    <!-- List Steps (Checklist Berkas Style) -->
+                    <div class="divide-y divide-[#eff2f7] flex-1 pb-2">
                         <template x-for="(label, idx) in stepLabels" :key="idx">
-                            <div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+                            <div class="flex items-center gap-3 px-5 py-3.5 transition-colors duration-200"
+                                :class="{'bg-[#eff2f7]/30': sidebarStatus(idx + 1) === 'active'}">
 
-                                {{-- Status icon (Lingkaran) --}}
-                                <div :class="{
-                                    'bg-[#FF1443] text-white': sidebarStatus(idx + 1) === 'active',
-                                    'bg-green-500 text-white': sidebarStatus(idx + 1) === 'done',
-                                    'bg-gray-100 text-[#B0B9C4]': sidebarStatus(idx + 1) === 'pending'
-                                }" class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300">
-
-                                    {{-- Jika Selesai: Tampilkan Icon Check --}}
-                                    <template x-if="sidebarStatus(idx + 1) === 'done'">
-                                        <i class="fa-solid fa-check text-[10px]"></i>
-                                    </template>
-
-                                    {{-- Jika Aktif: Tampilkan Icon Aslinya --}}
-                                    <template x-if="sidebarStatus(idx + 1) === 'active'">
-                                        <i :class="'fa-solid ' + stepIcons[idx] + ' text-[10px]'"></i>
-                                    </template>
-
-                                    {{-- PERUBAHAN DI SINI: Jika Belum Aktif, Tetap Tampilkan Icon Aslinya --}}
-                                    <template x-if="sidebarStatus(idx + 1) === 'pending'">
-                                        <i :class="'fa-solid ' + stepIcons[idx] + ' text-[10px]'"></i>
-                                    </template>
+                                <!-- Icon box -->
+                                <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300"
+                                    :class="{
+                            'bg-[#dcfce7]': sidebarStatus(idx + 1) === 'done',
+                            'bg-[#ff1443]/10': sidebarStatus(idx + 1) === 'active',
+                            'bg-[#eff2f7]': sidebarStatus(idx + 1) === 'pending'
+                         }">
+                                    <i :class="[
+                            'fa-solid ' + stepIcons[idx],
+                            sidebarStatus(idx + 1) === 'done' ? 'text-[#30b22d]' :
+                            sidebarStatus(idx + 1) === 'active' ? 'text-[#ff1443]' :
+                            'text-[#6a7686]'
+                        ]" class="text-[13px]"></i>
                                 </div>
 
-                                {{-- Label --}}
+                                <!-- Text -->
                                 <div class="flex-1 min-w-0">
-                                    <span :class="{
-                                        'text-[#080C1A] font-black': sidebarStatus(idx + 1) === 'active',
-                                        'text-[#080C1A] font-bold': sidebarStatus(idx + 1) === 'done',
-                                        'text-[#B0B9C4] font-medium': sidebarStatus(idx + 1) === 'pending'
-                                    }" class="text-[13px] block truncate" x-text="label"></span>
+                                    <p class="text-sm leading-tight transition-colors"
+                                        :class="{
+                                'font-bold text-[#080c1a]': sidebarStatus(idx + 1) === 'active',
+                                'font-semibold text-[#080c1a]': sidebarStatus(idx + 1) === 'done',
+                                'font-semibold text-[#6a7686]': sidebarStatus(idx + 1) === 'pending'
+                           }" x-text="label"></p>
+                                    <p class="text-[11px] mt-0.5 transition-colors"
+                                        :class="{
+                                'text-[#30b22d] font-medium': sidebarStatus(idx + 1) === 'done',
+                                'text-[#ff1443] font-medium': sidebarStatus(idx + 1) === 'active',
+                                'text-[#6a7686]': sidebarStatus(idx + 1) === 'pending'
+                           }"
+                                        x-text="sidebarStatus(idx + 1) === 'done' ? 'Selesai diisi' : (sidebarStatus(idx + 1) === 'active' ? 'Sedang diisi' : 'Belum diisi')"></p>
                                 </div>
 
-                                {{-- Badge --}}
-                                <template x-if="sidebarStatus(idx + 1) === 'done'">
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-black flex-shrink-0">
-                                        <i class="fa-solid fa-check text-[8px]"></i> Selesai
-                                    </span>
-                                </template>
-                                <template x-if="sidebarStatus(idx + 1) === 'active'">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-[#FF1443] text-[10px] font-black flex-shrink-0">Aktif</span>
-                                </template>
+                                <!-- Status indicator -->
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-300"
+                                    :class="{
+                            'bg-[#30b22d]': sidebarStatus(idx + 1) === 'done',
+                            'border-2 border-[#ff1443] bg-white': sidebarStatus(idx + 1) === 'active',
+                            'border-2 border-dashed border-[#e5e7eb]': sidebarStatus(idx + 1) === 'pending'
+                         }">
+                                    <template x-if="sidebarStatus(idx + 1) === 'done'">
+                                        <i class="fa-solid fa-check text-[10px] text-white"></i>
+                                    </template>
+                                    <template x-if="sidebarStatus(idx + 1) === 'active'">
+                                        <div class="w-2 h-2 rounded-full bg-[#ff1443] animate-[pulse_1.5s_infinite]"></div>
+                                    </template>
+                                </div>
+
                             </div>
                         </template>
-                    </div>
-
-                    {{-- Progress Bar Bawah --}}
-                    <div class="px-5 py-4 border-t border-gray-100 bg-gray-50/50">
-                        <div class="flex justify-between text-sm font-semibold text-[#6A7686] mb-2">
-                            <span>Progress Total</span>
-                            <span class="text-primary font-bold" x-text="progressPct + '%'">0%</span>
-                        </div>
-                        <div class="h-2.5 bg-gray-200 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full transition-all duration-500"
-                                :style="'background: linear-gradient(90deg, #FF1443, #FF6B8A); width: ' + progressPct + '%'">
-                            </div>
-                        </div>
                     </div>
                 </div>
 

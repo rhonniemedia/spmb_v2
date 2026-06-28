@@ -25,8 +25,8 @@
             BREADCRUMB
     ══════════════════════════════════════════ --}}
     <div class="flex items-center gap-1.5 text-[13px] text-[#6A7686] mb-4 animate-fade-in no-print">
-        <a href="{{ route('dashboard') }}" class="text-[#FF1443] no-underline font-semibold hover:opacity-80 transition-opacity">
-            <i class="fa-solid fa-house"></i> Beranda
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-1.5 text-[#FF1443] no-underline font-semibold hover:opacity-80 transition-opacity">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Beranda
         </a>
         <span class="text-gray-300">/</span>
         <a href="{{ route('dashboard') }}" class="text-[#FF1443] no-underline font-semibold hover:opacity-80 transition-opacity">Dashboard</a>
@@ -35,58 +35,77 @@
     </div>
 
     {{-- ══════════════════════════════════════════
-            HERO BANNER
+            HERO BANNER (DARK PREMIUM STYLE)
     ══════════════════════════════════════════ --}}
-    <div class="animate-fade-in relative rounded-[20px] overflow-hidden mb-5 p-6 md:p-7 flex flex-col md:flex-row items-center justify-between gap-5"
-        style="background: linear-gradient(135deg, #FF1443 0%, #D90F38 50%, #B00F30 100%);">
-        <div class="absolute -top-10 -right-10 w-[200px] h-[200px] bg-white/[0.06] rounded-full pointer-events-none"></div>
-        <div class="absolute -bottom-[60px] right-24 w-[160px] h-[160px] bg-white/[0.04] rounded-full pointer-events-none"></div>
+    <div class="relative overflow-hidden rounded-2xl bg-[#080c1a] mb-6 no-print animate-fade-in">
+        <!-- Decorative Background -->
+        <div class="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-[#ff1443]/20 blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-60 h-60 rounded-full bg-[#ff1443]/10 blur-2xl pointer-events-none"></div>
+        <!-- Confetti dots decoration -->
+        <div class="absolute top-8 right-1/3 w-3 h-3 rounded-full bg-[#30b22d]/40 pointer-events-none"></div>
+        <div class="absolute top-14 right-1/4 w-2 h-2 rounded-full bg-[#f59e0b]/40 pointer-events-none"></div>
+        <div class="absolute top-6 right-1/2 w-2 h-2 rounded-full bg-[#3b82f6]/40 pointer-events-none"></div>
 
-        {{-- Kiri --}}
-        <div class="relative z-10 w-full md:flex-1">
-            <div class="inline-flex items-center gap-1.5 bg-white/15 text-white text-xs font-bold px-3 py-1 rounded-full mb-3 border border-white/25">
-                <i class="fa-solid fa-file-lines text-[11px]"></i> Resume Biodata Peserta
-            </div>
-            <h1 class="text-xl md:text-2xl font-black text-white mb-1">
-                {{ $personalData->full_name ?? 'Calon Murid Baru' }}
-            </h1>
-            <p class="text-[13px] text-white/80 leading-relaxed mb-4 max-w-[520px]">
-                Ringkasan lengkap biodata calon peserta didik baru. Pastikan semua data sudah sesuai sebelum melakukan daftar ulang.
-            </p>
-            <div class="flex flex-wrap gap-3 no-print">
-                <a href="{{ route('dashboard') }}"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-[#FF1443] text-[13px] font-black rounded-full no-underline shadow-md">
-                    <i class="fa-solid fa-gauge"></i> Kembali ke Dashboard
-                </a>
-                <span class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/15 text-white text-[13px] font-bold rounded-full border border-white/25 cursor-default">
-                    <i class="fa-solid fa-id-badge"></i> Akun Terverifikasi: {{ auth()->user()?->email_verified_at?->format('d M Y, H:i') }} WIB
+        <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 p-8 md:p-10">
+
+            {{-- Kiri --}}
+            <div class="w-full lg:flex-1 text-center md:text-left">
+                <span class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-1.5 text-xs text-white font-bold mb-5 backdrop-blur-md">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#30b22d]"></i>
+                    Resume Biodata Peserta
                 </span>
-            </div>
-        </div>
 
-        {{-- Kanan: Kartu identitas ringkas --}}
-        <div class="relative z-10 w-full md:w-auto flex-shrink-0">
-            <div class="bg-white/15 border-2 border-white/30 rounded-[20px] px-6 py-4 backdrop-blur-[10px] min-w-[200px]">
-                <div class="w-12 h-12 rounded-full bg-white/20 border-2 border-white/30 flex items-center justify-center font-black text-white text-[20px] mx-auto mb-3 select-none">
-                    {{ strtoupper(substr($personalData->full_name ?? 'A', 0, 1)) }}{{ strtoupper(substr(strstr($personalData->full_name ?? 'F', ' '), 1, 1)) }}
-                </div>
-                <div class="text-[17px] font-black text-white leading-tight text-center">
-                    {{ $personalData->nick_name ?? 'Calon Murid' }}
-                </div>
-                <div class="text-[12px] text-white/65 text-center mt-1 mb-2">
-                    {{ $personalData->nisn ?? 'NISN ···' }}
-                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-white leading-tight mb-3">
+                    {{ $personalData->full_name ?? 'Calon Murid Baru' }}
+                </h2>
 
-                @php
-                $statusLabel = $personalData->profile_status ?? 'draft';
-                $statusBg = $statusLabel === 'final' ? 'bg-[#DCFCE7] text-[#166534] border-[rgba(48,178,45,0.2)]' : 'bg-[#FEF3C7] text-[#92400E] border-orange-200';
-                $statusIcon = $statusLabel === 'final' ? 'fa-circle-check' : 'fa-clock';
-                @endphp
-                <div class="inline-flex items-center justify-center gap-1.5 w-full text-white text-[12px] font-bold px-3 py-1.5 rounded-full bg-white/15 border border-white/25">
-                    <i class="fa-solid {{ $statusIcon }} text-[10px]"></i>
-                    {{ $statusLabel === 'final' ? 'Biodata Final' : 'Draft' }}
+                <p class="text-[#6a7686] leading-7 max-w-2xl mx-auto md:mx-0 mb-7">
+                    Ringkasan lengkap biodata calon peserta didik baru. Pastikan semua data sudah <span class="text-white font-semibold">sesuai</span> sebelum melakukan daftar ulang.
+                </p>
+
+                <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white px-6 py-3 text-[13px] font-bold transition-all duration-200 cursor-pointer no-underline">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+                        Kembali ke Dashboard
+                    </a>
+                    <span class="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 text-white/80 px-6 py-3 text-[13px] font-medium transition-all duration-200 cursor-default">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-[#30b22d] shrink-0"></i>
+                        Terverifikasi: {{ auth()->user()?->email_verified_at?->format('d M Y') }}
+                    </span>
                 </div>
             </div>
+
+            {{-- Kanan: Kartu identitas ringkas --}}
+            <div class="hidden lg:block flex-shrink-0">
+                <div class="bg-white/10 border border-white/20 rounded-[16px] px-6 py-8 backdrop-blur-md text-center shadow-xl w-[220px] flex flex-col justify-center items-center">
+
+                    <div class="w-16 h-16 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center font-black text-white text-2xl mx-auto mb-4 select-none backdrop-blur-sm shadow-inner">
+                        {{ strtoupper(substr($personalData->full_name ?? 'A', 0, 1)) }}{{ strtoupper(substr(strstr($personalData->full_name ?? 'F', ' '), 1, 1)) }}
+                    </div>
+
+                    <div class="text-[17px] font-bold text-white leading-tight text-center">
+                        {{ $personalData->nick_name ?? 'Calon Murid' }}
+                    </div>
+
+                    <div class="text-[12px] text-white/60 font-medium text-center mt-1 mb-6">
+                        {{ $personalData->nisn ?? 'NISN ···' }}
+                    </div>
+
+                    @php
+                    $statusLabel = $personalData->profile_status ?? 'draft';
+                    $isFinal = $statusLabel === 'final';
+                    @endphp
+
+                    <div class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full w-full border transition-colors {{ $isFinal ? 'bg-[#30b22d]/20 border-[#30b22d]/30' : 'bg-[#f59e0b]/20 border-[#f59e0b]/30' }}">
+                        <span class="w-2 h-2 rounded-full {{ $isFinal ? 'bg-[#30b22d]' : 'bg-[#f59e0b] animate-pulse' }}"></span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest {{ $isFinal ? 'text-[#30b22d]' : 'text-[#f59e0b]' }}">
+                            {{ $isFinal ? 'Biodata Final' : 'Draft' }}
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </div>
 

@@ -208,4 +208,9 @@ Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->group(func
     Route::view('/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang');
     Route::get('/support', [FaqController::class, 'index'])->name('bantuan');
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('pengumuman');
+
+    // Tambahkan rute-rute yang hilang ini dan sesuaikan Controllernya
+    Route::get('/konfirmasi', [KonfirmasiController::class, 'index'])->name('konfirmasi');
+    Route::get('/cetak-bukti', [CetakBuktiController::class, 'index'])->name('cetak-bukti');
+    Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal');
 });
