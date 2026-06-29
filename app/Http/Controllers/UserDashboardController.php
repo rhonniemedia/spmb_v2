@@ -9,9 +9,11 @@ use App\Models\ParentData;
 use App\Models\PersonalData;
 use App\Models\RegistrationData;
 use App\Models\Requirement;
+use App\Models\ReRegistrationData;
 use App\Models\SpmbStep;
 use App\Notifications\DataReminderNotification;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserDashboardController extends Controller
@@ -54,6 +56,7 @@ class UserDashboardController extends Controller
                 'selectionResult',
                 'selectionResult.acceptedConcentration', // untuk profil singkat
                 'admissionPath',                         // untuk jalur masuk
+                'reRegistrationData',                    // untuk status daftar ulang
             ])
                 ->where('personal_data_id', $personalData->id)
                 ->first();
@@ -197,12 +200,19 @@ class UserDashboardController extends Controller
         $reRegistrationData = null;
 
         if ($isReRegistrationActive) {
-            // 12a. Status daftar ulang siswa
-            //      re_registered_at null  = belum daftar ulang
-            //      re_registered_at filled = sudah daftar ulang
-            $isReRegistered     = $registration && !is_null($registration->re_registered_at);
-            $reRegisteredAt     = $registration?->re_registered_at
-                ? Carbon::parse($registration->re_registered_at)->translatedFormat('d F Y, H:i')
+            // 12a. Ambil record re_registration_data milik siswa ini
+            //      Record dibuat saat siswa pertama kali mengakses/konfirmasi daftar ulang
+            $reReg          = $registration?->reRegistrationData;
+
+            // Status per-step dari timestamps di re_registration_data
+            $isAnnounced    = $reReg && !is_null($reReg->announced_at);
+            $isConfirmed    = $reReg && !is_null($reReg->confirmed_at);
+            $isReRegistered = $reReg && !is_null($reReg->re_registered_at);
+            $isVerified     = $reReg && !is_null($reReg->verified_at);
+            $isCompleted    = $reReg && !is_null($reReg->completed_at);
+
+            $reRegisteredAt = $isReRegistered
+                ? Carbon::parse($reReg->re_registered_at)->translatedFormat('d F Y, H:i')
                 : null;
 
             // 12b. Deadline & sisa waktu daftar ulang
@@ -213,49 +223,59 @@ class UserDashboardController extends Controller
                 ? $reRegDeadline->translatedFormat('d F Y')
                 : '-';
 
-            // 12c. Progress step registrasi ulang
-            //      Dibuat dari SpmbStep yang sudah ada, filter hanya step relevan
-            //      dengan tag atau slug tertentu, atau ambil semua & biarkan blade filter
-            $reRegProgressSteps = $spmbSteps
-                ->filter(fn($s) => in_array($s->slug, [
-                    'pengumuman-hasil-seleksi',
-                    'konfirmasi-kesediaan',
-                    'daftar-ulang-dan-penyerahan-berkas',
-                    'verifikasi-berkas',
-                    'selesai',
-                ]))
-                ->sortBy('step_order')
-                ->values()
-                ->map(fn($s) => [
-                    'title' => $s->title,
-                    'desc'  => $s->description,
-                    'done'  => $s->status === 'done' || $s->status === 'active',
-                ]);
+            // 12c. Progress step — done ditentukan dari timestamp di re_registration_data
+            //      bukan dari SpmbStep->status, agar akurat per siswa
+            $reRegProgressSteps = collect([
+                [
+                    'title' => 'Pengumuman',
+                    'desc'  => 'Hasil seleksi telah diumumkan.',
+                    'done'  => $isAnnounced,
+                ],
+                [
+                    'title' => 'Konfirmasi Kesediaan',
+                    'desc'  => 'Kesediaan hadir telah dikonfirmasi.',
+                    'done'  => $isConfirmed,
+                ],
+                [
+                    'title' => 'Daftar Ulang',
+                    'desc'  => 'Penyerahan berkas daftar ulang.',
+                    'done'  => $isReRegistered,
+                ],
+                [
+                    'title' => 'Verifikasi',
+                    'desc'  => 'Panitia sedang memeriksa berkas.',
+                    'done'  => $isVerified,
+                ],
+                [
+                    'title' => 'Selesai',
+                    'desc'  => 'Proses daftar ulang selesai.',
+                    'done'  => $isCompleted,
+                ],
+            ]);
 
-            // 12d. Status verifikasi berkas & registrasi
-            //      Diambil dari dokumen yang sudah diverifikasi panitia
-            $fileStatus         = $verifiedCount >= $totalRequirements && $totalRequirements > 0
-                ? 'Lengkap'
-                : 'Belum Lengkap';
+            // 12d. Status verifikasi berkas & registrasi — dari re_registration_data
+            $fileStatus         = ($reReg?->data_status === 'complete') ? 'Lengkap' : 'Belum Lengkap';
 
-            $verificationStatus = $registration?->documents
-                ->contains('verification_status', 'processing')
-                ? 'Diproses'
-                : ($verifiedCount > 0 ? 'Terverifikasi' : 'Menunggu');
+            $verificationStatus = match ($reReg?->verification_status) {
+                'processing' => 'Diproses',
+                'verified'   => 'Terverifikasi',
+                'rejected'   => 'Ditolak',
+                default      => 'Menunggu',
+            };
 
             $registrationStatus = $isReRegistered ? 'Diterima' : 'Menunggu';
 
             // 12e. Profil singkat — konsentrasi yang diterima
             $acceptedConcentration = $registration?->selectionResult?->acceptedConcentration ?? null;
 
-            // 12f. Pengumuman aktif (is_active = true, urut by sort_order)
+            // 12f. Pengumuman aktif — urut by created_at (sort_order belum ada di migrasi)
             $announcements = Announcement::where('is_active', true)
-                ->orderBy('is_urgent', 'asc')
+                ->orderBy('created_at', 'asc')
                 ->get();
 
-            // 12g. FAQ daftar ulang (filter by category slug jika ada, fallback semua)
+            // 12g. FAQ daftar ulang — urut by created_at (sort_order belum ada di migrasi)
             $faqs = Faq::whereHas('category', fn($q) => $q->where('slug', 'daftar-ulang'))
-                ->orderBy('updated_at', 'asc')
+                ->orderBy('created_at', 'asc')
                 ->get();
 
             // 12h. Checklist Akses Cepat
@@ -270,7 +290,7 @@ class UserDashboardController extends Controller
                     'gradient' => 'from-[#ff1443] to-[#f43f5e]',
                     'status'   => $isPersonalDataComplete ? 'Selesai' : "{$biodataPercentage}%",
                     'badge_bg' => $isPersonalDataComplete ? 'bg-[#dcfce7] text-[#166534]' : 'bg-[#fee2e2] text-[#ff1443]',
-                    'url'      => route('biodata'),
+                    'url'      => '#',
                 ],
                 [
                     'key'      => 'konfirmasi',
@@ -281,7 +301,7 @@ class UserDashboardController extends Controller
                     'gradient' => 'from-[#30b22d] to-[#4ade80]',
                     'status'   => $isReRegistered ? 'Selesai' : 'Belum',
                     'badge_bg' => $isReRegistered ? 'bg-[#dcfce7] text-[#166534]' : 'bg-[#fef9c3] text-[#92400e]',
-                    'url'      => route('konfirmasi'),
+                    'url'      => '#',
                 ],
                 [
                     'key'      => 'cetak_bukti',
@@ -292,7 +312,7 @@ class UserDashboardController extends Controller
                     'gradient' => 'from-[#f59e0b] to-[#fbbf24]',
                     'status'   => 'Siap Cetak',
                     'badge_bg' => 'bg-[#dcfce7] text-[#166534]',
-                    'url'      => route('cetak-bukti'),
+                    'url'      => '#',
                 ],
                 [
                     'key'      => 'jadwal',
@@ -303,13 +323,17 @@ class UserDashboardController extends Controller
                     'gradient' => 'from-[#0ea5e9] to-[#38bdf8]',
                     'status'   => $reRegDeadline ? $reRegDeadline->format('d M') : '-',
                     'badge_bg' => 'bg-[#e0f2fe] text-[#0ea5e9]',
-                    'url'      => route('jadwal'),
+                    'url'      => '#',
                 ],
             ]);
 
             // Kumpulkan semua data khusus daftar ulang ke satu array
             $reRegistrationData = compact(
+                'reReg',
                 'isReRegistered',
+                'isConfirmed',
+                'isVerified',
+                'isCompleted',
                 'reRegisteredAt',
                 'reRegDeadline',
                 'reRegDeadlineText',
@@ -358,5 +382,41 @@ class UserDashboardController extends Controller
             'isReRegistrationActive',
             'reRegistrationData'
         ));
+    }
+
+    public function confirmReRegistration(Request $request)
+    {
+        $user = Auth::user();
+
+        $personalData = PersonalData::where('user_id', $user->id)->first();
+
+        // Proteksi 1: Pastikan biodata sudah final
+        if (!$personalData || $personalData->profile_status !== 'final') {
+            return back()->with('error', 'Silakan selesaikan kelengkapan biodata Anda terlebih dahulu.');
+        }
+
+        $registration = RegistrationData::where('personal_data_id', $personalData->id)->first();
+
+        // Proteksi 2: Pastikan data registrasi ada
+        if (!$registration) {
+            return back()->with('error', 'Data pendaftaran tidak ditemukan.');
+        }
+
+        // Cari record daftar ulang atau buat baru jika belum ada
+        // (Asumsi foreign key di tabel re_registration_data adalah registration_id)
+        $reReg = ReRegistrationData::firstOrCreate(
+            ['registration_id' => $registration->id]
+        );
+
+        // Jika belum dikonfirmasi, maka update timestamp-nya
+        if (is_null($reReg->confirmed_at)) {
+            $reReg->update([
+                'confirmed_at' => now(),
+            ]);
+
+            return back()->with('success', 'Konfirmasi kesediaan daftar ulang berhasil disimpan!');
+        }
+
+        return back()->with('info', 'Anda sudah melakukan konfirmasi kesediaan sebelumnya.');
     }
 }

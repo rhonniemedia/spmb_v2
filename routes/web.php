@@ -164,6 +164,7 @@ Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->group(func
 
     // Dashboard
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/re-registration/confirm', [UserDashboardController::class, 'confirmReRegistration'])->name('daftar-ulang.konfirmasi');
 
     // Notifikasi
     Route::get('/notifications/dropdown', [NotificationController::class, 'dropdown'])->name('notifications.dropdown');
@@ -210,7 +211,6 @@ Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->group(func
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('pengumuman');
 
     // Tambahkan rute-rute yang hilang ini dan sesuaikan Controllernya
-    Route::get('/konfirmasi', [KonfirmasiController::class, 'index'])->name('konfirmasi');
     Route::get('/cetak-bukti', [CetakBuktiController::class, 'index'])->name('cetak-bukti');
     Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal');
 });

@@ -37,10 +37,17 @@
                         Segera selesaikan proses daftar ulang sebelum batas waktu yang telah ditentukan.
                     </p>
                     <div class="mt-7 flex flex-wrap gap-3">
-                        <button class="flex items-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white px-6 py-3 font-bold transition-all duration-200 cursor-pointer">
+                        @if(!$isPersonalDataComplete)
+                        <a href="{{ route('biodata') }}" class="flex items-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white px-6 py-3 font-bold transition-all duration-200 cursor-pointer">
+                            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+                            Mulai Daftar Ulang
+                        </a>
+                        @else
+                        <button @click="$dispatch('open-modal-konfirmasi')" class="flex items-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white px-6 py-3 font-bold transition-all duration-200 cursor-pointer">
                             <i data-lucide="clipboard-check" class="w-4 h-4"></i>
                             Mulai Daftar Ulang
                         </button>
+                        @endif
                         <button class="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white px-6 py-3 font-medium transition-all duration-200 cursor-pointer">
                             <i data-lucide="download" class="w-4 h-4"></i>
                             Unduh Bukti Lolos
@@ -89,31 +96,49 @@
             </div>
 
             <!-- Status badge -->
+            @php
+            $isReRegistered = $reRegistrationData['isReRegistered'] ?? false;
+            $statusBadgeBg = $isReRegistered ? 'bg-[#dcfce7] border-[#30b22d]/30' : 'bg-[#fef9c3] border-[#f59e0b]/30';
+            $statusIconBg = $isReRegistered ? 'bg-[#30b22d]/20' : 'bg-[#f59e0b]/20';
+            $statusIconColor = $isReRegistered ? 'text-[#30b22d]' : 'text-[#f59e0b]';
+            $statusIcon = $isReRegistered ? 'check-circle-2' : 'clock-4';
+            $statusTitle = $isReRegistered ? 'Sudah Registrasi Ulang' : 'Belum Registrasi Ulang';
+            $statusDesc = $isReRegistered
+            ? 'Berkas Anda sedang dalam proses verifikasi oleh panitia.'
+            : 'Selesaikan semua checklist untuk melengkapi daftar ulang.';
+            $statusTextColor = $isReRegistered ? 'text-[#166534]' : 'text-[#92400e]';
+            $statusSubColor = $isReRegistered ? 'text-[#166534]/70' : 'text-[#92400e]/70';
+            $badgeBg = $isReRegistered ? 'bg-[#30b22d]' : 'bg-[#f59e0b]';
+            $badgeLabel = $isReRegistered ? 'Selesai' : 'Segera';
+            @endphp
             <div class="px-6 pt-5 pb-4">
-                <div class="flex items-center gap-4 p-4 rounded-2xl bg-[#fef9c3] border border-[#f59e0b]/30">
-                    <div class="w-12 h-12 rounded-2xl bg-[#f59e0b]/20 flex items-center justify-center shrink-0">
-                        <i data-lucide="clock-4" class="w-6 h-6 text-[#f59e0b]"></i>
+                <div class="flex items-center gap-4 p-4 rounded-2xl {{ $statusBadgeBg }} border">
+                    <div class="w-12 h-12 rounded-2xl {{ $statusIconBg }} flex items-center justify-center shrink-0">
+                        <i data-lucide="{{ $statusIcon }}" class="w-6 h-6 {{ $statusIconColor }}"></i>
                     </div>
                     <div class="flex-1">
-                        <p class="font-bold text-[#92400e]">Belum Registrasi Ulang</p>
-                        <p class="text-sm text-[#92400e]/70 mt-0.5">Selesaikan semua checklist untuk melengkapi daftar ulang.</p>
+                        <p class="font-bold {{ $statusTextColor }}">{{ $statusTitle }}</p>
+                        <p class="text-sm {{ $statusSubColor }} mt-0.5">{{ $statusDesc }}</p>
                     </div>
-                    <span class="text-xs font-bold bg-[#f59e0b] text-white px-3 py-1.5 rounded-full shrink-0">Segera</span>
+                    <span class="text-xs font-bold {{ $badgeBg }} text-white px-3 py-1.5 rounded-full shrink-0">{{ $badgeLabel }}</span>
                 </div>
             </div>
 
             <!-- Progress steps -->
             <div class="px-6 pb-2">
                 <p class="text-sm font-semibold text-[#6a7686] mb-4">Progress Registrasi</p>
+                @php
+                $reRegProgressSteps = $reRegistrationData['reRegProgressSteps'] ?? collect([]);
+                $currentStepIndex = $reRegProgressSteps->search(fn($s) => !$s['done']);
+                if ($currentStepIndex === false) $currentStepIndex = $reRegProgressSteps->count() - 1;
+                @endphp
                 <div
                     x-data="{
-                        current: 2,
+                        current: {{ $currentStepIndex }},
                         steps: [
-                        { title: 'Pengumuman',         done: true,  desc: 'Hasil seleksi telah diumumkan.' },
-                        { title: 'Konfirmasi Kesediaan', done: true, desc: 'Kesediaan hadir telah dikonfirmasi.' },
-                        { title: 'Daftar Ulang',       done: true,  desc: 'Penyerahan berkas daftar ulang.' },
-                        { title: 'Verifikasi',          done: false, desc: 'Panitia sedang memeriksa berkas.' },
-                        { title: 'Selesai',             done: false, desc: 'Proses daftar ulang selesai.' }
+                            @foreach($reRegProgressSteps as $step)
+                            { title: '{{ $step['title'] }}', done: {{ $step['done'] ? 'true' : 'false' }}, desc: '{{ $step['desc'] }}' }{{ !$loop->last ? ',' : '' }}
+                            @endforeach
                         ]
                     }"
                     class="relative">
@@ -180,33 +205,69 @@
             </div>
 
             <!-- Status Verifikasi row -->
+            @php
+            $fileStatus = $reRegistrationData['fileStatus'] ?? 'Belum Lengkap';
+            $verificationStatus = $reRegistrationData['verificationStatus'] ?? 'Menunggu';
+            $registrationStatus = $reRegistrationData['registrationStatus'] ?? 'Menunggu';
+
+            $fileIsOk = $fileStatus === 'Lengkap';
+            $fileBg = $fileIsOk ? 'bg-[#dcfce7] border-[#30b22d]/20' : 'bg-[#fef9c3] border-[#f59e0b]/20';
+            $fileDot = $fileIsOk ? 'bg-[#30b22d]' : 'bg-[#f59e0b]';
+            $fileText = $fileIsOk ? 'text-[#166534]' : 'text-[#92400e]';
+
+            $veriIsOk = $verificationStatus === 'Terverifikasi';
+            $veriIsProc = $verificationStatus === 'Diproses';
+            $veriIsRej = $verificationStatus === 'Ditolak';
+            $veriBg = $veriIsOk ? 'bg-[#dcfce7] border-[#30b22d]/20'
+            : ($veriIsProc ? 'bg-[#fef9c3] border-[#f59e0b]/20'
+            : ($veriIsRej ? 'bg-[#fee2e2] border-[#ff1443]/20'
+            : 'bg-[#eff2f7] border-[#e5e7eb]'));
+            $veriDot = $veriIsOk ? 'bg-[#30b22d]'
+            : ($veriIsProc ? 'bg-[#f59e0b]'
+            : ($veriIsRej ? 'bg-[#ff1443]'
+            : 'bg-[#6a7686]'));
+            $veriText = $veriIsOk ? 'text-[#166534]'
+            : ($veriIsProc ? 'text-[#92400e]'
+            : ($veriIsRej ? 'text-[#991b1b]'
+            : 'text-[#6a7686]'));
+
+            $regIsOk = $registrationStatus === 'Diterima';
+            $regBg = $regIsOk ? 'bg-[#dcfce7] border-[#30b22d]/20' : 'bg-[#fef9c3] border-[#f59e0b]/20';
+            $regDot = $regIsOk ? 'bg-[#30b22d]' : 'bg-[#f59e0b]';
+            $regText = $regIsOk ? 'text-[#166534]' : 'text-[#92400e]';
+            @endphp
             <div class="mx-6 mb-6 mt-2 grid grid-cols-3 gap-3">
-                <div class="rounded-2xl bg-[#dcfce7] border border-[#30b22d]/20 p-4 text-center">
-                    <p class="text-[11px] text-[#6a7686] font-medium mb-2">Berkas</p>
+                <div class="rounded-2xl {{ $fileBg }} border p-4 text-center">
+                    <p class="text-[11px] text-[#6a7686] font-medium mb-2">Data</p>
                     <div class="flex items-center justify-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-[#30b22d]"></span>
-                        <p class="text-sm font-bold text-[#166534]">Lengkap</p>
+                        <span class="w-2 h-2 rounded-full {{ $fileDot }}"></span>
+                        <p class="text-sm font-bold {{ $fileText }}">{{ $fileStatus }}</p>
                     </div>
                 </div>
-                <div class="rounded-2xl bg-[#fef9c3] border border-[#f59e0b]/20 p-4 text-center">
+                <div class="rounded-2xl {{ $veriBg }} border p-4 text-center">
                     <p class="text-[11px] text-[#6a7686] font-medium mb-2">Verifikasi</p>
                     <div class="flex items-center justify-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-[#f59e0b]"></span>
-                        <p class="text-sm font-bold text-[#92400e]">Diproses</p>
+                        <span class="w-2 h-2 rounded-full {{ $veriDot }}"></span>
+                        <p class="text-sm font-bold {{ $veriText }}">{{ $verificationStatus }}</p>
                     </div>
                 </div>
-                <div class="rounded-2xl bg-[#dcfce7] border border-[#30b22d]/20 p-4 text-center">
+                <div class="rounded-2xl {{ $regBg }} border p-4 text-center">
                     <p class="text-[11px] text-[#6a7686] font-medium mb-2">Registrasi</p>
                     <div class="flex items-center justify-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-[#30b22d]"></span>
-                        <p class="text-sm font-bold text-[#166534]">Diterima</p>
+                        <span class="w-2 h-2 rounded-full {{ $regDot }}"></span>
+                        <p class="text-sm font-bold {{ $regText }}">{{ $registrationStatus }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Countdown -->
-        <div x-data="countdownDaftarUlang()" x-init="init()" class="bg-white rounded-2xl border border-[#e5e7eb] flex flex-col">
+        @php
+        $reRegDeadline = $reRegistrationData['reRegDeadline'] ?? null;
+        $reRegDeadlineText = $reRegistrationData['reRegDeadlineText'] ?? '-';
+        $deadlineIso = $reRegDeadline ? $reRegDeadline->toIso8601String() : null;
+        @endphp
+        <div x-data="countdownDaftarUlang('{{ $deadlineIso }}')" x-init="init()" class="bg-white rounded-2xl border border-[#e5e7eb] flex flex-col">
             <div class="p-6 border-b border-[#e5e7eb]">
                 <h2 class="text-lg font-bold">Batas Waktu</h2>
                 <p class="text-sm text-[#6a7686] mt-0.5">Deadline registrasi ulang.</p>
@@ -252,108 +313,148 @@
                 </template>
 
                 <!-- Milestone list -->
+                @php
+                $announcementStep = $spmbSteps->first(fn($s) => str_contains($s->slug, 'pengumuman') || str_contains($s->slug, 'kelulusan'));
+                $mplsStep = $spmbSteps->first(fn($s) => str_contains($s->slug, 'mpls') || str_contains($s->slug, 'orientasi'));
+                $announceText = $announcementStep?->start_date
+                ? \Carbon\Carbon::parse($announcementStep->start_date)->translatedFormat('d F Y') . ' · 08.00 WIB'
+                : '-';
+                $mplsText = $mplsStep?->period_text ?? ($mplsStep?->start_date
+                ? \Carbon\Carbon::parse($mplsStep->start_date)->translatedFormat('d F Y')
+                : '13, 14 Juli 2026');
+                @endphp
                 <div class="space-y-4">
                     <div class="flex items-start gap-3">
                         <div class="w-2.5 h-2.5 rounded-full bg-[#30b22d] mt-1.5 shrink-0"></div>
                         <div>
                             <p class="font-semibold text-sm">Pengumuman Hasil Seleksi</p>
-                            <p class="text-xs text-[#6a7686] mt-0.5">12 Juli 2026 · 08.00 WIB</p>
+                            <p class="text-xs text-[#6a7686] mt-0.5">{{ $announceText }}</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3">
                         <div class="w-2.5 h-2.5 rounded-full bg-[#ff1443] mt-1.5 shrink-0"></div>
                         <div>
                             <p class="font-semibold text-sm">Batas Daftar Ulang</p>
-                            <p class="text-xs text-[#6a7686] mt-0.5">15–18 Juli 2026</p>
+                            <p class="text-xs text-[#6a7686] mt-0.5">{{ $reRegDeadlineText }}</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3">
                         <div class="w-2.5 h-2.5 rounded-full bg-[#3b82f6] mt-1.5 shrink-0"></div>
                         <div>
                             <p class="font-semibold text-sm">MPLS (Masa Pengenalan)</p>
-                            <p class="text-xs text-[#6a7686] mt-0.5">21 Juli 2026</p>
+                            <p class="text-xs text-[#6a7686] mt-0.5">{{ $mplsText }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- CTA -->
-                <button class="mt-auto w-full flex items-center justify-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white py-3 text-sm font-bold transition-all duration-200 cursor-pointer">
+                @if(!$isPersonalDataComplete)
+                <a href="{{ route('biodata') }}" class="mt-auto w-full flex items-center justify-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white py-3 text-sm font-bold transition-all duration-200 cursor-pointer">
+                    <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                    Lengkapi Daftar Ulang
+                </a>
+                @else
+                <button @click="$dispatch('open-modal-konfirmasi')" class="mt-auto w-full flex items-center justify-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white py-3 text-sm font-bold transition-all duration-200 cursor-pointer">
                     <i data-lucide="clipboard-list" class="w-4 h-4"></i>
                     Lengkapi Daftar Ulang
                 </button>
+                @endif
             </div>
         </div>
 
     </section>
 
     <!-- ═══════════════════════════════════════════
-       SIDEBAR INFO: Profil Singkat + Jadwal MPLS
-  ═══════════════════════════════════════════ -->
+    SIDEBAR INFO: Profil Singkat + Jadwal Registrasi
+═══════════════════════════════════════════ -->
     <section class="mt-6 grid lg:grid-cols-2 gap-6">
 
-        <!-- ── Profil Singkat ── -->
-        <div class="bg-white rounded-2xl border border-[#e5e7eb] flex flex-col">
+        <!-- ── 1. PROFIL SINGKAT ── -->
+        @php
+        $profil = $personalData;
+        $acceptedConc = $reRegistrationData['acceptedConcentration'] ?? null;
+        $concAlias = $acceptedConc?->alias ?? $acceptedConc?->code ?? '-';
+        $concIcon = $acceptedConc?->icon ?? 'laptop';
+        $regNumber = $registration?->registration_number ?? '-';
+        $jalurMasuk = $registration?->admissionPath?->name ?? '-';
+        $asalSekolah = $profil?->previous_school ?? '-';
 
-            <!-- Header — sama tinggi dengan MPLS -->
+        // Avatar Dinamis
+        $fotoUrl = $profil?->photo
+        ? asset('storage/' . $profil->photo)
+        : 'https://ui-avatars.com/api/?name=' . urlencode($profil?->full_name ?? 'S') . '&background=ff1443&color=fff&size=128';
+
+        $updatedAt = $profil?->updated_at
+        ? \Carbon\Carbon::parse($profil->updated_at)->translatedFormat('d F Y')
+        : '-';
+
+        // Status Verifikasi dari variabel khusus Daftar Ulang
+        $verificationStatus = $reRegistrationData['verificationStatus'] ?? 'Menunggu';
+        $veriColor = $verificationStatus === 'Terverifikasi' ? 'text-[#166534]' : 'text-[#92400e]';
+        @endphp
+
+        <div class="bg-white rounded-2xl border border-[#e5e7eb] flex flex-col">
+            <!-- Header Profil -->
             <div class="p-6 border-b border-[#e5e7eb]">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <i data-lucide="user-circle" class="w-4 h-4 text-[#ff1443]"></i>
                         <h3 class="font-bold text-lg">Profil Singkat</h3>
                     </div>
-                    <button class="shrink-0 flex items-center gap-1.5 rounded-xl border border-[#e5e7eb] px-3 py-1 text-[10px] font-semibold text-[#6a7686] hover:bg-[#eff2f7] transition-colors cursor-pointer">
-                        <i data-lucide="external-link" class="w-3 h-3"></i>
+                    <button @click="$dispatch('open-modal-profil')" class="shrink-0 flex items-center gap-1.5 rounded-xl border border-[#e5e7eb] px-3 py-1 text-[10px] font-semibold text-[#6a7686] hover:bg-[#eff2f7] transition-colors cursor-pointer">
+                        <i data-lucide="user-round-search" class="w-3 h-3"></i>
                         Lihat Profil
                     </button>
                 </div>
                 <p class="text-sm text-[#6a7686] mt-0.5">Data diri dan status penerimaan siswa.</p>
             </div>
 
-            <!-- Avatar, Name & Nomor Pendaftaran -->
+            <!-- Avatar, Nama & Nomor Pendaftaran -->
             <div class="px-6 py-5 border-b border-[#eff2f7]">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-
-                    <!-- Profil Kiri -->
+                    <!-- Info Kiri -->
                     <div class="flex items-center gap-4">
                         <div class="relative shrink-0">
-                            <img src="https://i.pravatar.cc/100?img=12" alt="Foto"
-                                class="w-16 h-16 rounded-2xl object-cover ring-2 ring-[#e5e7eb]" />
+                            <img src="{{ $fotoUrl }}" alt="Foto {{ $profil?->full_name }}" class="w-16 aspect-[3/3.5] rounded-xl object-cover ring-2 ring-[#e5e7eb]" />
                             <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#30b22d] border-2 border-white"></span>
                         </div>
                         <div class="min-w-0">
-                            <p class="font-bold text-base leading-tight">Roni Saputra</p>
+                            <p class="font-bold text-base leading-tight truncate max-w-[160px]">{{ $profil?->full_name ?? '-' }}</p>
                             <p class="text-xs text-[#6a7686] mt-0.5">Peserta Didik Baru</p>
                             <div class="flex items-center gap-2 mt-2">
                                 <span class="inline-flex items-center gap-1.5 text-[10px] font-bold bg-[#30b22d]/10 text-[#166534] rounded-full px-2.5 py-1">
                                     <span class="w-1.5 h-1.5 rounded-full bg-[#30b22d]"></span>Diterima
                                 </span>
+                                @if($acceptedConc)
                                 <span class="inline-flex items-center gap-1.5 text-[10px] font-bold bg-[#3b82f6]/10 text-[#1d4ed8] rounded-full px-2.5 py-1">
-                                    <i data-lucide="laptop" class="w-3 h-3"></i>RPL
+                                    <i data-lucide="{{ $concIcon }}" class="w-3 h-3"></i>{{ $concAlias }}
                                 </span>
+                                @endif
                             </div>
                         </div>
                     </div>
 
                     <!-- Nomor Pendaftaran Kanan -->
-                    <div class="flex items-center gap-3 bg-[#ff1443]/[0.03] p-3 rounded-xl border border-[#ff1443]/10 shrink-0">
+                    <div class="flex items-center gap-3 bg-[#ff1443]/[0.03] p-3 rounded-xl border border-[#ff1443]/10 shrink-0"
+                        x-data="{}"
+                        @click="navigator.clipboard.writeText('{{ $regNumber }}').then(() => { $el.querySelector('[data-tip]').innerText = 'Disalin!'; setTimeout(() => $el.querySelector('[data-tip]').innerText = 'Salin', 1500) })">
                         <div class="w-9 h-9 rounded-xl bg-[#ff1443]/10 flex items-center justify-center shrink-0">
                             <i data-lucide="hash" class="w-4 h-4 text-[#ff1443]"></i>
                         </div>
                         <div>
                             <p class="text-[11px] text-[#6a7686] font-medium">Nomor Pendaftaran</p>
-                            <p class="text-base font-bold tracking-wide">2026000123</p>
+                            <p class="text-base font-bold tracking-wide">{{ $regNumber }}</p>
                         </div>
                         <button class="ml-2 flex flex-col items-center justify-center gap-1 text-[10px] text-[#6a7686] hover:text-[#ff1443] transition-colors cursor-pointer" title="Salin">
                             <i data-lucide="copy" class="w-4 h-4"></i>
+                            <span data-tip class="text-[9px]">Salin</span>
                         </button>
                     </div>
-
                 </div>
             </div>
 
-            <!-- Data rows – 2 kolom grid agar lebih lega -->
+            <!-- Atribut Rangkuman Data -->
             <div class="p-5 grid grid-cols-2 gap-3 flex-1">
-
                 <div class="flex items-center gap-3 p-3 rounded-xl bg-[#eff2f7]/60">
                     <div class="w-8 h-8 rounded-xl bg-[#8b5cf6]/10 flex items-center justify-center shrink-0">
                         <i data-lucide="users" class="w-4 h-4 text-[#8b5cf6]"></i>
@@ -370,7 +471,7 @@
                     </div>
                     <div class="min-w-0">
                         <p class="text-[10px] text-[#6a7686]">Jalur Masuk</p>
-                        <p class="text-xs font-semibold truncate">Reguler</p>
+                        <p class="text-xs font-semibold truncate">{{ $jalurMasuk }}</p>
                     </div>
                 </div>
 
@@ -380,7 +481,7 @@
                     </div>
                     <div class="min-w-0">
                         <p class="text-[10px] text-[#6a7686]">Asal Sekolah</p>
-                        <p class="text-xs font-semibold truncate">SMP N 1 Curup</p>
+                        <p class="text-xs font-semibold truncate">{{ $asalSekolah }}</p>
                     </div>
                 </div>
 
@@ -389,8 +490,8 @@
                         <i data-lucide="shield-check" class="w-4 h-4 text-[#30b22d]"></i>
                     </div>
                     <div class="min-w-0">
-                        <p class="text-[10px] text-[#6a7686]">Status</p>
-                        <p class="text-xs font-semibold text-[#166534] truncate">Terverifikasi</p>
+                        <p class="text-[10px] text-[#6a7686]">Status Berkas</p>
+                        <p class="text-xs font-semibold truncate {{ $veriColor }}">{{ $verificationStatus }}</p>
                     </div>
                 </div>
 
@@ -400,14 +501,39 @@
                     </div>
                     <div class="flex-1 flex items-center justify-between gap-2">
                         <p class="text-[10px] text-[#6a7686]">Terakhir Diperbarui</p>
-                        <p class="text-xs font-semibold">20 Juni 2026</p>
+                        <p class="text-xs font-semibold">{{ $updatedAt }}</p>
                     </div>
                 </div>
-
             </div>
         </div>
 
-        <!-- ── Jadwal MPLS ── -->
+        <!-- ── 2. JADWAL REGISTRASI ── -->
+        @php
+        $regStep = $reRegistrationStep;
+        $regStartDate = $regStep?->start_date ? \Carbon\Carbon::parse($regStep->start_date) : null;
+        $regEndDate = $regStep?->end_date ? \Carbon\Carbon::parse($regStep->end_date) : null;
+
+        // Logika Format Tanggal
+        if ($regStep?->period_text) {
+        $jadwalTanggal = $regStep->period_text;
+        } elseif ($regStartDate && $regEndDate) {
+        $startDay = $regStartDate->translatedFormat('l');
+        $endDay = $regEndDate->translatedFormat('l');
+        $startFmt = $regStartDate->translatedFormat('d');
+        $endFmt = $regEndDate->translatedFormat('d F Y');
+        $jadwalTanggal = "{$startDay}\u2013{$endDay} / {$startFmt}\u2013{$endFmt}";
+        } else {
+        $jadwalTanggal = '-';
+        }
+
+        // Ekstraksi Jam dari Deskripsi jika ada (contoh: 08.00 - 14.00)
+        $jadwalJam = '-';
+        if ($regStartDate && $regEndDate) {
+        // Akan menghasilkan contoh: 08.00 - 16.00 WIB
+        $jadwalJam = $regStartDate->format('H.i') . ' - ' . $regEndDate->format('H.i') . ' WIB';
+        }
+        @endphp
+
         <div class="bg-white rounded-2xl border border-[#e5e7eb] flex flex-col">
             <div class="p-6 border-b border-[#e5e7eb]">
                 <div class="flex items-center justify-between">
@@ -421,7 +547,6 @@
             </div>
 
             <div class="p-6 flex flex-col gap-5 flex-1">
-
                 <div class="rounded-2xl bg-[#080c1a] p-6 flex-1">
                     <div class="flex items-center gap-2 mb-5">
                         <i data-lucide="clipboard-check" class="w-4 h-4 text-[#ff1443]"></i>
@@ -435,7 +560,7 @@
                             </div>
                             <div>
                                 <p class="text-[10px] text-[#6a7686] font-medium mb-0.5">Hari / Tanggal</p>
-                                <p class="text-base font-bold text-white">Rabu–Sabtu / 15–18 Juli 2026</p>
+                                <p class="text-base font-bold text-white">{{ $jadwalTanggal }}</p>
                             </div>
                         </div>
 
@@ -445,7 +570,11 @@
                             </div>
                             <div>
                                 <p class="text-[10px] text-[#6a7686] font-medium mb-0.5">Jam</p>
-                                <p class="text-sm font-bold text-white">08.00 – 14.00 WIB</p>
+                                @if($jadwalJam !== '-')
+                                <p class="text-sm font-bold text-white">{{ $jadwalJam }}</p>
+                                @else
+                                <p class="text-sm font-bold text-white/50 italic">Lihat pengumuman</p>
+                                @endif
                             </div>
                         </div>
 
@@ -455,7 +584,7 @@
                             </div>
                             <div>
                                 <p class="text-[10px] text-[#6a7686] font-medium mb-0.5">Lokasi</p>
-                                <p class="text-sm font-bold text-white">Ruang Panitia / TU</p>
+                                <p class="text-sm font-bold text-white">Aula Sekolah</p>
                             </div>
                         </div>
 
@@ -471,15 +600,281 @@
                     </div>
                 </div>
 
+                <!-- Pesan Peringatan -->
                 <div class="rounded-xl bg-[#fffbeb] border border-[#f59e0b]/20 px-4 py-3.5 flex items-start gap-3">
                     <i data-lucide="alert-circle" class="w-4 h-4 text-[#f59e0b] shrink-0 mt-0.5"></i>
                     <p class="text-xs text-[#92400e] leading-5">Calon siswa beserta orang tua/wali <span class="font-bold">wajib hadir</span> untuk menyerahkan MAP BIOLA berisi dokumen fisik dan penandatanganan berkas.</p>
                 </div>
-
             </div>
         </div>
 
     </section>
+
+    <!-- ═══════════════════════════════════════════
+       MODAL PROFIL LENGKAP
+  ═══════════════════════════════════════════ -->
+    <div
+        x-data="{ open: false }"
+        @open-modal-profil.window="open = true"
+        x-show="open"
+        x-cloak
+        class="fixed inset-0 z-[999] flex items-center justify-center p-4"
+        style="display: none;">
+
+        <!-- Backdrop -->
+        <div
+            class="absolute inset-0 bg-[#080c1a]/60 backdrop-blur-sm"
+            @click="open = false"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0">
+        </div>
+
+        <!-- Panel -->
+        <div
+            class="relative w-full max-w-2xl max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95">
+
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-[#e5e7eb] shrink-0">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="user-circle" class="w-4 h-4 text-[#ff1443]"></i>
+                    <h3 class="font-bold text-base">Profil Lengkap</h3>
+                </div>
+                <button @click="open = false" class="w-8 h-8 rounded-xl flex items-center justify-center text-[#6a7686] hover:bg-[#eff2f7] hover:text-[#080c1a] transition-colors cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body — scrollable -->
+            <div class="overflow-y-auto flex-1">
+
+                <!-- Hero: foto + nama + badge -->
+                <div class="bg-[#080c1a] px-6 py-6 flex items-center gap-5">
+                    <img src="{{ $fotoUrl }}" alt="Foto"
+                        class="w-20 aspect-[3/3.5] rounded-xl object-cover ring-2 ring-white/20 shrink-0" />
+                    <div class="min-w-0">
+                        <p class="text-xl font-bold text-white leading-tight truncate">{{ $profil?->full_name ?? '-' }}</p>
+                        @if($profil?->nick_name)
+                        <p class="text-sm text-white/50 mt-0.5">"{{ $profil->nick_name }}"</p>
+                        @endif
+                        <div class="flex flex-wrap items-center gap-2 mt-3">
+                            <span class="inline-flex items-center gap-1.5 text-[10px] font-bold bg-[#30b22d]/20 text-[#30b22d] rounded-full px-2.5 py-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#30b22d]"></span>Diterima
+                            </span>
+                            @if($acceptedConc)
+                            <span class="inline-flex items-center gap-1.5 text-[10px] font-bold bg-[#3b82f6]/20 text-[#60a5fa] rounded-full px-2.5 py-1">
+                                <i data-lucide="{{ $concIcon }}" class="w-3 h-3"></i>{{ $acceptedConc->name ?? $concAlias }}
+                            </span>
+                            @endif
+                            @if($profil?->gender)
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold bg-white/10 text-white/70 rounded-full px-2.5 py-1">
+                                {{ $profil->gender === 'L' ? 'Laki-laki' : 'Perempuan' }}
+                            </span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No. Pendaftaran -->
+                <div class="px-6 py-4 border-b border-[#e5e7eb] flex items-center justify-between gap-4"
+                    x-data="{}"
+                    @click="navigator.clipboard.writeText('{{ $regNumber }}').then(() => { $el.querySelector('[data-tip2]').innerText = 'Disalin!'; setTimeout(() => $el.querySelector('[data-tip2]').innerText = 'Salin', 1500) })">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-[#ff1443]/10 flex items-center justify-center shrink-0">
+                            <i data-lucide="hash" class="w-4 h-4 text-[#ff1443]"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-[#6a7686] font-medium">Nomor Pendaftaran</p>
+                            <p class="text-lg font-bold tracking-wider">{{ $regNumber }}</p>
+                        </div>
+                    </div>
+                    <button class="flex items-center gap-1.5 text-xs text-[#6a7686] hover:text-[#ff1443] transition-colors cursor-pointer border border-[#e5e7eb] rounded-lg px-3 py-1.5" title="Salin">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        <span data-tip2>Salin</span>
+                    </button>
+                </div>
+
+                <!-- Grid data diri -->
+                <div class="p-6 space-y-6">
+
+                    <!-- Section: Identitas -->
+                    <div>
+                        <p class="text-[11px] font-bold text-[#6a7686] uppercase tracking-widest mb-3">Identitas Diri</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            @php
+                            $rows1 = [
+                            ['icon' => 'user', 'color' => 'text-[#ff1443]', 'bg' => 'bg-[#ff1443]/10', 'label' => 'Nama Lengkap', 'val' => $profil?->full_name ?? '-'],
+                            ['icon' => 'at-sign', 'color' => 'text-[#8b5cf6]', 'bg' => 'bg-[#8b5cf6]/10', 'label' => 'Panggilan', 'val' => $profil?->nick_name ?? '-'],
+                            ['icon' => 'venus-mars', 'color' => 'text-[#ec4899]', 'bg' => 'bg-[#ec4899]/10', 'label' => 'Jenis Kelamin', 'val' => $profil?->gender === 'L' ? 'Laki-laki' : ($profil?->gender === 'P' ? 'Perempuan' : '-')],
+                            ['icon' => 'droplets', 'color' => 'text-[#ef4444]', 'bg' => 'bg-[#ef4444]/10', 'label' => 'Gol. Darah', 'val' => $profil?->blood_type ?? '-'],
+                            ['icon' => 'heart', 'color' => 'text-[#f43f5e]', 'bg' => 'bg-[#f43f5e]/10', 'label' => 'Anak Ke', 'val' => $profil?->child_order ? 'Ke-' . $profil->child_order : '-'],
+                            ['icon' => 'users', 'color' => 'text-[#0ea5e9]', 'bg' => 'bg-[#0ea5e9]/10', 'label' => 'Jml. Saudara', 'val' => $profil?->number_of_siblings ?? '-'],
+                            ];
+                            @endphp
+                            @foreach($rows1 as $r)
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#eff2f7]/60">
+                                <div class="w-8 h-8 rounded-xl {{ $r['bg'] }} flex items-center justify-center shrink-0">
+                                    <i data-lucide="{{ $r['icon'] }}" class="w-4 h-4 {{ $r['color'] }}"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] text-[#6a7686]">{{ $r['label'] }}</p>
+                                    <p class="text-xs font-semibold truncate">{{ $r['val'] }}</p>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Section: Fisik & Kesehatan -->
+                    @if($profil?->height || $profil?->weight || $profil?->medical_history)
+                    <div>
+                        <p class="text-[11px] font-bold text-[#6a7686] uppercase tracking-widest mb-3">Fisik & Kesehatan</p>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#eff2f7]/60">
+                                <div class="w-8 h-8 rounded-xl bg-[#30b22d]/10 flex items-center justify-center shrink-0">
+                                    <i data-lucide="ruler" class="w-4 h-4 text-[#30b22d]"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] text-[#6a7686]">Tinggi</p>
+                                    <p class="text-xs font-semibold">{{ $profil->height ? $profil->height . ' cm' : '-' }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#eff2f7]/60">
+                                <div class="w-8 h-8 rounded-xl bg-[#f59e0b]/10 flex items-center justify-center shrink-0">
+                                    <i data-lucide="weight" class="w-4 h-4 text-[#f59e0b]"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] text-[#6a7686]">Berat</p>
+                                    <p class="text-xs font-semibold">{{ $profil->weight ? $profil->weight . ' kg' : '-' }}</p>
+                                </div>
+                            </div>
+                            @if($profil?->medical_history)
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#eff2f7]/60">
+                                <div class="w-8 h-8 rounded-xl bg-[#ef4444]/10 flex items-center justify-center shrink-0">
+                                    <i data-lucide="stethoscope" class="w-4 h-4 text-[#ef4444]"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] text-[#6a7686]">Riwayat Sakit</p>
+                                    <p class="text-xs font-semibold truncate">{{ $profil->medical_history }}</p>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Section: Pendidikan Sebelumnya -->
+                    <div>
+                        <p class="text-[11px] font-bold text-[#6a7686] uppercase tracking-widest mb-3">Pendidikan Sebelumnya</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            @php
+                            $rows2 = [
+                            ['icon' => 'school', 'color' => 'text-[#0ea5e9]', 'bg' => 'bg-[#0ea5e9]/10', 'label' => 'Asal Sekolah', 'val' => $profil?->previous_school ?? '-'],
+                            ['icon' => 'map-pin', 'color' => 'text-[#f59e0b]', 'bg' => 'bg-[#f59e0b]/10', 'label' => 'Kota Sekolah', 'val' => $profil?->previous_school_city ?? '-'],
+                            ['icon' => 'building-2', 'color' => 'text-[#8b5cf6]', 'bg' => 'bg-[#8b5cf6]/10', 'label' => 'Status Sekolah', 'val' => $profil?->previous_school_status ?? '-'],
+                            ['icon' => 'graduation-cap', 'color' => 'text-[#30b22d]', 'bg' => 'bg-[#30b22d]/10', 'label' => 'Tahun Lulus', 'val' => $profil?->graduation_year ?? '-'],
+                            ];
+                            @endphp
+                            @foreach($rows2 as $r)
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#eff2f7]/60">
+                                <div class="w-8 h-8 rounded-xl {{ $r['bg'] }} flex items-center justify-center shrink-0">
+                                    <i data-lucide="{{ $r['icon'] }}" class="w-4 h-4 {{ $r['color'] }}"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] text-[#6a7686]">{{ $r['label'] }}</p>
+                                    <p class="text-xs font-semibold truncate">{{ $r['val'] }}</p>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Section: Minat & Bakat -->
+                    @if($profil?->interest_art || $profil?->interest_sport || $profil?->interest_organization || $profil?->extracurricular_choice)
+                    <div>
+                        <p class="text-[11px] font-bold text-[#6a7686] uppercase tracking-widest mb-3">Minat & Bakat</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            @php
+                            $minat = [
+                            ['icon' => 'music', 'color' => 'text-[#ec4899]', 'bg' => 'bg-[#ec4899]/10', 'label' => 'Seni', 'val' => $profil->interest_art],
+                            ['icon' => 'trophy', 'color' => 'text-[#f59e0b]', 'bg' => 'bg-[#f59e0b]/10', 'label' => 'Olahraga', 'val' => $profil->interest_sport],
+                            ['icon' => 'landmark', 'color' => 'text-[#8b5cf6]', 'bg' => 'bg-[#8b5cf6]/10', 'label' => 'Organisasi', 'val' => $profil->interest_organization],
+                            ['icon' => 'star', 'color' => 'text-[#0ea5e9]', 'bg' => 'bg-[#0ea5e9]/10', 'label' => 'Ekskul Pilihan', 'val' => $profil->extracurricular_choice],
+                            ];
+                            @endphp
+                            @foreach($minat as $m)
+                            @if($m['val'])
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#eff2f7]/60">
+                                <div class="w-8 h-8 rounded-xl {{ $m['bg'] }} flex items-center justify-center shrink-0">
+                                    <i data-lucide="{{ $m['icon'] }}" class="w-4 h-4 {{ $m['color'] }}"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] text-[#6a7686]">{{ $m['label'] }}</p>
+                                    <p class="text-xs font-semibold truncate">{{ $m['val'] }}</p>
+                                </div>
+                            </div>
+                            @endif
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Section: Status Pendaftaran -->
+                    <div>
+                        <p class="text-[11px] font-bold text-[#6a7686] uppercase tracking-widest mb-3">Status Pendaftaran</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#eff2f7]/60">
+                                <div class="w-8 h-8 rounded-xl bg-[#f59e0b]/10 flex items-center justify-center shrink-0">
+                                    <i data-lucide="route" class="w-4 h-4 text-[#f59e0b]"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] text-[#6a7686]">Jalur Masuk</p>
+                                    <p class="text-xs font-semibold truncate">{{ $jalurMasuk }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#eff2f7]/60">
+                                <div class="w-8 h-8 rounded-xl bg-[#30b22d]/10 flex items-center justify-center shrink-0">
+                                    <i data-lucide="shield-check" class="w-4 h-4 text-[#30b22d]"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] text-[#6a7686]">Status Berkas</p>
+                                    <p class="text-xs font-semibold truncate {{ $veriColor ?? 'text-[#92400e]' }}">{{ $verificationStatus ?? 'Menunggu' }}</p>
+                                </div>
+                            </div>
+                            <div class="col-span-2 flex items-center gap-3 p-3 rounded-xl bg-[#eff2f7]/60">
+                                <div class="w-8 h-8 rounded-xl bg-[#f59e0b]/10 flex items-center justify-center shrink-0">
+                                    <i data-lucide="clock-3" class="w-4 h-4 text-[#f59e0b]"></i>
+                                </div>
+                                <div class="flex-1 flex items-center justify-between gap-2">
+                                    <p class="text-[10px] text-[#6a7686]">Terakhir Diperbarui</p>
+                                    <p class="text-xs font-semibold">{{ $updatedAt }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-[#e5e7eb] shrink-0 flex justify-end">
+                <button @click="open = false" class="flex items-center gap-2 rounded-xl bg-[#eff2f7] hover:bg-[#e5e7eb] text-[#080c1a] px-5 py-2.5 text-sm font-semibold transition-colors cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    Tutup
+                </button>
+            </div>
+
+        </div>
+    </div>
 
     <!-- ═══════════════════════════════════════════
        PERSYARATAN DAFTAR ULANG
@@ -507,7 +902,8 @@
                     <span class="shrink-0 text-xs font-bold bg-[#eff2f7] text-[#6a7686] px-3 py-1 rounded-full">9 Berkas</span>
                 </div>
 
-                <div class="divide-y divide-[#eff2f7] flex-1">
+                <div class="flex flex-col flex-1">
+
                     @php
                     $berkas = [
                     ['icon' => 'printer', 'color' => 'text-[#ff1443]', 'bg' => 'bg-[#ff1443]/10', 'label' => 'Bukti Daftar Ulang', 'desc' => 'Download & cetak'],
@@ -521,18 +917,39 @@
                     ['icon' => 'camera', 'color' => 'text-[#6366f1]', 'bg' => 'bg-[#6366f1]/10', 'label' => 'Pas Foto Berwarna 3×4', 'desc' => '3 lembar'],
                     ];
                     @endphp
-                    @foreach($berkas as $item)
-                    <div class="flex items-center gap-3 px-5 py-3.5 hover:bg-[#eff2f7]/40 transition-colors">
-                        <div class="w-9 h-9 rounded-xl {{ $item['bg'] }} flex items-center justify-center shrink-0">
-                            <i data-lucide="{{ $item['icon'] }}" class="w-4 h-4 {{ $item['color'] }}"></i>
+
+                    <div class="flex flex-col flex-1 divide-y divide-[#eff2f7]">
+
+                        @foreach($berkas as $item)
+                        <div
+                            class="flex flex-1 items-center gap-4 px-5 py-3 hover:bg-[#f8fafc] transition-all duration-200">
+
+                            <div
+                                class="w-10 h-10 rounded-xl {{ $item['bg'] }} flex items-center justify-center shrink-0">
+                                <i data-lucide="{{ $item['icon'] }}"
+                                    class="w-4 h-4 {{ $item['color'] }}"></i>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-semibold text-[#080c1a] leading-tight">
+                                    {{ $item['label'] }}
+                                </h4>
+
+                                <p class="text-xs text-[#6a7686] mt-1">
+                                    {{ $item['desc'] }}
+                                </p>
+                            </div>
+
+                            <div
+                                class="w-7 h-7 rounded-full bg-[#eff2f7] flex items-center justify-center text-xs font-bold text-[#6a7686] shrink-0">
+                                {{ $loop->iteration }}
+                            </div>
+
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-[#080c1a] leading-tight">{{ $item['label'] }}</p>
-                            <p class="text-xs text-[#6a7686] mt-0.5">{{ $item['desc'] }}</p>
-                        </div>
-                        <span class="shrink-0 min-w-[26px] h-[26px] px-2 rounded-full bg-[#eff2f7] flex items-center justify-center text-xs font-semibold text-[#6a7686]">{{ $loop->iteration }}</span>
+                        @endforeach
+
                     </div>
-                    @endforeach
+
                 </div>
             </div>
 
@@ -561,6 +978,7 @@
 
                     <div class="flex flex-col flex-1 gap-3">
 
+                        <!-- DPIB -->
                         <div class="flex-1 flex items-center gap-4 p-4 rounded-2xl border border-[#fde68a] bg-[#fef9c3]">
                             <div class="w-11 h-11 rounded-xl bg-[#f59e0b] flex items-center justify-center shrink-0 shadow-sm">
                                 <i data-lucide="folder" class="w-5 h-5 text-white"></i>
@@ -572,35 +990,62 @@
                             <span class="w-3.5 h-3.5 rounded-full bg-[#f59e0b] shrink-0"></span>
                         </div>
 
+                        <!-- TEI -->
+                        <div class="flex-1 flex items-center gap-4 p-4 rounded-2xl border border-[#d6c1a5] bg-[#f5ede4]">
+                            <div class="w-11 h-11 rounded-xl bg-[#8b5e3c] flex items-center justify-center shrink-0 shadow-sm">
+                                <i data-lucide="folder" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-[#6f4e37]/70 font-medium">Warna Coklat</p>
+                                <p class="font-bold text-sm text-[#6f4e37]">TEI</p>
+                            </div>
+                            <span class="w-3.5 h-3.5 rounded-full bg-[#8b5e3c] shrink-0"></span>
+                        </div>
+
+                        <!-- TITL / TPTL -->
                         <div class="flex-1 flex items-center gap-4 p-4 rounded-2xl border border-[#fecaca] bg-[#fef2f2]">
                             <div class="w-11 h-11 rounded-xl bg-[#ff1443] flex items-center justify-center shrink-0 shadow-sm">
                                 <i data-lucide="folder" class="w-5 h-5 text-white"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-xs text-[#991b1b]/70 font-medium">Warna Merah</p>
-                                <p class="font-bold text-sm text-[#991b1b]">TEI, TITL, TKJ</p>
+                                <p class="font-bold text-sm text-[#991b1b]">TITL & TPTL</p>
                             </div>
                             <span class="w-3.5 h-3.5 rounded-full bg-[#ff1443] shrink-0"></span>
                         </div>
 
+                        <!-- TKJ -->
+                        <div class="flex-1 flex items-center gap-4 p-4 rounded-2xl border border-[#d1d5db] bg-white">
+                            <div class="w-11 h-11 rounded-xl bg-white border-2 border-[#d1d5db] flex items-center justify-center shrink-0 shadow-sm">
+                                <i data-lucide="folder" class="w-5 h-5 text-[#6b7280]"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-[#6b7280] font-medium">Warna Putih</p>
+                                <p class="font-bold text-sm text-[#374151]">TKJ</p>
+                            </div>
+                            <span class="w-3.5 h-3.5 rounded-full bg-white border border-[#9ca3af] shrink-0"></span>
+                        </div>
+
+                        <!-- TKR / TSM -->
                         <div class="flex-1 flex items-center gap-4 p-4 rounded-2xl border border-[#bbf7d0] bg-[#f0fdf4]">
                             <div class="w-11 h-11 rounded-xl bg-[#30b22d] flex items-center justify-center shrink-0 shadow-sm">
                                 <i data-lucide="folder" class="w-5 h-5 text-white"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-xs text-[#166534]/70 font-medium">Warna Hijau</p>
-                                <p class="font-bold text-sm text-[#166534]">TKR, TSM</p>
+                                <p class="font-bold text-sm text-[#166534]">TKR & TSM</p>
                             </div>
                             <span class="w-3.5 h-3.5 rounded-full bg-[#30b22d] shrink-0"></span>
                         </div>
 
+                        <!-- TM / TLAS -->
                         <div class="flex-1 flex items-center gap-4 p-4 rounded-2xl border border-[#bfdbfe] bg-[#eff6ff]">
                             <div class="w-11 h-11 rounded-xl bg-[#3b82f6] flex items-center justify-center shrink-0 shadow-sm">
                                 <i data-lucide="folder" class="w-5 h-5 text-white"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-xs text-[#1e40af]/70 font-medium">Warna Biru</p>
-                                <p class="font-bold text-sm text-[#1e40af]">TM, TLAS</p>
+                                <p class="font-bold text-sm text-[#1e40af]">TM & TLAS</p>
                             </div>
                             <span class="w-3.5 h-3.5 rounded-full bg-[#3b82f6] shrink-0"></span>
                         </div>
@@ -625,6 +1070,55 @@
         <div class="grid xl:grid-cols-5 gap-6">
 
             <!-- Checklist Kelengkapan Data -->
+            @php
+            $pd = $personalData;
+            $isFinal = $pd?->profile_status === 'final';
+
+            // 1. Data Pribadi (Asumsi minimal nama, nisn, dan gender terisi)
+            $isDataPribadiDone = $pd && $pd->full_name && $pd->nisn_hash && $pd->gender;
+            $dataPribadiStatus = $isDataPribadiDone ? 'Selesai' : ($pd ? 'Sedang diisi' : 'Belum diisi');
+            $dataPribadiState = $isDataPribadiDone ? 'done' : ($pd ? 'progress' : 'empty');
+
+            // 2. Alamat (Asumsi minimal alamat dan kecamatan terisi)
+            $isAlamatDone = $pd && $pd->address_encrypted && $pd->district_encrypted;
+            $alamatStatus = $isAlamatDone ? 'Selesai' : ($pd && $pd->address_encrypted ? 'Sedang diisi' : 'Belum diisi');
+            $alamatState = $isAlamatDone ? 'done' : ($pd && $pd->address_encrypted ? 'progress' : 'empty');
+
+            // 3. Orang Tua (Berdasarkan count parent data)
+            $isOrtuDone = $parentDataCount >= 2;
+            $ortuStatus = $isOrtuDone ? 'Selesai' : ($parentDataCount == 1 ? 'Kurang 1 data' : 'Belum diisi');
+            $ortuState = $isOrtuDone ? 'done' : ($parentDataCount == 1 ? 'progress' : 'empty');
+
+            // 4. Pendidikan (Asumsi asal sekolah dan tahun lulus terisi)
+            $isPendidikanDone = $pd && $pd->previous_school && $pd->graduation_year;
+            $pendidikanStatus = $isPendidikanDone ? 'Selesai' : ($pd && $pd->previous_school ? 'Sedang diisi' : 'Belum diisi');
+            $pendidikanState = $isPendidikanDone ? 'done' : ($pd && $pd->previous_school ? 'progress' : 'empty');
+
+            // 5. Pas Foto
+            $isFotoDone = !empty($pd?->photo);
+            $fotoStatus = $isFotoDone ? 'Selesai' : 'Belum diupload';
+            $fotoState = $isFotoDone ? 'done' : 'empty';
+
+            // 6 & 7. Surat Pernyataan & Formulir Data Pribadi (Hanya aktif jika final)
+            $isSuratDone = $isFinal;
+            $suratStatus = $isSuratDone ? 'Siap download' : 'Belum siap download';
+            $suratState = $isSuratDone ? 'done' : 'empty';
+
+            $checklistItems = [
+            ['icon' => 'user', 'label' => 'Data Pribadi', 'state' => $dataPribadiState, 'status' => $dataPribadiStatus],
+            ['icon' => 'map-pin', 'label' => 'Alamat', 'state' => $alamatState, 'status' => $alamatStatus],
+            ['icon' => 'users', 'label' => 'Orang Tua', 'state' => $ortuState, 'status' => $ortuStatus],
+            ['icon' => 'graduation-cap', 'label' => 'Pendidikan', 'state' => $pendidikanState, 'status' => $pendidikanStatus],
+            ['icon' => 'camera', 'label' => 'Pas Foto', 'state' => $fotoState, 'status' => $fotoStatus],
+            ['icon' => 'file-signature', 'label' => 'Surat Pernyataan', 'state' => $suratState, 'status' => $suratStatus],
+            ['icon' => 'file-down', 'label' => 'Formulir Data Pribadi', 'state' => $suratState, 'status' => $suratStatus],
+            ];
+
+            $doneCount = collect($checklistItems)->where('state', 'done')->count();
+            $totalChecklist = count($checklistItems);
+            $checklistPct = round(($doneCount / $totalChecklist) * 100);
+            @endphp
+
             <div class="xl:col-span-2 bg-white rounded-2xl border border-[#e5e7eb] flex flex-col">
 
                 <div class="p-6 border-b border-[#e5e7eb] flex items-center justify-between">
@@ -635,109 +1129,88 @@
                         </div>
                         <p class="text-sm text-[#6a7686] mt-0.5">Pantau status pengisian data pribadi Anda.</p>
                     </div>
-                    <span class="text-[11px] font-bold bg-[#ff1443]/10 text-[#ff1443] px-3 py-1 rounded-full shrink-0">1 / 7 Selesai</span>
+                    <span class="text-[11px] font-bold bg-[#ff1443]/10 text-[#ff1443] px-3 py-1 rounded-full shrink-0">
+                        {{ $doneCount }} / {{ $totalChecklist }} Selesai
+                    </span>
                 </div>
 
                 <div class="px-5 pt-4 pb-3">
                     <div class="flex justify-between text-xs text-[#6a7686] mb-1.5">
                         <span>Kelengkapan data</span>
-                        <span class="font-bold text-[#080c1a]">14%</span>
+                        <span class="font-bold text-[#080c1a]">{{ $checklistPct }}%</span>
                     </div>
                     <div class="h-2 rounded-full bg-[#eff2f7]">
-                        <div class="h-2 rounded-full bg-gradient-to-r from-[#f59e0b] to-[#30b22d] progress-bar" style="width:14%"></div>
+                        <div class="h-2 rounded-full bg-gradient-to-r from-[#f59e0b] to-[#30b22d] progress-bar transition-all duration-500" style="width: {{ $checklistPct }}%"></div>
                     </div>
                 </div>
 
                 <div class="divide-y divide-[#eff2f7] flex-1">
+                    @foreach($checklistItems as $item)
+                    @php
+                    // State: EMPTY (Belum diisi)
+                    if($item['state'] === 'empty') {
+                    $wrapperBg = 'bg-[#fee2e2]/30 hover:bg-[#fee2e2]/70';
+                    $iconBg = 'bg-[#eff2f7]';
+                    $iconColor = 'text-[#6a7686]';
+                    $titleColor = 'text-[#6a7686]';
+                    $statusColor = 'text-[#ed6b60]';
+                    }
+                    // State: PROGRESS (Sedang diisi)
+                    elseif($item['state'] === 'progress') {
+                    $wrapperBg = 'bg-[#fef9c3]/40 hover:bg-[#fef9c3]/80';
+                    $iconBg = 'bg-[#fef9c3]';
+                    $iconColor = 'text-[#f59e0b]';
+                    $titleColor = 'text-[#080c1a]';
+                    $statusColor = 'text-[#f59e0b]';
+                    }
+                    // State: DONE (Selesai)
+                    else {
+                    $wrapperBg = 'hover:bg-[#dcfce7]/40';
+                    $iconBg = 'bg-[#dcfce7]';
+                    $iconColor = 'text-[#30b22d]';
+                    $titleColor = 'text-[#080c1a]';
+                    $statusColor = 'text-[#166534]';
+                    }
+                    @endphp
 
-                    <div class="flex items-center gap-3 px-5 py-3.5 bg-[#fef9c3]/40 hover:bg-[#fef9c3]/80 transition-colors duration-200 cursor-pointer group">
-                        <div class="w-8 h-8 rounded-xl bg-[#fef9c3] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200">
-                            <i data-lucide="user" class="w-4 h-4 text-[#f59e0b]"></i>
+                    <div class="flex items-center gap-3 px-5 py-3.5 {{ $wrapperBg }} transition-colors duration-200 cursor-pointer group">
+                        <div class="w-8 h-8 rounded-xl {{ $iconBg }} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200">
+                            <i data-lucide="{{ $item['icon'] }}" class="w-4 h-4 {{ $iconColor }}"></i>
                         </div>
+
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold leading-tight text-[#080c1a]">Data Pribadi</p>
-                            <p class="text-[11px] text-[#f59e0b] font-medium mt-0.5">Sedang diisi</p>
+                            <p class="text-sm font-semibold leading-tight {{ $titleColor }}">{{ $item['label'] }}</p>
+                            <p class="text-[11px] {{ $statusColor }} font-medium mt-0.5">{{ $item['status'] }}</p>
                         </div>
+
+                        @if($item['state'] === 'empty')
+                        <div class="w-6 h-6 rounded-full border-2 border-dashed border-[#ed6b60] shrink-0"></div>
+                        @elseif($item['state'] === 'progress')
                         <div class="w-6 h-6 rounded-full border-2 border-dashed border-[#f59e0b] flex items-center justify-center shrink-0">
                             <div class="w-2 h-2 rounded-full bg-[#f59e0b]"></div>
                         </div>
-                    </div>
-
-                    <div class="flex items-center gap-3 px-5 py-3.5 bg-[#fee2e2]/30 hover:bg-[#fee2e2]/70 transition-colors duration-200 cursor-pointer group">
-                        <div class="w-8 h-8 rounded-xl bg-[#eff2f7] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-[#6a7686]"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold leading-tight text-[#6a7686]">Alamat</p>
-                            <p class="text-[11px] text-[#ed6b60] mt-0.5">Belum diisi</p>
-                        </div>
-                        <div class="w-6 h-6 rounded-full border-2 border-dashed border-[#ed6b60] shrink-0"></div>
-                    </div>
-
-                    <div class="flex items-center gap-3 px-5 py-3.5 bg-[#fee2e2]/30 hover:bg-[#fee2e2]/70 transition-colors duration-200 cursor-pointer group">
-                        <div class="w-8 h-8 rounded-xl bg-[#eff2f7] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200">
-                            <i data-lucide="users" class="w-4 h-4 text-[#6a7686]"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold leading-tight text-[#6a7686]">Orang Tua</p>
-                            <p class="text-[11px] text-[#ed6b60] mt-0.5">Belum diisi</p>
-                        </div>
-                        <div class="w-6 h-6 rounded-full border-2 border-dashed border-[#ed6b60] shrink-0"></div>
-                    </div>
-
-                    <div class="flex items-center gap-3 px-5 py-3.5 bg-[#fee2e2]/30 hover:bg-[#fee2e2]/70 transition-colors duration-200 cursor-pointer group">
-                        <div class="w-8 h-8 rounded-xl bg-[#eff2f7] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200">
-                            <i data-lucide="graduation-cap" class="w-4 h-4 text-[#6a7686]"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold leading-tight text-[#6a7686]">Pendidikan</p>
-                            <p class="text-[11px] text-[#ed6b60] mt-0.5">Belum diisi</p>
-                        </div>
-                        <div class="w-6 h-6 rounded-full border-2 border-dashed border-[#ed6b60] shrink-0"></div>
-                    </div>
-
-                    <div class="flex items-center gap-3 px-5 py-3.5 bg-[#fee2e2]/30 hover:bg-[#fee2e2]/70 transition-colors duration-200 cursor-pointer group">
-                        <div class="w-8 h-8 rounded-xl bg-[#eff2f7] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200">
-                            <i data-lucide="camera" class="w-4 h-4 text-[#6a7686]"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold leading-tight text-[#6a7686]">Pas Foto</p>
-                            <p class="text-[11px] text-[#ed6b60] mt-0.5">Belum diupload</p>
-                        </div>
-                        <div class="w-6 h-6 rounded-full border-2 border-dashed border-[#ed6b60] shrink-0"></div>
-                    </div>
-
-                    <div class="flex items-center gap-3 px-5 py-3.5 bg-[#fee2e2]/30 hover:bg-[#fee2e2]/70 transition-colors duration-200 cursor-pointer group">
-                        <div class="w-8 h-8 rounded-xl bg-[#eff2f7] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200">
-                            <i data-lucide="file-signature" class="w-4 h-4 text-[#6a7686]"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold leading-tight text-[#6a7686]">Surat Pernyataan</p>
-                            <p class="text-[11px] text-[#ed6b60] mt-0.5">Belum siap download</p>
-                        </div>
-                        <div class="w-6 h-6 rounded-full border-2 border-dashed border-[#ed6b60] shrink-0"></div>
-                    </div>
-
-                    <div class="flex items-center gap-3 px-5 py-3.5 hover:bg-[#dcfce7]/40 transition-colors duration-200 cursor-pointer group">
-                        <div class="w-8 h-8 rounded-xl bg-[#dcfce7] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200">
-                            <i data-lucide="file-down" class="w-4 h-4 text-[#30b22d]"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold leading-tight text-[#080c1a]">Formulir Data Pribadi</p>
-                            <p class="text-[11px] text-[#166534] font-medium mt-0.5">Siap download</p>
-                        </div>
+                        @else
                         <div class="w-6 h-6 rounded-full bg-[#30b22d] flex items-center justify-center shrink-0 group-hover:bg-[#166534] transition-colors duration-200">
                             <i data-lucide="check" class="w-3 h-3 text-white"></i>
                         </div>
+                        @endif
                     </div>
-
+                    @endforeach
                 </div>
 
                 <div class="p-4 border-t border-[#e5e7eb]">
-                    <button class="w-full flex items-center justify-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white py-2.5 text-sm font-bold transition-all duration-200 cursor-pointer">
+                    @if($doneCount === $totalChecklist)
+                    <button class="w-full flex items-center justify-center gap-2 rounded-xl bg-[#30b22d] hover:bg-[#166534] text-white py-2.5 text-sm font-bold transition-all duration-200 cursor-pointer">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        Seluruh Data Lengkap
+                    </button>
+                    @else
+                    <a href="{{ route('biodata') }}"
+                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white py-2.5 text-sm font-bold transition-all duration-200">
                         <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
                         Lanjutkan Pengisian
-                    </button>
+                    </a>
+                    @endif
                 </div>
 
             </div>
@@ -803,7 +1276,7 @@
                             </div>
                             <span class="text-[10px] font-bold bg-[#30b22d]/10 text-[#166534] px-2 py-0.5 rounded-full">Tersedia</span>
                         </div>
-                        <p class="font-bold text-[#080c1a]">Formulir Daftar Ulang</p>
+                        <p class="font-bold text-[#080c1a]">Formulir Data Pribadi</p>
                         <p class="text-xs text-[#6a7686] mt-1 leading-5">Formulir PDF lengkap untuk proses daftar ulang.</p>
                         <div class="mt-auto pt-4 flex items-center gap-1 text-xs font-bold text-[#ff1443] group-hover:gap-2 transition-all duration-200">
                             <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh PDF
@@ -972,6 +1445,96 @@
 
     </section>
 
+    <!-- Modal Konfirmasi -->
+
+    <div
+        x-data="{ open: false }"
+        @open-modal-konfirmasi.window="open = true"
+        x-show="open"
+        x-cloak
+        class="fixed inset-0 z-[999] flex items-center justify-center p-4"
+        style="display: none;">
+
+        <div
+            class="absolute inset-0 bg-[#080c1a]/60 backdrop-blur-sm"
+            @click="open = false"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0">
+        </div>
+
+        <div
+            class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95">
+
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 rounded-full bg-[#30b22d]/10 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="check-circle-2" class="w-8 h-8 text-[#30b22d]"></i>
+                </div>
+                <h3 class="font-bold text-xl text-[#080c1a] mb-2">Konfirmasi Daftar Ulang</h3>
+                <p class="text-sm text-[#6a7686]">
+                    Data profil Anda sudah lengkap (Final). Apakah Anda yakin ingin mengonfirmasi proses daftar ulang saat ini?
+                </p>
+            </div>
+
+            <form action="{{ route('daftar-ulang.konfirmasi') }}" method="POST" class="p-6 pt-0 flex gap-3 w-full">
+                @csrf
+
+                <button type="button" @click="open = false" class="flex-1 px-4 py-2.5 rounded-xl border border-[#e5e7eb] text-[#6a7686] font-semibold hover:bg-[#eff2f7] transition-colors cursor-pointer">
+                    Batal
+                </button>
+
+                <button type="submit" class="flex-1 px-4 py-2.5 rounded-xl bg-[#30b22d] text-white font-semibold hover:bg-[#166534] transition-colors cursor-pointer">
+                    Ya, Konfirmasi
+                </button>
+            </form>
+        </div>
+    </div>
+
 </div><!-- /max-w-7xl -->
 
 @endsection
+
+@push('scripts')
+<script>
+    function countdownDaftarUlang(deadline) {
+        return {
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            expired: false,
+            init() {
+                const target = deadline ? new Date(deadline).getTime() : null;
+                if (!target || isNaN(target)) {
+                    this.expired = true;
+                    return;
+                }
+                const tick = () => {
+                    const dist = target - Date.now();
+                    if (dist <= 0) {
+                        this.days = this.hours = this.minutes = this.seconds = 0;
+                        this.expired = true;
+                        return;
+                    }
+                    this.expired = false;
+                    this.days = Math.floor(dist / 86400000);
+                    this.hours = Math.floor((dist % 86400000) / 3600000);
+                    this.minutes = Math.floor((dist % 3600000) / 60000);
+                    this.seconds = Math.floor((dist % 60000) / 1000);
+                };
+                tick();
+                setInterval(tick, 1000);
+            }
+        };
+    }
+</script>
+@endpush
