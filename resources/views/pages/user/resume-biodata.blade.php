@@ -513,16 +513,96 @@
                     </div>
                     @endif
 
-                    <div class="flex gap-3 items-center flex-wrap justify-between">
+                    {{-- Container tombol aksi di bagian bawah file resume-biodata.blade.php --}}
+                    <div class="flex gap-3 items-center flex-wrap justify-between" x-data="{ openConfirmModal: false }">
                         <a href="{{ route('dashboard') }}"
                             class="inline-flex items-center gap-[7px] px-[22px] py-[11px] rounded-full font-sans text-[13px] font-bold no-underline bg-white text-[#080C1A] border-[1.5px] border-[#E5E7EB] hover:border-[#080C1A] hover:-translate-y-px transition-all">
                             <i class="fa-solid fa-gauge"></i>Kembali ke Dashboard
                         </a>
+
+                        @if(isset($isReRegistrationActive) && $isReRegistrationActive)
+                        <button type="button" @click="openConfirmModal = true"
+                            class="inline-flex items-center gap-[7px] px-[22px] py-[11px] rounded-full font-sans text-[13px] font-bold bg-[#FF1443] text-white shadow-[0_4px_14px_rgba(255,20,67,0.25)] hover:bg-[#c90e33] hover:-translate-y-[2px] transition-all cursor-pointer">
+                            <i class="fa-solid fa-user-check text-[13px]"></i> Daftar Ulang
+                        </button>
+                        @else
                         <button class="inline-flex items-center gap-[7px] px-[22px] py-[11px] rounded-full font-sans text-[13px] font-bold bg-[#30B22D] text-white shadow-[0_4px_14px_rgba(48,178,45,0.25)] hover:bg-[#27A024] hover:-translate-y-[2px] transition-all cursor-pointer disabled:opacity-[0.45] disabled:cursor-not-allowed disabled:transform-none"
                             id="regBtn" disabled onclick="submitRegistration()"
                             data-can-register="{{ $canRegister ? 'true' : 'false' }}">
                             <i class="fa-solid fa-rotate-right text-[13px]"></i> Lanjut ke Pendaftaran
                         </button>
+                        @endif
+
+                        {{-- MODAL KONFIRMASI DAFTAR ULANG --}}
+                        <template x-teleport="body">
+                            <div x-show="openConfirmModal"
+                                class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                                style="display: none;">
+
+                                {{-- Backdrop Overlay (Flat, Tanpa Blur, Tanpa Efek Animasi) --}}
+                                <div class="fixed inset-0 bg-black/60" @click="openConfirmModal = false"></div>
+
+                                {{-- Kotak Modal Konfirmasi Khas Komponen Profesional --}}
+                                <div class="relative bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl z-[10000] font-sans text-left border border-gray-100">
+
+                                    {{-- Konten Utama: Guntingan Baris Kiri Ikon & Kanan Teks --}}
+                                    <div class="flex items-start gap-4">
+                                        {{-- Wadah Ikon Peringatan (Kuning/Oranye Khas Konfirmasi) --}}
+                                        <div class="flex-shrink-0 w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center">
+                                            <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                                        </div>
+
+                                        {{-- Pesan Konfirmasi --}}
+                                        <div class="flex-1">
+                                            <h3 class="text-lg font-bold text-[#080C1A] leading-6">
+                                                Konfirmasi Pendaftaran Ulang
+                                            </h3>
+                                            <p class="text-sm text-[#6A7686] mt-2 leading-relaxed">
+                                                Apakah Anda yakin ingin menyelesaikan proses ini? Tindakan ini akan mengunci seluruh data dokumen fisik Anda ke sistem akademik SPMB. Berkas yang telah dikirim tidak dapat diubah kembali.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {{-- Baris Tombol Aksi (Rata Kanan di Bagian Bawah) --}}
+                                    <div class="flex items-center justify-end gap-2.5 mt-6 pt-4 border-t border-gray-100">
+                                        {{-- Tombol Batal --}}
+                                        <button type="button" @click="openConfirmModal = false"
+                                            class="px-4 py-2 bg-white hover:bg-gray-50 text-[#080C1A] border border-gray-200 rounded-xl text-xs font-semibold transition-all cursor-pointer">
+                                            Batal
+                                        </button>
+
+                                        {{-- Tombol Eksekusi Post --}}
+                                        <button type="button"
+                                            @click="
+                                                fetch('{{ route('biodata.re_registration.submit') }}', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                                    }
+                                                })
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    if (data.success) {
+                                                        window.location.href = data.redirect;
+                                                    } else {
+                                                        alert(data.message);
+                                                        openConfirmModal = false;
+                                                    }
+                                                })
+                                                .catch(error => {
+                                                    console.error('Error:', error);
+                                                    alert('Terjadi kendala koneksi sistem.');
+                                                });
+                                            "
+                                            class="px-4 py-2 bg-[#FF1443] hover:bg-[#c90e33] text-white rounded-xl text-xs font-semibold transition-all shadow-sm cursor-pointer">
+                                            Ya, Daftar Ulang
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>

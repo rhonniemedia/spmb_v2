@@ -72,4 +72,10 @@ class SelectionResult extends Model
     {
         return $query->where('status', 'accepted');
     }
+
+    public function registrationData()
+    {
+        // Pastikan memanggil class model yang benar (misal: RegistrationData::class atau Registration::class)
+        return $this->belongsTo(RegistrationData::class, 'registration_id');
+    }
 }

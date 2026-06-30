@@ -104,19 +104,61 @@
 
             <!-- Status badge -->
             @php
-            $isReRegistered = $reRegistrationData['isConfirmed'] ?? false;
-            $statusBadgeBg = $isReRegistered ? 'bg-[#dcfce7] border-[#30b22d]/30' : 'bg-[#fef9c3] border-[#f59e0b]/30';
-            $statusIconBg = $isReRegistered ? 'bg-[#30b22d]/20' : 'bg-[#f59e0b]/20';
-            $statusIconColor = $isReRegistered ? 'text-[#30b22d]' : 'text-[#f59e0b]';
-            $statusIcon = $isReRegistered ? 'check-circle-2' : 'clock-4';
-            $statusTitle = $isReRegistered ? 'Sudah Registrasi Ulang' : 'Belum Registrasi Ulang';
-            $statusDesc = $isReRegistered
-            ? 'Berkas Anda sedang dalam proses verifikasi oleh panitia.'
-            : 'Selesaikan semua checklist untuk melengkapi daftar ulang.';
-            $statusTextColor = $isReRegistered ? 'text-[#166534]' : 'text-[#92400e]';
-            $statusSubColor = $isReRegistered ? 'text-[#166534]/70' : 'text-[#92400e]/70';
-            $badgeBg = $isReRegistered ? 'bg-[#30b22d]' : 'bg-[#f59e0b]';
-            $badgeLabel = $isReRegistered ? 'Selesai' : 'Segera';
+            // Ambil objek model ReRegistrationData dari controller
+            $reReg = $reRegistrationData['reReg'] ?? null;
+            $isConfirmed = $reRegistrationData['isConfirmed'] ?? false;
+            $dataStatus = $reReg?->data_status ?? 'incomplete';
+            $veriStatus = $reReg?->verification_status ?? 'pending';
+
+            if ($veriStatus === 'verified') {
+            // TEMA BIRU: Jika diverifikasi panitia
+            $statusBadgeBg = 'bg-[#eff6ff] border-[#3b82f6]/30';
+            $statusIconBg = 'bg-[#3b82f6]/20';
+            $statusIconColor = 'text-[#3b82f6]';
+            $statusIcon = 'shield-check';
+            $statusTitle = 'Registrasi Ulang Terverifikasi';
+            $statusDesc = 'Selamat! Seluruh berkas daftar ulang Anda telah disetujui panitia.';
+            $statusTextColor = 'text-[#1e40af]';
+            $statusSubColor = 'text-[#1e40af]/70';
+            $badgeBg = 'bg-[#3b82f6]';
+            $badgeLabel = 'Selesai';
+            } elseif ($dataStatus === 'complete') {
+            // TEMA HIJAU: Jika form selesai tapi belum/sedang diverifikasi
+            $statusBadgeBg = 'bg-[#dcfce7] border-[#30b22d]/30';
+            $statusIconBg = 'bg-[#30b22d]/20';
+            $statusIconColor = 'text-[#30b22d]';
+            $statusIcon = 'check-circle-2';
+            $statusTitle = 'Menunggu Verifikasi';
+            $statusDesc = 'Data lengkap. Berkas Anda sedang dalam proses verifikasi panitia.';
+            $statusTextColor = 'text-[#166534]';
+            $statusSubColor = 'text-[#166534]/70';
+            $badgeBg = 'bg-[#30b22d]';
+            $badgeLabel = 'Diproses';
+            } elseif ($isConfirmed) {
+            // TEMA KUNING: Sudah konfirmasi, tapi form data belum lengkap (data_status = incomplete)
+            $statusBadgeBg = 'bg-[#fef9c3] border-[#f59e0b]/30';
+            $statusIconBg = 'bg-[#f59e0b]/20';
+            $statusIconColor = 'text-[#f59e0b]';
+            $statusIcon = 'clock-4';
+            $statusTitle = 'Belum Registrasi Ulang';
+            $statusDesc = 'Selesaikan semua checklist untuk melengkapi daftar ulang.';
+            $statusTextColor = 'text-[#92400e]';
+            $statusSubColor = 'text-[#92400e]/70';
+            $badgeBg = 'bg-[#f59e0b]';
+            $badgeLabel = 'Segera';
+            } else {
+            // TEMA MERAH: Sama sekali belum klik tombol konfirmasi awal
+            $statusBadgeBg = 'bg-[#fee2e2] border-[#ff1443]/30';
+            $statusIconBg = 'bg-[#ff1443]/20';
+            $statusIconColor = 'text-[#ff1443]';
+            $statusIcon = 'alert-circle';
+            $statusTitle = 'Belum Konfirmasi';
+            $statusDesc = 'Silakan lakukan konfirmasi kesediaan daftar ulang terlebih dahulu.';
+            $statusTextColor = 'text-[#991b1b]';
+            $statusSubColor = 'text-[#991b1b]/70';
+            $badgeBg = 'bg-[#ff1443]';
+            $badgeLabel = 'Wajib';
+            }
             @endphp
             <div class="px-6 pt-5 pb-4">
                 <div class="flex items-center gap-4 p-4 rounded-2xl {{ $statusBadgeBg }} border">
@@ -135,74 +177,95 @@
             <div class="px-6 pb-2">
                 <p class="text-sm font-semibold text-[#6a7686] mb-4">Progress Registrasi</p>
                 @php
-                $reRegProgressSteps = $reRegistrationData['reRegProgressSteps'] ?? collect([]);
-                $currentStepIndex = $reRegProgressSteps->search(fn($s) => !$s['done']);
-                if ($currentStepIndex === false) $currentStepIndex = $reRegProgressSteps->count() - 1;
+                // Kita override progress step dari controller agar 100% akurat dengan logika status di atas
+                $reRegProgressSteps = [
+                [ 'title' => 'Pengumuman', 'done' => true ], // Selalu true karena siswa sudah masuk menu ini
+                [ 'title' => 'Konfirmasi', 'done' => $isConfirmed ],
+                [ 'title' => 'Daftar Ulang', 'done' => ($dataStatus === 'complete') ],
+                [ 'title' => 'Verifikasi', 'done' => ($veriStatus === 'verified') ],
+                [ 'title' => 'Selesai', 'done' => ($veriStatus === 'verified') ],
+                ];
+
+                // Cari index pertama yang belum selesai (done = false)
+                $currentStepIndex = collect($reRegProgressSteps)->search(fn($s) => !$s['done']);
+
+                // Jika semuanya true (selesai semua), set current melebihi jumlah index agar progress bar penuh
+                if ($currentStepIndex === false) {
+                $currentStepIndex = count($reRegProgressSteps);
+                }
                 @endphp
                 <div
                     x-data="{
                         current: {{ $currentStepIndex }},
                         steps: [
                             @foreach($reRegProgressSteps as $step)
-                            { title: '{{ $step['title'] }}', done: {{ $step['done'] ? 'true' : 'false' }}, desc: '{{ $step['desc'] }}' }{{ !$loop->last ? ',' : '' }}
+                            { title: '{{ $step['title'] }}', done: {{ $step['done'] ? 'true' : 'false' }} }{{ !$loop->last ? ',' : '' }}
                             @endforeach
                         ]
                     }"
                     class="relative">
-                    <!-- Track desktop -->
-                    <div class="hidden md:block relative mb-10">
-                        <div class="absolute top-5 left-0 right-0 h-1 bg-[#eff2f7] rounded-full"></div>
-                        <div class="absolute top-5 left-0 h-1 bg-[#ff1443] rounded-full progress-bar"
-                            :style="'width:' + (current / (steps.length - 1)) * 100 + '%'"></div>
-                        <div class="relative grid grid-cols-5">
+
+                    <div class="hidden md:block relative mb-10 px-10">
+                        <!-- Track -->
+                        <div class="absolute top-5 left-15 right-15 h-1 bg-[#eff2f7] rounded-full"></div>
+
+                        <div class="absolute top-5 left-15 h-1 bg-[#ff1443] rounded-full progress-bar transition-all duration-500"
+                            :style="'width: calc((100% - 7.5rem) * ' + (current >= steps.length - 1 ? 1 : (current / (steps.length - 1))) + ')'">
+                        </div>
+
+                        <div class="relative flex justify-between">
                             <template x-for="(step, index) in steps" :key="index">
-                                <div class="flex flex-col items-center gap-2">
+                                <div class="flex flex-col items-center gap-2" style="width: 2.5rem;">
                                     <div
-                                        class="w-10 h-10 rounded-full border-4 flex items-center justify-center font-bold text-sm transition-all duration-300"
+                                        class="w-10 h-10 rounded-full border-4 flex items-center justify-center font-bold text-sm transition-all duration-300 relative z-10"
                                         :class="{
-                                        'bg-[#30b22d] border-[#30b22d] text-white': step.done && index < current,
-                                        'bg-[#ff1443] border-[#ff1443] text-white step-active': index === current,
-                                        'bg-white border-[#e5e7eb] text-[#6a7686]': index > current && !step.done
+                                            'bg-[#30b22d] border-[#30b22d] text-white': step.done,
+                                            'bg-[#ff1443] border-[#ff1443] text-white step-active shadow-lg shadow-[#ff1443]/30': !step.done && index === current,
+                                            'bg-white border-[#e5e7eb] text-[#6a7686]': !step.done && index > current
                                         }">
-                                        <template x-if="step.done && index < current">
+                                        <template x-if="step.done">
                                             <i data-lucide="check" class="w-4 h-4"></i>
                                         </template>
-                                        <template x-if="index === current">
-                                            <span x-text="index + 1"></span>
-                                        </template>
-                                        <template x-if="index > current">
+                                        <template x-if="!step.done">
                                             <span x-text="index + 1"></span>
                                         </template>
                                     </div>
-                                    <p class="text-[11px] font-semibold text-center leading-tight"
-                                        :class="{ 'text-[#30b22d]': step.done && index < current, 'text-[#ff1443]': index === current, 'text-[#6a7686]': index > current }"
+                                    <p class="text-[11px] font-semibold text-center leading-tight transition-colors duration-300 whitespace-nowrap"
+                                        :class="{ 
+                                            'text-[#30b22d]': step.done, 
+                                            'text-[#ff1443]': !step.done && index === current, 
+                                            'text-[#6a7686]': !step.done && index > current 
+                                        }"
                                         x-text="step.title"></p>
                                 </div>
                             </template>
                         </div>
                     </div>
 
-                    <!-- Mobile steps -->
                     <div class="md:hidden space-y-3 pb-4">
                         <template x-for="(step, index) in steps" :key="index">
                             <div class="flex items-center gap-3">
-                                <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all"
+                                <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-300"
                                     :class="{
-                                        'bg-[#30b22d] text-white': step.done && index < current,
-                                        'bg-[#ff1443] text-white': index === current,
-                                        'bg-[#eff2f7] text-[#6a7686]': index > current
+                                        'bg-[#30b22d] text-white': step.done,
+                                        'bg-[#ff1443] text-white shadow-md shadow-[#ff1443]/30': !step.done && index === current,
+                                        'bg-[#eff2f7] text-[#6a7686]': !step.done && index > current
                                     }">
-                                    <template x-if="step.done && index < current">
+                                    <template x-if="step.done">
                                         <i data-lucide="check" class="w-3 h-3"></i>
                                     </template>
-                                    <template x-if="!(step.done && index < current)">
+                                    <template x-if="!step.done">
                                         <span x-text="index + 1"></span>
                                     </template>
                                 </div>
-                                <p class="text-sm font-semibold"
-                                    :class="{ 'text-[#30b22d]': step.done && index < current, 'text-[#ff1443]': index === current, 'text-[#6a7686]': index > current }"
+                                <p class="text-sm font-semibold transition-colors duration-300"
+                                    :class="{ 
+                                        'text-[#30b22d]': step.done, 
+                                        'text-[#ff1443]': !step.done && index === current, 
+                                        'text-[#6a7686]': !step.done && index > current 
+                                    }"
                                     x-text="step.title"></p>
-                                <template x-if="index === current">
+                                <template x-if="!step.done && index === current">
                                     <span class="ml-auto text-[10px] font-bold bg-[#ff1443]/10 text-[#ff1443] px-2 py-0.5 rounded-full">Sedang Berjalan</span>
                                 </template>
                             </div>
@@ -211,7 +274,6 @@
                 </div>
             </div>
 
-            <!-- Status Verifikasi row -->
             @php
             $fileStatus = $reRegistrationData['fileStatus'] ?? 'Belum Lengkap';
             $verificationStatus = $reRegistrationData['verificationStatus'] ?? 'Menunggu';
@@ -225,14 +287,17 @@
             $veriIsOk = $verificationStatus === 'Terverifikasi';
             $veriIsProc = $verificationStatus === 'Diproses';
             $veriIsRej = $verificationStatus === 'Ditolak';
+
             $veriBg = $veriIsOk ? 'bg-[#dcfce7] border-[#30b22d]/20'
             : ($veriIsProc ? 'bg-[#fef9c3] border-[#f59e0b]/20'
             : ($veriIsRej ? 'bg-[#fee2e2] border-[#ff1443]/20'
             : 'bg-[#eff2f7] border-[#e5e7eb]'));
+
             $veriDot = $veriIsOk ? 'bg-[#30b22d]'
             : ($veriIsProc ? 'bg-[#f59e0b]'
             : ($veriIsRej ? 'bg-[#ff1443]'
             : 'bg-[#6a7686]'));
+
             $veriText = $veriIsOk ? 'text-[#166534]'
             : ($veriIsProc ? 'text-[#92400e]'
             : ($veriIsRej ? 'text-[#991b1b]'
@@ -243,26 +308,27 @@
             $regDot = $regIsOk ? 'bg-[#30b22d]' : 'bg-[#f59e0b]';
             $regText = $regIsOk ? 'text-[#166534]' : 'text-[#92400e]';
             @endphp
+
             <div class="mx-6 mb-6 mt-2 grid grid-cols-3 gap-3">
-                <div class="rounded-2xl {{ $fileBg }} border p-4 text-center">
+                <div class="rounded-2xl {{ $fileBg }} border p-4 text-center transition-colors duration-300">
                     <p class="text-[11px] text-[#6a7686] font-medium mb-2">Data</p>
                     <div class="flex items-center justify-center gap-1.5">
                         <span class="w-2 h-2 rounded-full {{ $fileDot }}"></span>
                         <p class="text-sm font-bold {{ $fileText }}">{{ $fileStatus }}</p>
                     </div>
                 </div>
-                <div class="rounded-2xl {{ $veriBg }} border p-4 text-center">
-                    <p class="text-[11px] text-[#6a7686] font-medium mb-2">Verifikasi</p>
-                    <div class="flex items-center justify-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full {{ $veriDot }}"></span>
-                        <p class="text-sm font-bold {{ $veriText }}">{{ $verificationStatus }}</p>
-                    </div>
-                </div>
-                <div class="rounded-2xl {{ $regBg }} border p-4 text-center">
+                <div class="rounded-2xl {{ $regBg }} border p-4 text-center transition-colors duration-300">
                     <p class="text-[11px] text-[#6a7686] font-medium mb-2">Registrasi</p>
                     <div class="flex items-center justify-center gap-1.5">
                         <span class="w-2 h-2 rounded-full {{ $regDot }}"></span>
                         <p class="text-sm font-bold {{ $regText }}">{{ $registrationStatus }}</p>
+                    </div>
+                </div>
+                <div class="rounded-2xl {{ $veriBg }} border p-4 text-center transition-colors duration-300">
+                    <p class="text-[11px] text-[#6a7686] font-medium mb-2">Verifikasi</p>
+                    <div class="flex items-center justify-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full {{ $veriDot }}"></span>
+                        <p class="text-sm font-bold {{ $veriText }}">{{ $verificationStatus }}</p>
                     </div>
                 </div>
             </div>
@@ -438,7 +504,7 @@
                                 </span>
                                 @if($acceptedConc)
                                 <span class="inline-flex items-center gap-1.5 text-[10px] font-bold bg-[#3b82f6]/10 text-[#1d4ed8] rounded-full px-2.5 py-1">
-                                    <i data-lucide="{{ $concIcon }}" class="w-3 h-3"></i>{{ $concAlias }}
+                                    {{ $concAlias }}
                                 </span>
                                 @endif
                             </div>
@@ -454,7 +520,7 @@
                         </div>
                         <div>
                             <p class="text-[11px] text-[#6a7686] font-medium">Nomor Pendaftaran</p>
-                            <p class="text-base font-bold tracking-wide">{{ $regNumber }}</p>
+                            <p class="text-sm font-bold tracking-wide">{{ $regNumber }}</p>
                         </div>
                         <button class="ml-2 flex flex-col items-center justify-center gap-1 text-[10px] text-[#6a7686] hover:text-[#ff1443] transition-colors cursor-pointer" title="Salin">
                             <i data-lucide="copy" class="w-4 h-4"></i>
@@ -1083,7 +1149,11 @@
             <!-- Checklist Kelengkapan Data -->
             @php
             $pd = $personalData;
-            $isFinal = $pd?->profile_status === 'final';
+
+            // Ambil relasi pendaftaran ulang dari array controller
+            $reReg = $reRegistrationData['reReg'] ?? null;
+            // Gunakan data_status dari pendaftaran ulang sebagai penentu final
+            $isFinal = $reReg && $reReg->data_status === 'complete';
 
             // 1. Data Pribadi (Asumsi minimal nama, nisn, dan gender terisi)
             $isDataPribadiDone = $pd && $pd->full_name && $pd->nisn_hash && $pd->gender;

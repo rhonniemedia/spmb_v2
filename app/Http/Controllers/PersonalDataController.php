@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PersonalData;
+use App\Models\ReRegistrationData;
 use App\Models\SpmbStep;
 use App\Notifications\BiodataFinalizedNotification;
 use Illuminate\Http\JsonResponse;
@@ -19,49 +20,62 @@ class PersonalDataController extends Controller
     */
     public function index()
     {
-        // ── 1. Ambil Biodata pribadi dengan eager load relasi 'parents' ──
+        // Ambil Biodata pribadi dengan eager load relasi 'parents'
         $personalData = PersonalData::where('user_id', Auth::id())
             ->with(['parents'])
             ->first();
 
-        // ── 2. Jika biodata sudah final, tampilkan halaman resume pendaftaran ──
-        if ($personalData && $personalData->isFinal()) {
+        // CEK FASE SAAT INI (SPMB vs Daftar Ulang)
+        $spmbStep = SpmbStep::where('slug', 'pendaftaran-spmb')->first();
+        $reRegistrationStep = SpmbStep::where('slug', 'daftar-ulang-dan-penyerahan-berkas')->first();
 
-            // Ambil data orang tua dari relasi 'parents' (jika null, kembalikan koleksi kosong)
-            $parentData = $personalData->parents ?? collect();
+        $isSchedule = $spmbStep
+            && $spmbStep->start_date !== null
+            && now()->between($spmbStep->start_date, $spmbStep->end_date);
 
-            // Ambil step "Pendaftaran SPMB" dari tabel SpmbStep berdasarkan slug alur tunggal yang baru
-            $spmbStep = SpmbStep::where('slug', 'pendaftaran-spmb')->first();
+        $isReRegistrationActive = $reRegistrationStep
+            && $reRegistrationStep->start_date
+            && $reRegistrationStep->end_date
+            && now()->between($reRegistrationStep->start_date, $reRegistrationStep->end_date);
 
-            // Definisikan $isSchedule berdasarkan start_date & end_date
-            $isSchedule = isset($spmbStep)
-                && $spmbStep->start_date !== null
-                && now()->between($spmbStep->start_date, $spmbStep->end_date);
+        $reReg = null;
+        if ($personalData) {
+            $reReg = ReRegistrationData::whereHas('registrationData', function ($q) use ($personalData) {
+                $q->where('personal_data_id', $personalData->id);
+            })->first();
+        }
 
-            // dd([
-            //     'now'        => now()->toDateTimeString(),
-            //     'start_date' => $spmbStep->start_date,
-            //     'end_date'   => $spmbStep->end_date,
-            //     'isSchedule' => $isSchedule,
-            // ]);
-
-            return view('pages.user.resume-biodata', [
+        // KONDISI 1: Jika berada pada masa Daftar Ulang DAN user sudah melakukan klik "Daftar Ulang"
+        if ($isReRegistrationActive && $reReg && $reReg->re_registered_at !== null) {
+            return view('pages.user.daftar-ulang-success', [
                 'personalData' => $personalData,
-                'parentData'   => $parentData,
-                'spmbStep'     => $spmbStep,
-                'isFinal'      => true,
-                'isSchedule'   => $isSchedule,
+                'reReg'        => $reReg
             ]);
         }
 
-        // ── 3. Jika biodata belum final, tampilkan halaman form biodata ──
-        // Ambil jadwal pendaftaran — dibutuhkan oleh _success_screen setelah submit
-        $registrationSchedule = SpmbStep::where('slug', 'pendaftaran-spmb')->first();
+        // KONDISI 2: Validasi pendaftaran SPMB awal biasa
+        $isFinal = $personalData && $personalData->isFinal();
 
+        // Jika biodata sudah final atau sedang dalam masa daftar ulang, arahkan ke resume-biodata
+        if ($isFinal || $isReRegistrationActive) {
+            $parentData = $personalData->parents ?? collect();
+
+            return view('pages.user.resume-biodata', [
+                'personalData'           => $personalData,
+                'parentData'             => $parentData,
+                'spmbStep'               => $spmbStep,
+                'isFinal'                => $isFinal,
+                'isSchedule'             => $isSchedule,
+                'isReRegistrationActive' => $isReRegistrationActive,
+                'reReg'                  => $reReg
+            ]);
+        }
+
+        // Jika belum masuk tahap final pendaftaran biasa
         return view('pages.user.biodata', [
             'personalData'         => $personalData,
             'isFinal'              => false,
-            'registrationSchedule' => $registrationSchedule,
+            'registrationSchedule' => $spmbStep,
         ]);
     }
 
@@ -78,7 +92,6 @@ class PersonalDataController extends Controller
             'nik'                    => 'required|digits:16',
             'nisn'                   => 'required|digits:10',
             'full_name'              => 'required|string|max:255',
-            'nick_name'              => 'nullable|string|max:100',
             'pob'                    => 'required|string|max:100',
             'dob'                    => 'required|date',
             'gender'                 => 'required|in:L,P',
@@ -141,7 +154,6 @@ class PersonalDataController extends Controller
 
         // Plain columns
         $personal->full_name   = $validated['full_name'];
-        $personal->nick_name   = $validated['nick_name'] ?? '';
         $personal->gender      = $validated['gender'];
         $personal->blood_type  = $validated['blood_type'] ?? null;
         $personal->child_order = $validated['child_order'];
@@ -383,25 +395,48 @@ class PersonalDataController extends Controller
     {
         $personal = PersonalData::where('user_id', Auth::id())->firstOrFail();
 
-        if ($personal->isFinal()) {
-            return response()->json(['success' => false, 'message' => 'Biodata sudah final.'], 422);
+        // ── 1. CEK FASE SAAT INI ──
+        $reRegistrationStep = SpmbStep::where('slug', 'daftar-ulang-dan-penyerahan-berkas')->first();
+        $isReRegistrationActive = $reRegistrationStep
+            && $reRegistrationStep->start_date
+            && $reRegistrationStep->end_date
+            && now()->between($reRegistrationStep->start_date, $reRegistrationStep->end_date);
+
+        if ($isReRegistrationActive) {
+            // FASE DAFTAR ULANG: Update data_status di re_registration_data
+            $reReg = \App\Models\ReRegistrationData::whereHas('registrationData', function ($q) use ($personal) {
+                $q->where('personal_data_id', $personal->id);
+            })->first();
+
+            if ($reReg && $reReg->data_status === 'complete') {
+                return response()->json(['success' => false, 'message' => 'Data daftar ulang sudah final.'], 422);
+            }
+
+            if ($reReg) {
+                $reReg->data_status = 'complete';
+                $reReg->save();
+            }
+        } else {
+            // FASE SPMB AWAL: Update profile_status di personal_data
+            if ($personal->isFinal()) {
+                return response()->json(['success' => false, 'message' => 'Biodata sudah final.'], 422);
+            }
+
+            $personal->profile_status = 'final';
+            $personal->save();
         }
 
-        $personal->profile_status = 'final';
-        $personal->save();
-
-        // ─── AMBIL USER & KIRIM NOTIFIKASI SECARA INSTAN ───
+        // ── 2. KIRIM NOTIFIKASI ──
         /** @var \App\Models\User $user */
         $user = Auth::user();
         if ($user) {
-            // Kirim notifikasi 'Biodata Berhasil Dikunci!' ke database pendaftar
             $user->notify(new BiodataFinalizedNotification());
         }
 
-        // Mengembalikan response JSON dengan tambahan header HX-Trigger untuk HTMX
+        // ── 3. RETURN RESPON ──
         return response()->json([
             'success'        => true,
-            'profile_status' => $personal->profile_status,
+            'profile_status' => $personal->profile_status, // Tetap dikirim untuk kompatibilitas frontend
             'nisn'            => $personal->nisn,
             'full_name'       => $personal->full_name,
             'previous_school' => $personal->previous_school,
@@ -429,7 +464,6 @@ class PersonalDataController extends Controller
 
         // -- Step 1 fields --
         if ($request->filled('full_name')) $personal->full_name   = $request->full_name;
-        if ($request->filled('nick_name')) $personal->nick_name   = $request->nick_name;
         if ($request->filled('gender'))    $personal->gender      = $request->gender;
         if ($request->filled('blood_type')) $personal->blood_type  = $request->blood_type;
         if ($request->filled('nik'))       $personal->nik         = $request->nik;
@@ -482,5 +516,39 @@ class PersonalDataController extends Controller
 
         // Return toast partial untuk HTMX swap
         return response()->json(['success' => true]);
+    }
+
+    public function submitReRegistration(Request $request): JsonResponse
+    {
+        $personalData = PersonalData::where('user_id', Auth::id())->firstOrFail();
+
+        // Cari record daftar ulang yang terhubung dengan data pendaftaran peserta
+        $reReg = ReRegistrationData::whereHas('registrationData', function ($q) use ($personalData) {
+            $q->where('personal_data_id', $personalData->id);
+        })->first();
+
+        if (!$reReg) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Berkas pendaftaran administrasi Anda tidak ditemukan.'
+            ], 404);
+        }
+
+        // ATURAN BISNIS: Wajib melakukan pengecekan posisi data_status == 'complete'
+        if ($reReg->data_status !== 'complete') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Proses ditolak. Status kelengkapan berkas daftar ulang Anda belum lengkap (Incomplete).'
+            ], 422);
+        }
+
+        // Simpan timestamp ke field re_registered_at
+        $reReg->re_registered_at = now();
+        $reReg->save();
+
+        return response()->json([
+            'success'  => true,
+            'redirect' => route('biodata')
+        ]);
     }
 }

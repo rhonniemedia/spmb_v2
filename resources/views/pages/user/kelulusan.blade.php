@@ -266,10 +266,13 @@ $themeClass = $status_kelulusan === 'diterima' ? 'theme-lulus' : 'theme-tolak';
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3 animate-in delay-400">
-            <a href="{{ route('dashboard') }}" class="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-sm transition-all duration-300 hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/20 cursor-pointer">
-                Masuk Dashboard
-                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-            </a>
+            <form action="{{ route('daftar_ulang.proses_masuk') }}" method="POST" class="flex-1 flex">
+                @csrf
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-sm transition-all duration-300 hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/20 cursor-pointer">
+                    Lanjut & Masuk Dashboard
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </form>
             <form action="{{ route('applicant.logout') }}" method="POST" class="sm:w-1/3">
                 @csrf
                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-white/80 text-slate-700 rounded-xl font-bold text-sm border border-slate-200 transition-all duration-300 hover:bg-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/60 cursor-pointer">

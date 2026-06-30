@@ -60,72 +60,20 @@ class ApplicantAuthController extends Controller
             ]);
         }
 
-        // Set session tanda lulus / tanda masuk area pengumuman (dipakai untuk status process/rejected)
+        // =========================================================================
+        // ALUR BARU: Simpan data identitas penting ke session
+        // =========================================================================
         $request->session()->put('kelulusan_id', $selectionResult->id);
 
-        // =========================================================================
-        // STATUS DITERIMA ('accepted') → buat/tautkan akun, login, lalu LANGSUNG
-        // ke Dashboard (route ber-middleware 'auth', BUKAN 'guest').
-        //
-        // Ini sengaja dipisah dari redirect default di bawah, karena route
-        // 'daftar_ulang.hasil_seleksi' ada di dalam grup middleware 'guest' —
-        // begitu user sudah di-Auth::login(), guest middleware akan MENOLAK
-        // akses ke route itu dan menyebabkan redirect nyasar. Dashboard tidak
-        // punya masalah ini karena memang dilindungi middleware 'auth'.
-        // =========================================================================
-        if ($selectionResult->status === 'accepted') {
+        // Kita simpan plain NISN asli ke session agar nanti saat tombol "Lanjut" diklik,
+        // kita tetap bisa generate email berbasis NISN pendaftar jika email biodatanya kosong.
+        $request->session()->put('registration_nisn', $request->nisn);
 
-            $user = $registration->personalData->user;
-
-            if (!$user) {
-                // Tentukan email: gunakan email dari biodata jika ada,
-                // jika kosong, generate dari NISN @smkn1rl.sch.id
-                $emailUser = $registration->personalData->email ?? ($request->nisn . '@smkn1rl.sch.id');
-
-                // Pastikan email tidak duplikat di tabel users
-                $user = User::where('email', $emailUser)->first();
-
-                if (!$user) {
-                    // Buat data user baru jika benar-benar belum ada
-                    $user = User::create([
-                        'name'              => $registration->personalData->full_name ?? 'Pendaftar ' . $request->registration_number,
-                        'email'             => $emailUser,
-                        'password'          => Hash::make(Str::random(16)),
-                        'role'              => 'user',
-                        'email_verified_at' => now(),
-                    ]);
-                }
-
-                // Hubungkan data pribadi dengan user_id yang baru.
-                // PENTING: linking di kolom personal_data.user_id, BUKAN registration_data,
-                // karena tabel registration_data tidak punya kolom user_id sama sekali
-                // (lihat migration create_registration_data_table) — seluruh dashboard
-                // (UserDashboardController) juga mencari lewat PersonalData::where('user_id', ...).
-                $registration->personalData->update([
-                    'user_id' => $user->id,
-                ]);
-            }
-
-            // Jaga-jaga: kalau akun ditemukan tapi belum pernah verified (misal dibuat
-            // manual oleh admin tanpa email_verified_at), set di sini supaya tidak
-            // terblokir middleware 'verified' saat masuk ke dashboard.
-            if (!$user->email_verified_at) {
-                $user->forceFill(['email_verified_at' => now()])->save();
-            }
-
-            // Berikan akses Auth penuh untuk masuk ke Dashboard Daftar Ulang
-            Auth::login($user);
-
-            $redirectUrl = route('dashboard');
-        } else {
-            // Status 'process' / 'rejected' → tetap alur lama berbasis session,
-            // tanpa login, tetap di halaman publik (guest).
-            $redirectUrl = route('daftar_ulang.hasil_seleksi');
-        }
+        // Semua status (accepted, process, rejected) dilempar ke halaman pengumuman yang sama
+        $redirectUrl = route('daftar_ulang.hasil_seleksi');
         // =========================================================================
 
-        // Modal di landing page submit via fetch dengan Accept: application/json,
-        // jadi kembalikan URL redirect dalam JSON agar JS bisa window.location ke sana.
+        // Modal di landing page submit via fetch dengan Accept: application/json
         if ($request->expectsJson()) {
             return response()->json([
                 'redirect' => $redirectUrl,
@@ -177,6 +125,65 @@ class ApplicantAuthController extends Controller
             'status_kelulusan' => $statusKelulusan,
             'siswa'            => $siswa,
         ]);
+    }
+
+    public function prosesMasukDaftarUlang(Request $request)
+    {
+        // Ambil data dari session yang di-set saat login/cek kelulusan
+        $kelulusanId = session('kelulusan_id');
+        $nisn = session('registration_nisn');
+
+        if (!$kelulusanId) {
+            return redirect()->route('home')->with('error', 'Sesi habis, silakan cek ulang.');
+        }
+
+        // Cari data SelectionResult beserta relasinya menuju RegistrationData
+        // Catatan: Pastikan nama relasi di model SelectionResult menuju ke RegistrationData adalah 'registrationData'
+        $selectionResult = SelectionResult::with('registration.personalData.user')->find($kelulusanId);
+
+        if (!$selectionResult || $selectionResult->status !== 'accepted') {
+            return abort(403, 'Akses ditolak.');
+        }
+
+        $registration = $selectionResult->registration;
+        $user = $registration->personalData->user;
+
+        // --- PROSES PEMBUATAN AKUN GAIB JIKA BELUM ADA ---
+        if (!$user) {
+            // Tentukan email: gunakan dari biodata, jika kosong gunakan plain NISN dari session
+            $emailUser = $registration->personalData->email ?? ($nisn . '@smkn1rl.sch.id');
+
+            // Pastikan email tidak duplikat di tabel users
+            $user = User::where('email', $emailUser)->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'name'              => $registration->personalData->full_name ?? 'Pendaftar ' . $registration->registration_number,
+                    'email'             => $emailUser,
+                    'password'          => Hash::make(Str::random(16)),
+                    'role'              => 'user',
+                    'email_verified_at' => now(),
+                ]);
+            }
+
+            // Hubungkan data pribadi dengan user_id baru
+            $registration->personalData->update([
+                'user_id' => $user->id,
+            ]);
+        }
+
+        if (!$user->email_verified_at) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+        }
+
+        // Berikan akses Auth penuh untuk masuk ke area internal siswa
+        Auth::login($user);
+
+        // Bersihkan session pengecekan kelulusan karena user sudah resmi login
+        session()->forget(['kelulusan_id', 'registration_nisn']);
+
+        // Arahkan ke dashboard internal khusus pendaftar yang lulus
+        return redirect()->route('dashboard');
     }
 
     // Keluar dari session siswa

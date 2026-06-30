@@ -204,6 +204,16 @@ class UserDashboardController extends Controller
             //      Record dibuat saat siswa pertama kali mengakses/konfirmasi daftar ulang
             $reReg          = $registration?->reRegistrationData;
 
+            // =====================================================================
+            // OVERRIDE KELENGKAPAN DATA (KHUSUS DAFTAR ULANG)
+            // Abaikan 'profile_status' dari tahap SPMB lama. 
+            // Gunakan 'data_status' dari tabel re_registration_data sebagai patokan.
+            // =====================================================================
+            $isPersonalDataComplete = $reReg && $reReg->data_status === 'complete';
+
+            // Status per-step dari timestamps di re_registration_data
+            $isAnnounced    = $reReg && !is_null($reReg->announced_at);
+
             // Status per-step dari timestamps di re_registration_data
             $isAnnounced    = $reReg && !is_null($reReg->announced_at);
             $isConfirmed    = $reReg && !is_null($reReg->confirmed_at);

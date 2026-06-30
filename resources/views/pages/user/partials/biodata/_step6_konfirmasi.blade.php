@@ -157,36 +157,45 @@
                     Centang semua pernyataan di atas untuk mengaktifkan tombol kirim.
                 </div>
 
-                <div class="flex items-center justify-between py-5">
+                {{-- ── Footer Kirim Biodata ──────────────────────────────────────── --}}
+                <div class="px-8 py-5 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between rounded-b-[20px]">
                     <button type="button" @click="step--"
                         class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-[#6A7686] border border-gray-200 rounded-full hover:border-[#080C1A] hover:text-[#080C1A] transition-all">
                         <i class="fa-solid fa-arrow-left"></i> Kembali
                     </button>
 
-                    <button type="button"
-                        hx-post="{{ route('biodata.submit') }}"
-                        hx-indicator="#biodata-form"
-                        hx-swap="none"
-                        x-on:htmx:afterRequest.camel="
-                            if($event.detail.successful){
-                                let r = JSON.parse($event.detail.xhr.response);
-                                if(r.success){
-                                    $dispatch('biodata-submitted', r);
+                    <div class="flex items-center gap-3">
+                        <button type="button"
+                            hx-post="{{ route('biodata.submit') }}"
+                            hx-indicator="#biodata-form"
+                            hx-swap="none"
+                            @htmx:after-request="
+                                const xhr = $event.detail.xhr;
+                                if (xhr.status === 422) {
+                                    // Panggil fungsi penanganan error jika ada
+                                    if(typeof setErrors === 'function') setErrors(xhr);
+                                } else if (xhr.status === 200) {
+                                    let r = JSON.parse(xhr.response);
+                                    if (r.success) {
+                                        $dispatch('biodata-submitted', r);
+                                    }
                                 }
-                            }
-                        "
-                        :disabled="!(check1 && check2 && check3)"
-                        :class="(check1 && check2 && check3)
+                            "
+                            :disabled="!(check1 && check2 && check3)"
+                            :class="(check1 && check2 && check3)
                             ? 'bg-green-600 hover:bg-green-700 hover:-translate-y-px shadow-lg shadow-green-500/30 cursor-pointer'
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none pointer-events-none'"
-                        class="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-black rounded-full text-white transition-all duration-200">
-                        <span>
-                            <i class="fa-solid fa-paper-plane mr-2"></i> Kirim Biodata Sekarang
-                        </span>
-                        <span id="next-indicator" class="htmx-indicator gap-2">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...
-                        </span>
-                    </button>
+                            class="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-black rounded-full text-white transition-all duration-200">
+
+                            <span hx-dis-indicator>
+                                <i class="fa-solid fa-paper-plane mr-2"></i> Kirim Biodata Sekarang
+                            </span>
+
+                            <span id="next-indicator" class="htmx-indicator gap-2">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...
+                            </span>
+                        </button>
+                    </div>
                 </div>
 
             </div>{{-- /footer --}}

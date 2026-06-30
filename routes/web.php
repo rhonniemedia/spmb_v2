@@ -55,6 +55,9 @@ Route::middleware('guest')->group(function () {
 // Halaman hasil seleksi (akses via session 'kelulusan_id', bukan Laravel auth)
 Route::get('/cek-kelulusan/hasil', [ApplicantAuthController::class, 'hasilSeleksi'])->name('daftar_ulang.hasil_seleksi');
 
+Route::post('/daftar-ulang/proses-masuk', [ApplicantAuthController::class, 'prosesMasukDaftarUlang'])
+    ->name('daftar_ulang.proses_masuk');
+
 // Logout khusus sesi pendaftar (beda dari logout user login biasa)
 Route::post('/cek-kelulusan/logout', [ApplicantAuthController::class, 'logout'])->name('applicant.logout');
 
@@ -197,6 +200,8 @@ Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->group(func
         Route::get('/summary', [PersonalDataController::class, 'summary'])->name('summary');
         Route::post('/draft', [PersonalDataController::class, 'saveDraft'])->name('draft');
         Route::post('/submit', [PersonalDataController::class, 'submit'])->name('submit');
+
+        Route::post('/re-registration/submit', [PersonalDataController::class, 'submitReRegistration'])->name('re_registration.submit');
     });
 
     // Pendaftaran — Halaman Utama
