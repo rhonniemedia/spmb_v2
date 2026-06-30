@@ -26,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return route('admin.dashboard');
             }
 
-            return route('user.dashboard'); // Route dashboard untuk user biasa
+            return route('dashboard'); // Route dashboard untuk user biasa
         });
 
         // 3. Daftarkan Alias Middleware buatan kita

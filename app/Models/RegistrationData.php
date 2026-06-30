@@ -55,6 +55,17 @@ class RegistrationData extends Model
     }
 
     /**
+     * Relasi ke data daftar ulang (re_registration_data).
+     * Pasangan dari ReRegistrationData::registrationData() yang sudah ada,
+     * tapi sisi ini belum pernah didefinisikan — padahal sudah dipakai
+     * di UserDashboardController lewat with('reRegistrationData').
+     */
+    public function reRegistrationData(): HasOne
+    {
+        return $this->hasOne(ReRegistrationData::class, 'registration_data_id');
+    }
+
+    /**
      * Relasi Ekstensi: Jalur Afirmasi (1:1 Bersyarat)
      */
     public function afirmasi(): HasOne
@@ -130,5 +141,10 @@ class RegistrationData extends Model
     public function choice3Concentration()
     {
         return $this->belongsTo(Concentration::class, 'choice_3');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

@@ -13,4 +13,9 @@ class ReRegistrationData extends Model
     protected $table = 're_registration_data';
 
     protected $guarded = ['id'];
+
+    public function registrationData()
+    {
+        return $this->belongsTo(RegistrationData::class, 'registration_data_id');
+    }
 }

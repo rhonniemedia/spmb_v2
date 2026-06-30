@@ -299,8 +299,8 @@ class UserDashboardController extends Controller
                     'icon'     => 'check-circle-2',
                     'color'    => '#30b22d',
                     'gradient' => 'from-[#30b22d] to-[#4ade80]',
-                    'status'   => $isReRegistered ? 'Selesai' : 'Belum',
-                    'badge_bg' => $isReRegistered ? 'bg-[#dcfce7] text-[#166534]' : 'bg-[#fef9c3] text-[#92400e]',
+                    'status'   => $isConfirmed ? 'Selesai' : 'Belum',
+                    'badge_bg' => $isConfirmed ? 'bg-[#dcfce7] text-[#166534]' : 'bg-[#fef9c3] text-[#92400e]',
                     'url'      => '#',
                 ],
                 [
@@ -388,35 +388,39 @@ class UserDashboardController extends Controller
     {
         $user = Auth::user();
 
+        // 1. Ambil data personal murid berdasarkan user yang login
         $personalData = PersonalData::where('user_id', $user->id)->first();
 
-        // Proteksi 1: Pastikan biodata sudah final
-        if (!$personalData || $personalData->profile_status !== 'final') {
-            return back()->with('error', 'Silakan selesaikan kelengkapan biodata Anda terlebih dahulu.');
+        if (!$personalData) {
+            return back()->with('error', 'Data diri tidak ditemukan.');
         }
 
-        $registration = RegistrationData::where('personal_data_id', $personalData->id)->first();
+        // 2. Kueri LANGSUNG ke ReRegistrationData menggunakan sub-query relasi (whereHas)
+        $reReg = ReRegistrationData::whereHas('registrationData', function ($query) use ($personalData) {
+            $query->where('personal_data_id', $personalData->id);
+        })->first();
 
-        // Proteksi 2: Pastikan data registrasi ada
-        if (!$registration) {
+        // 3. JIKA data di re_registration_data sudah ada DAN sudah dikonfirmasi (confirmed_at tidak null)
+        // Maka langsung alihkan siswa ke halaman biodata
+        if ($reReg && !is_null($reReg->confirmed_at)) {
+            return redirect()->route('biodata')
+                ->with('info', 'Anda sudah melakukan konfirmasi kesediaan sebelumnya.');
+        }
+
+        // 4. JIKA belum konfirmasi, ambil ID dari registration_data hanya untuk kebutuhan isi Foreign Key
+        $registrationId = RegistrationData::where('personal_data_id', $personalData->id)->value('id');
+
+        if (!$registrationId) {
             return back()->with('error', 'Data pendaftaran tidak ditemukan.');
         }
 
-        // Cari record daftar ulang atau buat baru jika belum ada
-        // (Asumsi foreign key di tabel re_registration_data adalah registration_id)
-        $reReg = ReRegistrationData::firstOrCreate(
-            ['registration_id' => $registration->id]
+        // 5. Eksekusi penyimpanan/pembaruan langsung pada model ReRegistrationData
+        $reReg = ReRegistrationData::updateOrCreate(
+            ['registration_data_id' => $registrationId],
+            ['confirmed_at' => now()]
         );
 
-        // Jika belum dikonfirmasi, maka update timestamp-nya
-        if (is_null($reReg->confirmed_at)) {
-            $reReg->update([
-                'confirmed_at' => now(),
-            ]);
-
-            return back()->with('success', 'Konfirmasi kesediaan daftar ulang berhasil disimpan!');
-        }
-
-        return back()->with('info', 'Anda sudah melakukan konfirmasi kesediaan sebelumnya.');
+        return redirect()->route('biodata')
+            ->with('success', 'Konfirmasi kesediaan daftar ulang berhasil! Silakan lengkapi biodata Anda.');
     }
 }

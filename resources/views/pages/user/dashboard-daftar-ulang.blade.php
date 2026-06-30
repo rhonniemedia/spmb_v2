@@ -30,24 +30,31 @@
                     </span>
                     <h2 class="text-4xl md:text-5xl font-bold text-white leading-tight">
                         Halo,<br />
-                        <span class="text-[#ff1443]">Roni Saputra!</span>
+                        <span class="text-[#ff1443]">
+                            {{ Str::title($personalData?->nick_name ?? $personalData?->full_name ?? Auth::user()->name ?? 'Calon Siswa') }}!
+                        </span>
                     </h2>
                     <p class="mt-4 text-[#6a7686] leading-7 max-w-2xl">
                         Anda dinyatakan <span class="text-white font-semibold">lolos seleksi</span> SPMB SMK TA 2026/2027.
                         Segera selesaikan proses daftar ulang sebelum batas waktu yang telah ditentukan.
                     </p>
                     <div class="mt-7 flex flex-wrap gap-3">
-                        @if(!$isPersonalDataComplete)
-                        <a href="{{ route('biodata') }}" class="flex items-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white px-6 py-3 font-bold transition-all duration-200 cursor-pointer">
-                            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
-                            Mulai Daftar Ulang
-                        </a>
-                        @else
+                        @php
+                        $isConfirmed = $reRegistrationData['isConfirmed'] ?? false;
+                        @endphp
+
+                        @if(!$isConfirmed)
                         <button @click="$dispatch('open-modal-konfirmasi')" class="flex items-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white px-6 py-3 font-bold transition-all duration-200 cursor-pointer">
                             <i data-lucide="clipboard-check" class="w-4 h-4"></i>
                             Mulai Daftar Ulang
                         </button>
+                        @else
+                        <a href="{{ route('biodata') }}" class="flex items-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white px-6 py-3 font-bold transition-all duration-200 cursor-pointer">
+                            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+                            Mulai Daftar Ulang
+                        </a>
                         @endif
+
                         <button class="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white px-6 py-3 font-medium transition-all duration-200 cursor-pointer">
                             <i data-lucide="download" class="w-4 h-4"></i>
                             Unduh Bukti Lolos
@@ -97,7 +104,7 @@
 
             <!-- Status badge -->
             @php
-            $isReRegistered = $reRegistrationData['isReRegistered'] ?? false;
+            $isReRegistered = $reRegistrationData['isConfirmed'] ?? false;
             $statusBadgeBg = $isReRegistered ? 'bg-[#dcfce7] border-[#30b22d]/30' : 'bg-[#fef9c3] border-[#f59e0b]/30';
             $statusIconBg = $isReRegistered ? 'bg-[#30b22d]/20' : 'bg-[#f59e0b]/20';
             $statusIconColor = $isReRegistered ? 'text-[#30b22d]' : 'text-[#f59e0b]';
@@ -348,16 +355,20 @@
                 </div>
 
                 <!-- CTA -->
-                @if(!$isPersonalDataComplete)
-                <a href="{{ route('biodata') }}" class="mt-auto w-full flex items-center justify-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white py-3 text-sm font-bold transition-all duration-200 cursor-pointer">
-                    <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-                    Lengkapi Daftar Ulang
-                </a>
-                @else
+                @php
+                $isConfirmed = $reRegistrationData['isConfirmed'] ?? false;
+                @endphp
+
+                @if(!$isConfirmed)
                 <button @click="$dispatch('open-modal-konfirmasi')" class="mt-auto w-full flex items-center justify-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white py-3 text-sm font-bold transition-all duration-200 cursor-pointer">
                     <i data-lucide="clipboard-list" class="w-4 h-4"></i>
                     Lengkapi Daftar Ulang
                 </button>
+                @else
+                <a href="{{ route('biodata') }}" class="mt-auto w-full flex items-center justify-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white py-3 text-sm font-bold transition-all duration-200 cursor-pointer">
+                    <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                    Lengkapi Daftar Ulang
+                </a>
                 @endif
             </div>
         </div>
@@ -1456,7 +1467,7 @@
         style="display: none;">
 
         <div
-            class="absolute inset-0 bg-[#080c1a]/60 backdrop-blur-sm"
+            class="absolute inset-0 bg-[#080c1a]/60"
             @click="open = false"
             x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0"
@@ -1481,7 +1492,7 @@
                 </div>
                 <h3 class="font-bold text-xl text-[#080c1a] mb-2">Konfirmasi Daftar Ulang</h3>
                 <p class="text-sm text-[#6a7686]">
-                    Data profil Anda sudah lengkap (Final). Apakah Anda yakin ingin mengonfirmasi proses daftar ulang saat ini?
+                    Dengan mengklik tombol konfirmasi, Anda menyatakan bersedia mengikuti proses daftar ulang sesuai ketentuan yang berlaku.
                 </p>
             </div>
 

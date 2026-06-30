@@ -200,18 +200,11 @@
     </style>
 </head>
 
+{{--
+    $status_kelulusan dan $siswa dikirim dari ApplicantAuthController::hasilSeleksi(),
+    diambil dari session 'kelulusan_id' + relasi RegistrationData -> PersonalData.
+--}}
 @php
-// ==========================================
-// DUMMY DATA: Ubah status menjadi 'ditolak' atau 'diterima'
-// ==========================================
-$status_kelulusan = 'diterima';
-
-$siswa = (object)[
-'nama' => 'Andi Saputra',
-'no_pendaftaran' => 'SPMB-2026-00123',
-'pilihan_diterima' => 'Teknik Komputer dan Jaringan'
-];
-
 $themeClass = $status_kelulusan === 'diterima' ? 'theme-lulus' : 'theme-tolak';
 @endphp
 
@@ -254,21 +247,31 @@ $themeClass = $status_kelulusan === 'diterima' ? 'theme-lulus' : 'theme-tolak';
                     <p class="font-bold text-slate-900 text-sm uppercase">{{ $siswa->nama }}</p>
                 </div>
                 <div class="col-span-2 pt-4 border-t border-slate-200/60 mt-1">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Diterima Kompetensi Keahlian</p>
-                    <p class="font-bold text-blue-700 text-base flex items-center gap-2">
-                        <i data-lucide="award" class="w-4 h-4"></i>
-                        {{ $siswa->pilihan_diterima }}
-                    </p>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Diterima Kompetensi Keahlian</p>
+
+                    <!-- Bagian Ikon dan Teks yang Dipercantik -->
+                    <div class="flex items-center gap-3">
+                        <!-- Wrapper Ikon -->
+                        <div class="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200/60 text-blue-600 shadow-sm">
+                            <i data-lucide="award" class="w-5 h-5"></i>
+                        </div>
+
+                        <!-- Teks Keahlian -->
+                        <p class="font-extrabold text-blue-700 text-base md:text-lg leading-snug">
+                            {{ $siswa->pilihan_diterima }}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3 animate-in delay-400">
-            <a href="/dashboard" class="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-sm transition-all duration-300 hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/20 cursor-pointer">
+            <a href="{{ route('dashboard') }}" class="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-sm transition-all duration-300 hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/20 cursor-pointer">
                 Masuk Dashboard
                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </a>
-            <form action="/logout" method="POST" class="sm:w-1/3">
+            <form action="{{ route('applicant.logout') }}" method="POST" class="sm:w-1/3">
+                @csrf
                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-white/80 text-slate-700 rounded-xl font-bold text-sm border border-slate-200 transition-all duration-300 hover:bg-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/60 cursor-pointer">
                     Keluar
                 </button>
@@ -306,7 +309,8 @@ $themeClass = $status_kelulusan === 'diterima' ? 'theme-lulus' : 'theme-tolak';
         </div>
 
         <div class="animate-in delay-400">
-            <form action="/logout" method="POST">
+            <form action="{{ route('applicant.logout') }}" method="POST">
+                @csrf
                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-sm transition-all duration-300 hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/20 cursor-pointer">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                     Keluar dari Sistem

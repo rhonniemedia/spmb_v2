@@ -110,6 +110,36 @@
                 @submit.prevent="validateAndSubmit()">
                 @csrf
 
+                {{-- Field Nomor Registrasi --}}
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold" style="color: #080C1A;">
+                        Nomor Registrasi
+                    </label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4" style="color: #6A7686;">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </span>
+                        <input
+                            type="text"
+                            name="registration_number"
+                            placeholder="XXXXXXXXXXXX-XXXX"
+                            :value="form.registration_number"
+                            @input="form.registration_number = $event.target.value; clearError('registration_number')"
+                            class="w-full pl-11 pr-4 py-3.5 text-sm rounded-2xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-red-400 focus:ring-2 focus:ring-red-400/20 focus:bg-white"
+                            :class="fieldErrors.registration_number ? 'border-red-400 ring-2 ring-red-400/20 bg-red-50' : ''" />
+                    </div>
+                    <div x-show="fieldErrors.registration_number" x-cloak
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        class="flex items-center gap-2 text-xs text-red-700">
+                        <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-100 shrink-0">
+                            <i class="fa-solid fa-exclamation" style="font-size: 0.55rem; color: #ED6B60;"></i>
+                        </span>
+                        <span x-text="fieldErrors.registration_number"></span>
+                    </div>
+                </div>
+
                 {{-- Field NISN --}}
                 <div class="space-y-2">
                     <label class="block text-sm font-semibold" style="color: #080C1A;">
@@ -137,36 +167,6 @@
                             <i class="fa-solid fa-exclamation" style="font-size: 0.55rem; color: #ED6B60;"></i>
                         </span>
                         <span x-text="fieldErrors.nisn"></span>
-                    </div>
-                </div>
-
-                {{-- Field Nomor Registrasi --}}
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold" style="color: #080C1A;">
-                        Nomor Registrasi
-                    </label>
-                    <div class="relative">
-                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4" style="color: #6A7686;">
-                            <i class="fa-solid fa-file-lines"></i>
-                        </span>
-                        <input
-                            type="text"
-                            name="registration_number"
-                            placeholder="REG-2026-XXXX"
-                            :value="form.registration_number"
-                            @input="form.registration_number = $event.target.value; clearError('registration_number')"
-                            class="w-full pl-11 pr-4 py-3.5 text-sm rounded-2xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-red-400 focus:ring-2 focus:ring-red-400/20 focus:bg-white"
-                            :class="fieldErrors.registration_number ? 'border-red-400 ring-2 ring-red-400/20 bg-red-50' : ''" />
-                    </div>
-                    <div x-show="fieldErrors.registration_number" x-cloak
-                        x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 -translate-y-1"
-                        x-transition:enter-end="opacity-100 translate-y-0"
-                        class="flex items-center gap-2 text-xs text-red-700">
-                        <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-100 shrink-0">
-                            <i class="fa-solid fa-exclamation" style="font-size: 0.55rem; color: #ED6B60;"></i>
-                        </span>
-                        <span x-text="fieldErrors.registration_number"></span>
                     </div>
                 </div>
 
@@ -258,8 +258,57 @@
                 // Jika tidak lolos, stop di sini
                 if (!valid) return;
 
-                // Lolos validasi → nanti disambung ke controller
-                console.log('Siap kirim:', this.form);
+                // Lolos validasi client-side → kirim ke server
+                this.submitToServer();
+            },
+
+            async submitToServer() {
+                this.loading = true;
+
+                try {
+                    const csrfInput = document.querySelector('input[name="_token"]');
+                    const token = csrfInput ? csrfInput.value : '';
+
+                    const response = await fetch("{{ route('applicant.login.store') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': token,
+                        },
+                        body: JSON.stringify(this.form),
+                    });
+
+                    // Validasi gagal di server (422)
+                    if (response.status === 422) {
+                        const data = await response.json();
+                        const errors = data.errors || {};
+
+                        this.fieldErrors.nisn = errors.nisn ? errors.nisn[0] : '';
+                        this.fieldErrors.registration_number = errors.registration_number ? errors.registration_number[0] : '';
+
+                        this.hasError = true;
+                        this.errorMessage = this.fieldErrors.nisn || this.fieldErrors.registration_number || data.message || 'Periksa kembali data Anda.';
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        this.hasError = true;
+                        this.errorMessage = 'Terjadi kesalahan pada server. Coba lagi nanti.';
+                        return;
+                    }
+
+                    // Sukses → server kirim balik URL halaman hasil seleksi
+                    const data = await response.json();
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                } catch (error) {
+                    this.hasError = true;
+                    this.errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi Anda.';
+                } finally {
+                    this.loading = false;
+                }
             },
 
             clearError(field) {

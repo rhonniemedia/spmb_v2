@@ -37,7 +37,7 @@ Route::middleware('guest')->group(function () {
     // Rute untuk form modal cek kelulusan
     Route::get('/cek-kelulusan', [ApplicantAuthController::class, 'showLoginForm'])->name('applicant.login');
 
-    // 👇 INI ADALAH RUTE YANG HILANG 👇
+    // Submit form modal (dipanggil via fetch dari modal Alpine di landing page)
     Route::post('/cek-kelulusan', [ApplicantAuthController::class, 'login'])->name('applicant.login.store');
 
     // Auth Manual
@@ -51,6 +51,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.login');
     Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 });
+
+// Halaman hasil seleksi (akses via session 'kelulusan_id', bukan Laravel auth)
+Route::get('/cek-kelulusan/hasil', [ApplicantAuthController::class, 'hasilSeleksi'])->name('daftar_ulang.hasil_seleksi');
+
+// Logout khusus sesi pendaftar (beda dari logout user login biasa)
+Route::post('/cek-kelulusan/logout', [ApplicantAuthController::class, 'logout'])->name('applicant.logout');
 
 // ============================================================
 // AUTH ROUTES (login required, email tidak harus verified)
@@ -216,8 +222,4 @@ Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->group(func
     Route::view('/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang');
     Route::get('/support', [FaqController::class, 'index'])->name('bantuan');
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('pengumuman');
-
-    // Tambahkan rute-rute yang hilang ini dan sesuaikan Controllernya
-    Route::get('/cetak-bukti', [CetakBuktiController::class, 'index'])->name('cetak-bukti');
-    Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal');
 });
