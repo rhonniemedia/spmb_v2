@@ -25,9 +25,23 @@
 
             <!-- CTA & Dark Mode -->
             <div class="flex items-center gap-3">
-                <a href="#daftar" class="hidden lg:block btn-primary px-5 py-2 rounded-xl text-sm font-bold">
-                    <i class="fa-solid fa-user-plus mr-2"></i>Daftar Sekarang
+                @if ($isPengumumanActive)
+                <button
+                    type="button"
+                    x-data
+                    @click="$dispatch('open-kelulusan-modal')"
+                    class="btn-primary hidden lg:inline-flex items-center justify-center gap-2 px-5 py-2 text-sm font-semibold transition-all duration-300">
+                    <i class="fa-solid fa-magnifying-glass text-[13px]"></i>
+                    <span class="leading-none whitespace-nowrap">Cek Kelulusan</span>
+                </button>
+                @else
+                <a
+                    href="#daftar"
+                    class="btn-primary hidden lg:inline-flex items-center justify-center gap-2 px-5 py-2 text-sm font-semibold transition-all duration-300">
+                    <i class="fa-solid fa-user-plus text-[13px]"></i>
+                    <span class="leading-none whitespace-nowrap">Daftar Sekarang</span>
                 </a>
+                @endif
                 <!-- Hamburger -->
                 <button id="hamburger" onclick="toggleMenu()" class="lg:hidden w-9 h-9 flex items-center justify-center glass rounded-lg">
                     <i class="fa-solid fa-bars text-slate-300 text-sm"></i>
@@ -45,9 +59,19 @@
                 <a href="#fasilitas" onclick="closeMenu()" class="px-4 py-3 text-sm text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-colors">Fasilitas</a>
                 <a href="#faq" onclick="closeMenu()" class="px-4 py-3 text-sm text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-colors">FAQ</a>
                 <div class="mt-2 px-2">
+                    @if ($isPengumumanActive)
+                    <button
+                        type="button"
+                        x-data
+                        @click="closeMenu(); $dispatch('open-kelulusan-modal')"
+                        class="w-full btn-primary px-5 py-3 rounded-xl text-sm font-bold text-center">
+                        <i class="fa-solid fa-magnifying-glass mr-2"></i>Cek Kelulusan
+                    </button>
+                    @else
                     <a href="#daftar" onclick="closeMenu()" class="block btn-primary px-5 py-3 rounded-xl text-sm font-bold text-center">
                         <i class="fa-solid fa-user-plus mr-2"></i>Daftar Sekarang
                     </a>
+                    @endif
                 </div>
             </div>
         </div>

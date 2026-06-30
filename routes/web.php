@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\Auth\ApplicantAuthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -32,6 +33,12 @@ Route::middleware('guest')->group(function () {
 
     // Landing Page
     Route::get('/', [LandingPageController::class, 'index'])->name('home');
+
+    // Rute untuk form modal cek kelulusan
+    Route::get('/cek-kelulusan', [ApplicantAuthController::class, 'showLoginForm'])->name('applicant.login');
+
+    // 👇 INI ADALAH RUTE YANG HILANG 👇
+    Route::post('/cek-kelulusan', [ApplicantAuthController::class, 'login'])->name('applicant.login.store');
 
     // Auth Manual
     Route::get('/auth/login', [AuthenticatedSessionController::class, 'create'])->name('login');

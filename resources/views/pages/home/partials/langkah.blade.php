@@ -175,10 +175,23 @@
         <!-- CTA below steps -->
         <div class="text-center fade-up">
             <div class="flex items-center justify-center gap-4 flex-wrap">
-                <a href="{{route('register')}}" class="btn-primary inline-flex items-center gap-3 px-10 py-4 rounded-2xl font-bold text-lg">
+                @if($isPengumumanActive)
+                <button
+                    type="button"
+                    x-data
+                    @click="$dispatch('open-kelulusan-modal')"
+                    class="btn-primary inline-flex items-center gap-3 px-10 py-4 rounded-2xl font-bold text-lg">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Cek Hasil Seleksi</span>
+                </button>
+                @else
+                <a
+                    href="{{ route('register') }}"
+                    class="btn-primary inline-flex items-center gap-3 px-10 py-4 rounded-2xl font-bold text-lg">
                     <i class="fa-solid fa-rocket"></i>
-                    Mulai Pendaftaran Sekarang
+                    <span>Mulai Pendaftaran Sekarang</span>
                 </a>
+                @endif
                 <a href="{{route('login')}}" class="btn-outline inline-flex items-center gap-3 px-10 py-4 rounded-2xl font-bold text-lg">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     Masuk ke Akun
