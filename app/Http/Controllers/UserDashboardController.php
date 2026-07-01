@@ -53,10 +53,9 @@ class UserDashboardController extends Controller
         if ($personalData) {
             $registration = RegistrationData::with([
                 'documents',
-                'selectionResult',
-                'selectionResult.acceptedConcentration', // untuk profil singkat
                 'admissionPath',                         // untuk jalur masuk
-                'reRegistrationData',                    // untuk status daftar ulang
+                'reRegistrationData',                     // untuk status daftar ulang
+                'latestSelectionResult.acceptedConcentration', // SUMBER TUNGGAL, sama dengan halaman kelulusan
             ])
                 ->where('personal_data_id', $personalData->id)
                 ->first();
@@ -276,7 +275,12 @@ class UserDashboardController extends Controller
             $registrationStatus = $isReRegistered ? 'Diterima' : 'Menunggu';
 
             // 12e. Profil singkat — konsentrasi yang diterima
-            $acceptedConcentration = $registration?->selectionResult?->acceptedConcentration ?? null;
+            // SUMBER TUNGGAL: relasi latestSelectionResult() di model
+            // RegistrationData (sudah di-eager-load di atas). Relasi ini
+            // dipakai persis sama di ApplicantAuthController::login() dan
+            // ReportController, sehingga konsentrasi yang tampil di dashboard
+            // dijamin selalu sama dengan yang tampil di halaman kelulusan.
+            $acceptedConcentration = $registration?->latestSelectionResult?->acceptedConcentration ?? null;
 
             // 12f. Pengumuman aktif — urut by created_at (sort_order belum ada di migrasi)
             $announcements = Announcement::where('is_active', true)

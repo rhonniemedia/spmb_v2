@@ -166,11 +166,11 @@ class ReportController extends Controller
         // Lengkapi relasi yang dibutuhkan template: jalur & 3 pilihan jurusan.
         $registration->loadMissing(['admissionPath', 'choice1', 'choice2', 'choice3']);
 
-        // Ambil hasil seleksi TERBARU (batch tertinggi) untuk pendaftaran ini.
-        $selectionResult = $registration->selectionResults()
-            ->with('acceptedConcentration')
-            ->orderByDesc('batch')
-            ->first();
+        // Ambil hasil seleksi TERBARU (batch tertinggi) untuk pendaftaran ini,
+        // via relasi resmi latestSelectionResult() — SUMBER TUNGGAL yang sama
+        // dipakai di halaman cek kelulusan & dashboard.
+        $registration->loadMissing('latestSelectionResult.acceptedConcentration');
+        $selectionResult = $registration->latestSelectionResult;
 
         // Hanya siswa yang statusnya "accepted" pada hasil seleksi terbaru
         // yang boleh mencetak bukti kelulusan.
@@ -219,12 +219,14 @@ class ReportController extends Controller
             abort(403, 'Anda belum menyelesaikan proses daftar ulang.');
         }
 
-        // Ambil kompetensi keahlian yang diterima, kalau ada hasil seleksi.
-        $selectionResult = $registration->selectionResults()
-            ->with('acceptedConcentration')
-            ->where('status', 'accepted')
-            ->orderByDesc('batch')
-            ->first();
+        // Ambil kompetensi keahlian yang diterima — via relasi resmi
+        // latestSelectionResult() (SUMBER TUNGGAL, sama dengan halaman cek
+        // kelulusan & dashboard). Daftar ulang hanya bisa diselesaikan oleh
+        // siswa yang diterima, jadi batch terbaru di sini seharusnya selalu
+        // berstatus 'accepted' — tapi tetap kita jaga (guard) untuk berjaga-jaga.
+        $registration->loadMissing('latestSelectionResult.acceptedConcentration');
+        $latest = $registration->latestSelectionResult;
+        $selectionResult = ($latest && $latest->status === 'accepted') ? $latest : null;
 
         Carbon::setLocale('id');
 

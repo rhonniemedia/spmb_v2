@@ -43,9 +43,35 @@ class RegistrationData extends Model
         return $this->belongsTo(AdmissionPath::class, 'admission_path_id');
     }
 
+    /**
+     * SUMBER KEBENARAN TUNGGAL untuk "hasil seleksi terbaru" (batch tertinggi)
+     * milik pendaftaran ini.
+     *
+     * Dipakai oleh SEMUA tempat yang perlu menampilkan status/konsentrasi
+     * kelulusan seorang siswa: halaman cek kelulusan, dashboard, dan cetak
+     * PDF. Jangan query SelectionResult secara manual di controller lain —
+     * selalu pakai relasi ini agar tidak ada lagi celah data yang berbeda
+     * antar halaman.
+     *
+     * `latestOfMany('batch')` adalah pola resmi Laravel untuk relasi
+     * "hasOne" yang otomatis mengambil baris dengan nilai 'batch' TERTINGGI
+     * per registration_id (dihitung ulang tiap kali relasi di-load /
+     * eager-load, bukan dihitung sekali secara global seperti bug
+     * sebelumnya di scopeLatestBatch()).
+     */
+    public function latestSelectionResult(): HasOne
+    {
+        return $this->hasOne(SelectionResult::class, 'registration_id')
+            ->latestOfMany('batch');
+    }
+
+    /**
+     * @deprecated Ambigu (tidak terurut per-batch) — pakai latestSelectionResult().
+     * Dibiarkan untuk kompatibilitas mundur bila masih direferensikan di
+     * tempat lain, TAPI jangan dipakai untuk logika baru.
+     */
     public function selectionResult(): HasOne
     {
-        // Menghubungkan ke model SelectionResult berdasarkan foreign key 'registration_id'
         return $this->hasOne(SelectionResult::class, 'registration_id');
     }
 

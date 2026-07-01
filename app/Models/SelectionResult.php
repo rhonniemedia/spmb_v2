@@ -57,12 +57,35 @@ class SelectionResult extends Model
     // ── SCOPE ───────────────────────────────────────────
 
     /**
-     * Ambil hanya hasil dari batch terbaru.
+     * Ambil hanya hasil dari batch terbaru — PER registration_id.
+     *
+     * PENTING: sebelumnya scope ini memakai `static::max('batch')` yang
+     * mengambil batch tertinggi di SELURUH tabel `selection_results`
+     * (lintas semua pendaftar), bukan batch tertinggi milik pendaftar yang
+     * sedang di-query. Akibatnya jika satu siswa sudah sampai batch 3
+     * (penjenjangan) sementara siswa lain baru sampai batch 1/2, siswa yang
+     * belum sampai batch 3 tidak akan cocok sama sekali (hasil null) atau
+     * bisa salah ambil baris — inilah yang menyebabkan konsentrasi yang
+     * tampil di halaman kelulusan berbeda dari sumber data lain yang sudah
+     * benar (ReportController, dashboard) yang memakai
+     * `orderByDesc('batch')->first()` per pendaftaran.
+     *
+     * Diperbaiki memakai correlated subquery: ambil baris yang batch-nya
+     * sama dengan MAX(batch) UNTUK registration_id yang sama pada baris itu
+     * sendiri, sehingga tetap benar berapa pun filter registration_id yang
+     * sudah diterapkan di $query sebelumnya.
      */
     public function scopeLatestBatch($query)
     {
-        $latestBatch = static::max('batch') ?? 1;
-        return $query->where('batch', $latestBatch);
+        $table = $this->getTable();
+
+        return $query->whereRaw(
+            "`{$table}`.`batch` = (
+                select max(`t2`.`batch`)
+                from `{$table}` as `t2`
+                where `t2`.`registration_id` = `{$table}`.`registration_id`
+            )"
+        );
     }
 
     /**

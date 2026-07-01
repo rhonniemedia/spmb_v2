@@ -36,7 +36,7 @@ class ApplicantAuthController extends Controller
         $nisnHash = hash('sha256', $request->nisn);
 
         // Cari data di database beserta relasinya
-        $registration = RegistrationData::with(['personalData.user'])
+        $registration = RegistrationData::with(['personalData.user', 'latestSelectionResult'])
             ->where('registration_number', $request->registration_number)
             ->whereHas('personalData', function ($query) use ($nisnHash) {
                 $query->where('nisn_hash', $nisnHash);
@@ -50,9 +50,9 @@ class ApplicantAuthController extends Controller
         }
 
         // Hasil kelulusan sekarang berasal dari SelectionResult (batch penjenjangan terbaru)
-        $selectionResult = SelectionResult::where('registration_id', $registration->id)
-            ->latestBatch()
-            ->first();
+        // via relasi resmi latestSelectionResult() — SUMBER TUNGGAL yang sama
+        // dipakai di dashboard & cetak PDF, agar tidak ada lagi perbedaan data.
+        $selectionResult = $registration->latestSelectionResult;
 
         if (!$selectionResult) {
             throw ValidationException::withMessages([
