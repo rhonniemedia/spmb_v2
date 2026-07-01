@@ -1281,11 +1281,25 @@
                         Seluruh Data Lengkap
                     </button>
                     @else
+                    {{-- Cek apakah reRegistrationData ada dan isConfirmed bernilai true --}}
+                    @php
+                    $isConfirmed = $reRegistrationData['isConfirmed'] ?? false;
+                    @endphp
+
+                    @if($isConfirmed)
                     <a href="{{ route('biodata') }}"
                         class="w-full flex items-center justify-center gap-2 rounded-xl bg-[#ff1443] hover:bg-[#c90e33] text-white py-2.5 text-sm font-bold transition-all duration-200">
                         <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
                         Lanjutkan Pengisian
                     </a>
+                    @else
+                    {{-- Tombol Disabled dengan tampilan abu-abu dan kursor silang --}}
+                    <button disabled title="Silakan konfirmasi kesediaan terlebih dahulu (Klik tombol Mulai Daftar Ulang)"
+                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-gray-400 text-gray-100 py-2.5 text-sm font-bold cursor-not-allowed opacity-70">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                        Lanjutkan Pengisian
+                    </button>
+                    @endif
                     @endif
                 </div>
 
@@ -1375,7 +1389,7 @@
                         </div>
                     </a>
                     @else
-                    <a href="{{ route('biodata') }}"
+                    <a href="#"
                         class="group rounded-2xl border border-[#e5e7eb] p-5 opacity-70 hover:border-[#9ca3af] transition-all duration-200 cursor-pointer flex flex-col">
                         <div class="flex items-start justify-between mb-4">
                             <div class="w-12 h-12 rounded-2xl bg-[#9ca3af]/10 flex items-center justify-center">
@@ -1407,7 +1421,7 @@
                         </div>
                     </a>
                     @else
-                    <a href="{{ route('biodata') }}"
+                    <a href="#"
                         class="group rounded-2xl border border-[#e5e7eb] p-5 opacity-70 hover:border-[#9ca3af] transition-all duration-200 cursor-pointer flex flex-col">
                         <div class="flex items-start justify-between mb-4">
                             <div class="w-12 h-12 rounded-2xl bg-[#9ca3af]/10 flex items-center justify-center">
