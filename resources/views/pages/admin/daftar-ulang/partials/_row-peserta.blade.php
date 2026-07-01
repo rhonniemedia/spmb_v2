@@ -80,10 +80,12 @@ $alpineData = [
 
     <td class="px-4 py-4 text-left">
         <div class="flex items-center gap-2">
+            @if(in_array(auth()->user()->role ?? '', ['superadmin', 'admin', 'verifikator']))
             <button @click="openStatus({{ json_encode($alpineData) }})" title="Kelola Status Daftar Ulang"
                 class="flex items-center justify-center p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors cursor-pointer">
                 <i data-lucide="settings-2" class="size-4"></i>
             </button>
+            @endif
         </div>
     </td>
 </tr>

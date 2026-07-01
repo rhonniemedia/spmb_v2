@@ -93,7 +93,7 @@
             {{-- Tombol Reset memanggil confirmReset() --}}
             <div>
                 {{-- Jika package Spatie tidak jalan, kita gunakan cek manual role user --}}
-                @if(in_array(auth()->user()->role ?? '', ['superadmin', 'admin']))
+                @if(in_array(auth()->user()->role ?? '', ['superadmin', 'admin', 'verifikator']))
                 <button type="button" @click="confirmReset()" :disabled="loading || activePeserta?.data_status === 'incomplete'"
                     class="px-4 py-2 border border-error/30 text-error hover:bg-error/10 text-xs font-bold rounded-lg transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
                     <i data-lucide="rotate-ccw" class="size-3.5"></i> Reset Progres
