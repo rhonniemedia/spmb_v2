@@ -55,7 +55,7 @@
                             <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Hasil Seleksi</span>
                         </div>
                     </a>
-                    <a href="#" class="group cursor-pointer">
+                    <a href="{{route('admin.daftar-ulang.index')}}" class="group cursor-pointer {{ request()->routeIs('admin.daftar-ulang.index') ? 'active' : '' }}">
                         <div class="flex items-center rounded-xl p-3 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all duration-300">
                             <i data-lucide="log-in" class="size-5 text-secondary group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300"></i>
                             <span class="font-medium text-sm text-secondary group-[.active]:font-semibold group-[.active]:text-foreground group-hover:text-foreground transition-all duration-300">Daftar Ulang</span>

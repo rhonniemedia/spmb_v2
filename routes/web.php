@@ -7,11 +7,9 @@ use App\Http\Controllers\Admin\PlacementController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RegistrationDataController as AdminRegistrationDataController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ReRegistrationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
-
-use App\Http\Controllers\User\ReportController as UserReportController;
-
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\ApplicantAuthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -24,6 +22,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ParentDataController;
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\RegistrationDataController as UserRegistrationDataController;
+use App\Http\Controllers\User\ReportController as UserReportController;
 use App\Http\Controllers\UserDashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -172,6 +171,20 @@ Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->pre
         Route::put('/data', [ProfileController::class, 'updateData'])->name('update-data');
         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('update-password');
         Route::post('/photo', [ProfileController::class, 'updatePhoto'])->name('update-photo');
+    });
+
+    Route::prefix('re-registration')->name('daftar-ulang.')->group(function () {
+        Route::get('/', [ReRegistrationController::class, 'index'])->name('index');
+
+        // Verifikator, admin, superadmin: putuskan verifikasi berkas (pending -> verified/rejected)
+        Route::put('/{id}/decision', [ReRegistrationController::class, 'decision'])
+            ->middleware('role:superadmin,admin,verifikator')
+            ->name('decision');
+
+        // Khusus admin & superadmin: reset progres daftar ulang peserta
+        Route::put('/{id}/reset', [ReRegistrationController::class, 'reset'])
+            ->middleware('role:superadmin,admin')
+            ->name('reset');
     });
 });
 

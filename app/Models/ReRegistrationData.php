@@ -14,8 +14,22 @@ class ReRegistrationData extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'announced_at'     => 'datetime',
+        'confirmed_at'     => 'datetime',
+        're_registered_at' => 'datetime',
+        'verified_at'      => 'datetime',
+        'completed_at'     => 'datetime',
+    ];
+
     public function registrationData()
     {
         return $this->belongsTo(RegistrationData::class, 'registration_data_id');
+    }
+
+    // ── TAMBAHAN: siapa admin/verifikator yang memutuskan verifikasi ──
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 }
