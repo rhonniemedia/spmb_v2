@@ -1429,6 +1429,162 @@
         </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════
+       QUICK ACCESS
+  ═══════════════════════════════════════════ -->
+    <section class="mt-8">
+        <div class="mb-5">
+            <h2 class="text-xl font-bold">Akses Cepat</h2>
+            <p class="text-sm text-[#6a7686] mt-0.5">Fitur dan layanan yang tersedia selama proses daftar ulang.</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <a href="#" class="group relative overflow-hidden rounded-2xl bg-white border border-[#e5e7eb] card-hover cursor-pointer flex flex-col">
+                <div class="h-1.5 bg-gradient-to-r from-[#ff1443] to-[#f43f5e]"></div>
+                <div class="p-5 flex flex-col flex-1">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-[#ff1443]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shrink-0">
+                            <i data-lucide="file" class="w-6 h-6 text-[#ff1443]"></i>
+                        </div>
+                        <span class="text-[10px] font-bold bg-[#fee2e2] text-[#ff1443] px-2 py-0.5 rounded-full">80%</span>
+                    </div>
+                    <p class="font-bold text-[#080c1a] leading-tight">Biodata</p>
+                    <p class="text-xs text-[#6a7686] mt-1 leading-5 flex-1">Lengkapi data pribadi murid baru.</p>
+                    <div class="mt-4 flex items-center gap-1 text-xs font-bold text-[#ff1443] group-hover:gap-2 transition-all duration-200">
+                        Buka <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    </div>
+                </div>
+            </a>
+
+            <a href="#" class="group relative overflow-hidden rounded-2xl bg-white border border-[#e5e7eb] card-hover cursor-pointer flex flex-col">
+                <div class="h-1.5 bg-gradient-to-r from-[#30b22d] to-[#4ade80]"></div>
+                <div class="p-5 flex flex-col flex-1">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-[#30b22d]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shrink-0">
+                            <i data-lucide="check-circle-2" class="w-6 h-6 text-[#30b22d]"></i>
+                        </div>
+                        <span class="text-[10px] font-bold bg-[#dcfce7] text-[#166534] px-2 py-0.5 rounded-full">Selesai</span>
+                    </div>
+                    <p class="font-bold text-[#080c1a] leading-tight">Konfirmasi</p>
+                    <p class="text-xs text-[#6a7686] mt-1 leading-5 flex-1">Konfirmasi kesediaan daftar ulang.</p>
+                    <div class="mt-4 flex items-center gap-1 text-xs font-bold text-[#30b22d] group-hover:gap-2 transition-all duration-200">
+                        Buka <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    </div>
+                </div>
+            </a>
+
+            <a href="#" class="group relative overflow-hidden rounded-2xl bg-white border border-[#e5e7eb] card-hover cursor-pointer flex flex-col">
+                <div class="h-1.5 bg-gradient-to-r from-[#f59e0b] to-[#fbbf24]"></div>
+                <div class="p-5 flex flex-col flex-1">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-[#f59e0b]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shrink-0">
+                            <i data-lucide="printer" class="w-6 h-6 text-[#f59e0b]"></i>
+                        </div>
+                        <span class="text-[10px] font-bold bg-[#30b22d]/10 text-[#166534] px-2 py-0.5 rounded-full">Siap Cetak</span>
+                    </div>
+                    <p class="font-bold text-[#080c1a] leading-tight">Cetak Bukti</p>
+                    <p class="text-xs text-[#6a7686] mt-1 leading-5 flex-1">Cetak bukti lolos dan daftar ulang.</p>
+                    <div class="mt-4 flex items-center gap-1 text-xs font-bold text-[#f59e0b] group-hover:gap-2 transition-all duration-200">
+                        Buka <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    </div>
+                </div>
+            </a>
+
+            <a href="#" class="group relative overflow-hidden rounded-2xl bg-white border border-[#e5e7eb] card-hover cursor-pointer flex flex-col">
+                <div class="h-1.5 bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8]"></div>
+                <div class="p-5 flex flex-col flex-1">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-[#0ea5e9]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shrink-0">
+                            <i data-lucide="calendar-days" class="w-6 h-6 text-[#0ea5e9]"></i>
+                        </div>
+                        <span class="text-[10px] font-bold bg-[#0ea5e9]/10 text-[#0ea5e9] px-2 py-0.5 rounded-full">21 Jul</span>
+                    </div>
+                    <p class="font-bold text-[#080c1a] leading-tight">Jadwal</p>
+                    <p class="text-xs text-[#6a7686] mt-1 leading-5 flex-1">Detail jadwal kegiatan registrasi ulang.</p>
+                    <div class="mt-4 flex items-center gap-1 text-xs font-bold text-[#0ea5e9] group-hover:gap-2 transition-all duration-200">
+                        Buka <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+       PENGUMUMAN + FAQ DAFTAR ULANG
+  ═══════════════════════════════════════════ -->
+    <section class="mt-8 grid lg:grid-cols-2 gap-6">
+
+        <!-- Pengumuman Daftar Ulang -->
+        <div x-data="{ open: 0 }" class="bg-white rounded-2xl border border-[#e5e7eb]">
+            <div class="p-6 border-b border-[#e5e7eb]">
+                <h2 class="font-bold text-lg">Pengumuman</h2>
+                <p class="text-sm text-[#6a7686] mt-0.5">Informasi penting seputar daftar ulang.</p>
+            </div>
+            <div class="divide-y divide-[#e5e7eb]">
+                <template x-for="(item, index) in [
+          { icon: 'calendar-check', color: 'text-[#30b22d]', bg: 'bg-[#30b22d]/10', title: 'MPLS dimulai 21 Juli 2026', date: '12 Juli 2026', body: 'Masa Pengenalan Lingkungan Sekolah (MPLS) akan dilaksanakan pada tanggal 21–23 Juli 2026 mulai pukul 07.00 WIB di Aula Utama SMK.' },
+          { icon: 'users', color: 'text-[#3b82f6]', bg: 'bg-[#3b82f6]/10', title: 'Orang tua wajib hadir saat daftar ulang', date: '12 Juli 2026', body: 'Orang tua atau wali siswa diwajibkan hadir pada saat proses daftar ulang untuk penandatanganan berkas dan verifikasi dokumen asli.' },
+          { icon: 'file-search', color: 'text-[#f59e0b]', bg: 'bg-[#f59e0b]/10', title: 'Bawa dokumen asli saat verifikasi', date: '13 Juli 2026', body: 'Seluruh peserta wajib membawa dokumen asli (KK, Akta Kelahiran, Ijazah/SKL, Rapor) pada saat verifikasi tatap muka di sekolah.' }
+        ]">
+                    <div>
+                        <button @click="open == index ? open = -1 : open = index"
+                            class="w-full p-5 flex items-center justify-between gap-3 hover:bg-[#eff2f7] transition-colors cursor-pointer">
+                            <div class="flex items-center gap-3 text-left">
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="item.bg">
+                                    <i :data-lucide="item.icon" class="w-3.5 h-3.5" :class="item.color"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-sm" x-text="item.title"></p>
+                                    <p class="text-xs text-[#6a7686] mt-0.5" x-text="item.date"></p>
+                                </div>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#6a7686] shrink-0 transition-transform duration-300"
+                                :class="{ 'rotate-180': open === index }"></i>
+                        </button>
+                        <div x-show="open === index" x-transition
+                            class="px-5 pb-5 text-sm text-[#6a7686] leading-6 ml-11" style="display:none">
+                            <span x-text="item.body"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- FAQ Daftar Ulang -->
+        <div x-data="{ open: null }" class="bg-white rounded-2xl border border-[#e5e7eb]">
+            <div class="p-6 border-b border-[#e5e7eb]">
+                <h2 class="font-bold text-lg">Pertanyaan Umum</h2>
+                <p class="text-sm text-[#6a7686] mt-0.5">FAQ seputar proses registrasi ulang.</p>
+            </div>
+            <div class="divide-y divide-[#e5e7eb]">
+                <template x-for="(faq, index) in [
+                { q: 'Apa saja dokumen yang harus dibawa saat daftar ulang?', a: 'Dokumen yang wajib dibawa meliputi: KK asli, Akta Kelahiran asli, Ijazah/SKL asli, Rapor asli, Pas Foto 3x4 (4 lembar), dan Surat Pernyataan yang sudah ditandatangani orang tua.' },
+                { q: 'Bagaimana jika salah upload berkas daftar ulang?', a: 'Anda dapat mengunggah ulang berkas sebelum batas waktu daftar ulang. Pastikan format file PDF/JPG dengan ukuran maksimal 2 MB per berkas.' },
+                { q: 'Apakah orang tua wajib hadir saat daftar ulang?', a: 'Ya, orang tua atau wali siswa wajib hadir untuk penandatanganan formulir pernyataan dan verifikasi dokumen asli di sekolah.' },
+                { q: 'Apa yang terjadi jika melewati batas waktu daftar ulang?', a: 'Peserta yang tidak melakukan daftar ulang sampai batas waktu yang ditentukan dianggap mengundurkan diri dan posisinya dapat digantikan oleh peserta cadangan.' }
+                ]">
+                    <div>
+                        <button @click="open === index ? open = null : open = index"
+                            class="w-full p-5 flex items-center justify-between gap-3 hover:bg-[#eff2f7] transition-colors cursor-pointer">
+                            <p class="font-semibold text-sm text-left" x-text="faq.q"></p>
+                            <div class="w-6 h-6 rounded-full border border-[#e5e7eb] flex items-center justify-center shrink-0 transition-all duration-300"
+                                :class="{ 'bg-[#ff1443] border-[#ff1443] rotate-45': open === index }">
+                                <i data-lucide="plus" class="w-3 h-3"
+                                    :class="{ 'text-white': open === index, 'text-[#6a7686]': open !== index }"></i>
+                            </div>
+                        </button>
+                        <div x-show="open === index" x-transition
+                            class="px-5 pb-5 text-sm text-[#6a7686] leading-6" style="display:none">
+                            <span x-text="faq.a"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+    </section>
+
     <!-- Modal Konfirmasi -->
 
     <div

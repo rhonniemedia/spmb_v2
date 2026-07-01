@@ -56,8 +56,16 @@ class PersonalDataController extends Controller
         // KONDISI 2: Validasi pendaftaran SPMB awal biasa
         $isFinal = $personalData && $personalData->isFinal();
 
+        // --- TAMBAHAN PERBAIKAN LOGIKA DI SINI ---
+        // Cek apakah ini masa daftar ulang TAPI status kelengkapan data masih incomplete
+        $isReRegistrationIncomplete = $isReRegistrationActive
+            && $reReg
+            && $reReg->data_status === 'incomplete'
+            && $reReg->re_registered_at === null;
+
         // Jika biodata sudah final atau sedang dalam masa daftar ulang, arahkan ke resume-biodata
-        if ($isFinal || $isReRegistrationActive) {
+        // KECUALI jika status daftar ulang masih incomplete (izinkan akses form biodata)
+        if (($isFinal || $isReRegistrationActive) && !$isReRegistrationIncomplete) {
             $parentData = $personalData->parents ?? collect();
 
             return view('pages.user.resume-biodata', [
@@ -70,8 +78,9 @@ class PersonalDataController extends Controller
                 'reReg'                  => $reReg
             ]);
         }
+        // --- AKHIR PERBAIKAN ---
 
-        // Jika belum masuk tahap final pendaftaran biasa
+        // Jika belum masuk tahap final pendaftaran biasa atau data daftar ulang masih incomplete
         return view('pages.user.biodata', [
             'personalData'         => $personalData,
             'isFinal'              => false,

@@ -9,6 +9,9 @@ use App\Http\Controllers\Admin\RegistrationDataController as AdminRegistrationDa
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
+
+use App\Http\Controllers\User\ReportController as UserReportController;
+
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\ApplicantAuthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -222,6 +225,15 @@ Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->group(func
         Route::post('/submit', [UserRegistrationDataController::class, 'submit'])->name('submit');
         Route::get('/success', [UserRegistrationDataController::class, 'successScreen'])->name('success');
     });
+
+    // Laporan
+    Route::get('/biodata/print', [UserReportController::class, 'cetakBiodataPribadi'])->name('laporan-biodata');
+    Route::get('/surat-pernyataan/print', [UserReportController::class, 'cetakSuratPernyataan'])->name('laporan-surat-pernyataan');
+
+    // Tambahkan di dalam route group user
+    Route::get('/bukti-kelulusan/print', [UserReportController::class, 'cetakBuktiKelulusan'])->name('laporan-kelulusan');
+
+    Route::get('/bukti-daftar-ulang/print', [UserReportController::class, 'cetakBuktiDaftarUlang'])->name('laporan-daftar-ulang');
 
     // Halaman Lainnya
     Route::view('/re-registration', 'pages.user.daftar-ulang')->name('daftar-ulang');
