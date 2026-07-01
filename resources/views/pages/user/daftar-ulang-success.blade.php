@@ -71,7 +71,7 @@
             </a>
 
             {{-- Tombol Cetak Bukti Daftar Ulang --}}
-            <a href="{{ route('admin.pendaftar.cetak', $personalData->id) }}" target="_blank"
+            <a href="{{ route('laporan-daftar-ulang') }}" target="_blank"
                 class="px-8 py-3 bg-[#FF1443] text-white rounded-full text-base font-bold hover:bg-[#c90e33] transition-all shadow-[0_4px_14px_rgba(255,20,67,0.25)]">
                 <i class="fa-solid fa-print mr-2"></i> Cetak Bukti Daftar Ulang
             </a>
