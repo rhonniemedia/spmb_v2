@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Concentration;
 use App\Models\ReRegistrationData;
 use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
@@ -15,15 +16,22 @@ class ReRegistrationController extends Controller
 
     public function index(Request $request)
     {
-        $search        = $request->input('search');
-        $filterStatus  = $request->input('filter_status');  // pending|processing|verified|rejected
-        $filterBerkas  = $request->input('filter_berkas');  // incomplete|complete
+        $search              = $request->input('search');
+        $filterStatus        = $request->input('filter_status');        // pending|processing|verified|rejected
+        $filterBerkas        = $request->input('filter_berkas');        // incomplete|complete
+        $filterConcentration = $request->input('filter_concentration'); // uuid Concentration
 
         $stats = $this->getGlobalStats();
+
+        // Daftar konsentrasi keahlian aktif untuk opsi dropdown filter.
+        $concentrations = Concentration::where('status', 'active')
+            ->orderBy('name')
+            ->get();
 
         $daftarUlang = ReRegistrationData::with([
             'registrationData.personalData',
             'registrationData.admissionPath',
+            'registrationData.latestSelectionResult.acceptedConcentration',
             'verifiedBy',
         ])
             ->when($search, function ($query) use ($search) {
@@ -37,12 +45,19 @@ class ReRegistrationController extends Controller
             })
             ->when($filterStatus, fn($q) => $q->where('verification_status', $filterStatus))
             ->when($filterBerkas, fn($q) => $q->where('data_status', $filterBerkas))
+            // Filter berdasarkan konsentrasi keahlian tempat peserta dinyatakan diterima
+            // (SelectionResult batch terbaru), bukan pilihan 1/2/3 saat mendaftar.
+            ->when($filterConcentration, function ($q) use ($filterConcentration) {
+                $q->whereHas('registrationData.latestSelectionResult', function ($q2) use ($filterConcentration) {
+                    $q2->where('accepted_concentration_id', $filterConcentration);
+                });
+            })
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
         return view('pages.admin.daftar-ulang.daftar-ulang', array_merge(
-            compact('daftarUlang', 'search', 'filterStatus', 'filterBerkas'),
+            compact('daftarUlang', 'search', 'filterStatus', 'filterBerkas', 'filterConcentration', 'concentrations'),
             $stats
         ));
     }

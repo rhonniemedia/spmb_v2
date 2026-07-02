@@ -394,4 +394,85 @@ class ReportController extends Controller
 
         return $pdf->stream('Daftar_Ditolak_Batch_' . $latestBatch . '.pdf');
     }
+
+    /**
+     * 8. Cetak Hasil Daftar Ulang Per Jurusan 
+     * (Berdasarkan Data Penjenjangan yang Diterima)
+     */
+    public function daftarUlang(Request $request)
+    {
+        $latestBatch = SelectionResult::max('batch') ?? 0;
+
+        if ($latestBatch == 0) {
+            return back()->with('error', 'Belum ada data penjenjangan untuk dicetak.');
+        }
+
+        // Ambil jurusan yang aktif
+        $dataKeahlian = Concentration::where('status', 'active')->orderBy('name')->get();
+
+        // 1. Ambil SEMUA data penjenjangan yang DITERIMA
+        $acceptedResults = SelectionResult::with(['registration.personalData'])
+            ->where('batch', $latestBatch)
+            ->where('status', 'accepted')
+            ->get();
+
+        // 2. Ambil data daftar ulang untuk peserta-peserta yang diterima tersebut
+        $registrationIds = $acceptedResults->pluck('registration_id');
+
+        // PERBAIKAN: Menggunakan 'registration_data_id' sesuai skema database Anda
+        $reRegistrations = \App\Models\ReRegistrationData::whereIn('registration_data_id', $registrationIds)
+            ->get()
+            ->keyBy('registration_data_id');
+
+        // 3. Map data untuk digabungkan
+        $mappedData = $acceptedResults->map(function ($result) use ($reRegistrations) {
+            $reg = $result->registration;
+            $personal = $reg->personalData ?? null;
+
+            // Cari data daftar ulang berdasarkan ID pendaftaran
+            $reReg = $reRegistrations->get($reg->id);
+
+            // Default state (Belum daftar ulang / belum verifikasi)
+            $tanggalDaftarUlang = '-';
+            $keterangan = 'B';
+
+            if ($reReg) {
+                if ($reReg->verification_status === 'verified') {
+                    // Jika sudah diverifikasi, ambil tanggal verifikasinya
+                    $tanggalDaftarUlang = $reReg->verified_at ? \Carbon\Carbon::parse($reReg->verified_at)->format('d/m/Y') : '-';
+                    $keterangan = 'V';
+                } elseif ($reReg->verification_status === 'rejected') {
+                    $keterangan = 'D';
+                } elseif (in_array($reReg->verification_status, ['pending', 'processing'])) {
+                    $keterangan = 'M';
+                }
+            }
+
+            return (object) [
+                'concentration_id' => $result->accepted_concentration_id ?? null,
+                'registration_number' => $reg->registration_number ?? '-',
+                'student_name' => $personal->full_name ?? '-',
+                'gender' => $personal->gender ?? '-',
+                'asal_sekolah' => $personal->previous_school ?? '-',
+                'tanggal_daftar_ulang' => $tanggalDaftarUlang,
+                'keterangan' => $keterangan
+            ];
+        });
+
+        // 4. Mengelompokkan berdasarkan ID Konsentrasi (Jurusan Diterima)
+        $pendaftarPerKeahlian = $mappedData->groupBy('concentration_id')->map(function ($group) {
+            // Urutkan berdasarkan nama siswa alfabetis
+            return $group->sortBy('student_name')->values();
+        });
+
+        $tanggalHariIni = $this->getTanggalCetak();
+
+        $pdf = Pdf::loadView('pages.admin.laporan.daftar-ulang-jurusan', compact(
+            'dataKeahlian',
+            'pendaftarPerKeahlian',
+            'tanggalHariIni'
+        ))->setPaper('A4', 'landscape');
+
+        return $pdf->stream('Laporan_Daftar_Ulang_' . date('Ymd') . '.pdf');
+    }
 }

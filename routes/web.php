@@ -164,6 +164,7 @@ Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->pre
         Route::get('/placement', [ReportController::class, 'penjenjangan'])->name('penjenjangan');
         Route::get('/placement-rejected', [ReportController::class, 'penjenjanganDitolak'])->name('penjenjangan-ditolak');
         Route::get('/placement-pending', [ReportController::class, 'penjenjanganDipending'])->name('penjenjangan-pending');
+        Route::get('/re-registration', [ReportController::class, 'daftarUlang'])->name('daftar-ulang');
     });
 
     Route::prefix('profile')->name('profil.')->group(function () {
@@ -183,7 +184,7 @@ Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->pre
 
         // Khusus admin & superadmin: reset progres daftar ulang peserta
         Route::put('/{id}/reset', [ReRegistrationController::class, 'reset'])
-            ->middleware('role:superadmin,admin')
+            ->middleware('role:superadmin,admin,verifikator')
             ->name('reset');
     });
 });

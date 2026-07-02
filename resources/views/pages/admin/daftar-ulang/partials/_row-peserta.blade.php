@@ -8,8 +8,9 @@ $phone = $r->registrationData->personalData->phone_number ?? '-';
 $sekolah = $r->registrationData->personalData->previous_school ?? '-';
 $regNumber = $r->registrationData->registration_number ?? '-';
 $jalur = $r->registrationData->admissionPath->name ?? 'Jalur Reguler';
+$konsentrasi = $r->registrationData->latestSelectionResult->acceptedConcentration->name ?? '-';
 
-$dataStatusLabel = $r->data_status === 'complete' ? 'Berkas Lengkap' : 'Berkas Belum Lengkap';
+$dataStatusLabel = $r->data_status === 'complete' ? 'Data Lengkap' : 'Data Belum Lengkap';
 
 $verifLabel = match ($r->verification_status) {
 'verified' => 'Terverifikasi',
@@ -28,6 +29,7 @@ $alpineData = [
 'sekolah' => $sekolah,
 'phone' => $phone,
 'jalur' => $jalur,
+'konsentrasi' => $konsentrasi,
 
 'data_status' => $r->data_status,
 'verification_status' => $r->verification_status,
@@ -60,22 +62,44 @@ $alpineData = [
 
     <td class="px-4 py-4">
         <div class="text-sm font-medium text-foreground uppercase">{{ $sekolah }}</div>
-        <div class="text-xs text-secondary">{{ $jalur }}</div>
+        <div class="text-xs text-secondary">{{ $jalur }} &middot; {{ $konsentrasi }}</div>
     </td>
 
+    <!-- SEBELUMNYA ADA 2 KOLOM (Status Berkas & Verifikasi), SEKARANG DIGABUNG -->
     <td class="px-4 py-4">
-        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold {{ $r->data_status === 'complete' ? 'bg-success/10 text-success-dark' : 'bg-warning/10 text-warning-dark' }}">
-            {{ $dataStatusLabel }}
-        </span>
-    </td>
+        <div class="flex items-center gap-2">
 
-    <td class="px-4 py-4">
-        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold
-            {{ in_array($r->verification_status, ['pending', 'processing']) ? 'bg-warning/10 text-warning-dark' : '' }}
-            {{ $r->verification_status === 'verified' ? 'bg-success/10 text-success-dark' : '' }}
-            {{ $r->verification_status === 'rejected' ? 'bg-error/10 text-error-dark' : '' }}">
-            {{ $verifLabel }}
-        </span>
+            {{-- 1. Ikon Status Berkas (Menggunakan ikon File) --}}
+            @if($r->data_status === 'complete')
+            <div title="Data Lengkap" class="p-1.5 rounded-md bg-success/10 text-success-dark">
+                <i data-lucide="file-check" class="size-4"></i>
+            </div>
+            @else
+            <div title="Data Belum Lengkap" class="p-1.5 rounded-md bg-warning/10 text-warning-dark">
+                <i data-lucide="file-x" class="size-4"></i>
+            </div>
+            @endif
+
+            {{-- 2. Ikon Status Verifikasi --}}
+            @if($r->verification_status === 'verified')
+            <div title="Terverifikasi" class="p-1.5 rounded-md bg-success/10 text-success-dark">
+                <i data-lucide="check-circle" class="size-4"></i>
+            </div>
+            @elseif(in_array($r->verification_status, ['pending', 'processing']))
+            <div title="Menunggu / Diproses" class="p-1.5 rounded-md bg-warning/10 text-warning-dark">
+                <i data-lucide="clock" class="size-4"></i>
+            </div>
+            @elseif($r->verification_status === 'rejected')
+            <div title="Ditolak" class="p-1.5 rounded-md bg-error/10 text-error-dark">
+                <i data-lucide="x-circle" class="size-4"></i>
+            </div>
+            @else
+            <div title="Menunggu" class="p-1.5 rounded-md bg-secondary/10 text-secondary">
+                <i data-lucide="help-circle" class="size-4"></i>
+            </div>
+            @endif
+
+        </div>
     </td>
 
     <td class="px-4 py-4 text-left">
