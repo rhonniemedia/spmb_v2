@@ -155,16 +155,25 @@
             $badgeLabel = 'Wajib';
             }
             @endphp
-            <div class="px-6 pt-5 pb-4">
-                <div class="flex items-center gap-4 p-4 rounded-2xl {{ $statusBadgeBg }} border">
-                    <div class="w-12 h-12 rounded-2xl {{ $statusIconBg }} flex items-center justify-center shrink-0">
-                        <i data-lucide="{{ $statusIcon }}" class="w-6 h-6 {{ $statusIconColor }}"></i>
+            <div class="px-4 sm:px-6 pt-4 sm:pt-5 pb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl {{ $statusBadgeBg }} border">
+
+                    <div class="flex items-start sm:items-center gap-3 sm:gap-4 flex-1">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl {{ $statusIconBg }} flex items-center justify-center shrink-0">
+                            <i data-lucide="{{ $statusIcon }}" class="w-5 h-5 sm:w-6 sm:h-6 {{ $statusIconColor }}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold text-sm sm:text-base {{ $statusTextColor }}">{{ $statusTitle }}</p>
+                            <p class="text-xs sm:text-sm {{ $statusSubColor }} mt-0.5 leading-relaxed">{{ $statusDesc }}</p>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <p class="font-bold {{ $statusTextColor }}">{{ $statusTitle }}</p>
-                        <p class="text-sm {{ $statusSubColor }} mt-0.5">{{ $statusDesc }}</p>
+
+                    <div class="flex sm:shrink-0 ml-[52px] sm:ml-0 mt-1 sm:mt-0">
+                        <span class="text-[10px] sm:text-xs font-bold {{ $badgeBg }} text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full inline-block">
+                            {{ $badgeLabel }}
+                        </span>
                     </div>
-                    <span class="text-xs font-bold {{ $badgeBg }} text-white px-3 py-1.5 rounded-full shrink-0">{{ $badgeLabel }}</span>
+
                 </div>
             </div>
 
@@ -619,24 +628,25 @@
             </div>
 
             <div class="p-6 flex flex-col gap-5 flex-1">
-                <div class="rounded-2xl bg-[#080c1a] p-6 flex-1">
+                <div class="rounded-2xl bg-[#080c1a] p-4 sm:p-6 flex-1">
                     <div class="flex items-center gap-2 mb-5">
                         <i data-lucide="clipboard-check" class="w-4 h-4 text-[#ff1443]"></i>
                         <p class="text-xs font-bold text-white uppercase tracking-widest">Registrasi Ulang</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-2 flex items-start gap-3 pb-4 border-b border-white/10">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <div class="sm:col-span-2 flex items-start gap-3 pb-4 border-b border-white/10">
                             <div class="w-9 h-9 rounded-xl bg-[#ff1443]/20 flex items-center justify-center shrink-0">
                                 <i data-lucide="calendar" class="w-4 h-4 text-[#ff1443]"></i>
                             </div>
                             <div>
                                 <p class="text-[10px] text-[#6a7686] font-medium mb-0.5">Hari / Tanggal</p>
-                                <p class="text-base font-bold text-white">{{ $jadwalTanggal }}</p>
+                                <p class="text-sm sm:text-base font-bold text-white">{{ $jadwalTanggal }}</p>
                             </div>
                         </div>
 
-                        <div class="flex items-start gap-3">
+                        <div class="flex items-start gap-3 pb-4 border-b border-white/10 sm:pb-0 sm:border-b-0">
                             <div class="w-9 h-9 rounded-xl bg-[#f59e0b]/20 flex items-center justify-center shrink-0">
                                 <i data-lucide="clock" class="w-4 h-4 text-[#f59e0b]"></i>
                             </div>
@@ -660,7 +670,7 @@
                             </div>
                         </div>
 
-                        <div class="col-span-2 flex items-start gap-3 pt-4 border-t border-white/10">
+                        <div class="sm:col-span-2 flex items-start gap-3 pt-4 border-t border-white/10">
                             <div class="w-9 h-9 rounded-xl bg-[#3b82f6]/20 flex items-center justify-center shrink-0">
                                 <i data-lucide="shirt" class="w-4 h-4 text-[#3b82f6]"></i>
                             </div>
@@ -669,6 +679,7 @@
                                 <p class="text-sm font-bold text-white">Seragam Asal Sekolah (Rapi & Bersepatu)</p>
                             </div>
                         </div>
+
                     </div>
                 </div>
 

@@ -20,10 +20,16 @@
             margin: 0;
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            /* PERUBAHAN: Ubah center ke flex-start agar konten panjang tidak terpotong di atas saat di HP */
+            align-items: flex-start;
             justify-content: center;
-            overflow: hidden;
+            /* PERUBAHAN: Izinkan scroll vertikal, cegah horizontal */
+            overflow-x: hidden;
+            overflow-y: auto;
             color: #0f172a;
+            /* PERUBAHAN: Tambahkan padding agar kartu tidak menempel di ujung layar HP */
+            padding: 2rem 1rem;
+            box-sizing: border-box;
         }
 
         /* ── ANIMATED MESH GRADIENT BACKGROUND ── */
@@ -132,7 +138,8 @@
             width: 100%;
             max-width: 480px;
             padding: 2.5rem;
-            margin: 1rem;
+            /* PERUBAHAN: Gunakan auto agar tetap berada di tengah layar jika ruang cukup */
+            margin: auto;
             overflow: hidden;
         }
 
@@ -143,6 +150,20 @@
             background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.8), transparent 60%);
             z-index: -1;
             border-radius: 2.5rem;
+        }
+
+        /* PERUBAHAN: Penyesuaian tampilan khusus untuk layar kecil (Mobile) */
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 1.5rem;
+                /* Kurangi padding di HP agar ruang lebih lega */
+                border-radius: 1.75rem;
+            }
+
+            h1 {
+                font-size: 1.75rem !important;
+                /* Perkecil sedikit ukuran judul di HP */
+            }
         }
 
         /* ── ANIMATIONS ── */
@@ -249,14 +270,10 @@ $themeClass = $status_kelulusan === 'diterima' ? 'theme-lulus' : 'theme-tolak';
                 <div class="col-span-2 pt-4 border-t border-slate-200/60 mt-1">
                     <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Diterima Kompetensi Keahlian</p>
 
-                    <!-- Bagian Ikon dan Teks yang Dipercantik -->
                     <div class="flex items-center gap-3">
-                        <!-- Wrapper Ikon -->
                         <div class="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200/60 text-blue-600 shadow-sm">
                             <i data-lucide="award" class="w-5 h-5"></i>
                         </div>
-
-                        <!-- Teks Keahlian -->
                         <p class="font-extrabold text-blue-700 text-base md:text-lg leading-snug">
                             {{ $siswa->pilihan_diterima }}
                         </p>
@@ -269,11 +286,11 @@ $themeClass = $status_kelulusan === 'diterima' ? 'theme-lulus' : 'theme-tolak';
             <form action="{{ route('daftar_ulang.proses_masuk') }}" method="POST" class="flex-1 flex">
                 @csrf
                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-sm transition-all duration-300 hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/20 cursor-pointer">
-                    Lanjut & Masuk Dashboard
+                    Lanjut & Masuk
                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </button>
             </form>
-            <form action="{{ route('applicant.logout') }}" method="POST" class="sm:w-1/3">
+            <form action="{{ route('applicant.logout') }}" method="POST" class="sm:w-1/3 flex">
                 @csrf
                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-white/80 text-slate-700 rounded-xl font-bold text-sm border border-slate-200 transition-all duration-300 hover:bg-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/60 cursor-pointer">
                     Keluar

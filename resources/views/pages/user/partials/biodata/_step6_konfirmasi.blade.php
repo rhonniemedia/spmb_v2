@@ -1,5 +1,3 @@
-<!-- STEP 6 — KONFIRMASI -->
-
 {{--
 |==========================================================================
 | STEP 6 — KONFIRMASI & KIRIM
@@ -24,22 +22,22 @@
     class="bg-white border border-gray-200 rounded-[20px] shadow-sm overflow-hidden">
 
     {{-- Header --}}
-    <div class="px-8 pt-6 border-gray-200 flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
-            <i class="fa-solid fa-clipboard-check text-green-600 text-xl"></i>
+    <div class="px-4 sm:px-8 pt-5 sm:pt-6 border-gray-200 flex items-center gap-3 sm:gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-clipboard-check text-green-600 text-lg sm:text-xl"></i>
         </div>
         <div>
-            <h2 class="text-lg font-black text-[#080C1A]">Konfirmasi & Kirim</h2>
-            <p class="text-sm text-[#6A7686]">Tinjau kembali data sebelum dikirimkan</p>
+            <h2 class="text-base sm:text-lg font-black text-[#080C1A]">Konfirmasi & Kirim</h2>
+            <p class="text-xs sm:text-sm text-[#6A7686]">Tinjau kembali data sebelum dikirimkan</p>
         </div>
     </div>
 
-    <div class="px-8 py-7 space-y-5">
+    <div class="px-4 sm:px-8 py-5 sm:py-7 space-y-4 sm:space-y-5">
 
         {{-- Warning --}}
-        <div class="flex gap-3 items-start bg-red-50 border border-red-200 rounded-2xl px-4 py-3.5">
-            <i class="fa-solid fa-triangle-exclamation text-red-500 text-base mt-0.5 flex-shrink-0"></i>
-            <p class="text-sm font-medium text-red-800 leading-relaxed">
+        <div class="flex gap-2.5 sm:gap-3 items-start bg-red-50 border border-red-200 rounded-2xl px-4 py-3 sm:py-3.5">
+            <i class="fa-solid fa-triangle-exclamation text-red-500 text-sm sm:text-base mt-0.5 flex-shrink-0"></i>
+            <p class="text-xs sm:text-sm font-medium text-red-800 leading-relaxed">
                 Setelah data dikirim, perubahan hanya dapat dilakukan melalui panitia SPMB.
                 Pastikan semua data sudah benar.
             </p>
@@ -53,7 +51,7 @@
             hx-trigger="refreshResume from:body"
             hx-swap="innerHTML"
             hx-indicator="#summary-container"
-            class="space-y-6">
+            class="space-y-5 sm:space-y-6">
 
             {{-- Loading skeleton --}}
             <div class="htmx-indicator space-y-3">
@@ -73,12 +71,12 @@
             class="space-y-0">
 
             {{-- Card Pernyataan --}}
-            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
+            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 sm:p-5 space-y-4 sm:space-y-4">
 
                 {{-- Header pernyataan + badge progress --}}
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between flex-wrap gap-2">
                     <p class="text-sm font-bold text-[#080C1A]">Pernyataan Peserta</p>
-                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full transition-all duration-300"
+                    <span class="text-[11px] sm:text-xs font-semibold px-2.5 py-1 rounded-full transition-all duration-300"
                         :class="(check1 && check2 && check3)
                             ? 'bg-green-100 text-green-700'
                             : 'bg-gray-200 text-gray-500'">
@@ -98,7 +96,7 @@
                             :class="check1 ? 'opacity-100' : 'opacity-0'"></i>
                     </div>
                     <input type="checkbox" x-model="check1" class="sr-only">
-                    <span class="text-sm leading-relaxed transition-colors duration-200"
+                    <span class="text-xs sm:text-sm leading-relaxed transition-colors duration-200"
                         :class="check1 ? 'text-[#080C1A]' : 'text-[#6A7686]'">
                         Saya menyatakan bahwa semua data dan dokumen yang saya isi adalah
                         <strong>benar dan sesuai aslinya</strong>.
@@ -115,7 +113,7 @@
                             :class="check2 ? 'opacity-100' : 'opacity-0'"></i>
                     </div>
                     <input type="checkbox" x-model="check2" class="sr-only">
-                    <span class="text-sm leading-relaxed transition-colors duration-200"
+                    <span class="text-xs sm:text-sm leading-relaxed transition-colors duration-200"
                         :class="check2 ? 'text-[#080C1A]' : 'text-[#6A7686]'">
                         Saya menyetujui <strong>Syarat & Ketentuan</strong> serta
                         <strong>Kebijakan Privasi</strong> SPMB SMK Negeri 1 Rejang Lebong.
@@ -132,7 +130,7 @@
                             :class="check3 ? 'opacity-100' : 'opacity-0'"></i>
                     </div>
                     <input type="checkbox" x-model="check3" class="sr-only">
-                    <span class="text-sm leading-relaxed transition-colors duration-200"
+                    <span class="text-xs sm:text-sm leading-relaxed transition-colors duration-200"
                         :class="check3 ? 'text-[#080C1A]' : 'text-[#6A7686]'">
                         Saya bersedia menerima sanksi jika dikemudian hari ditemukan
                         <strong>pemalsuan data</strong>.
@@ -142,7 +140,7 @@
             </div>{{-- /card pernyataan --}}
 
             {{-- ── Footer Navigasi Step 6 — masih dalam x-data scope ── --}}
-            <div class="pt-5 border-t border-gray-200 -mx-8 px-8 pb-0 mt-5">
+            <div class="pt-4 sm:pt-5 border-t border-gray-200 -mx-4 sm:-mx-8 px-4 sm:px-8 pb-0 mt-4 sm:mt-5">
 
                 {{-- Hint saat belum semua dicentang --}}
                 <div x-show="!(check1 && check2 && check3)"
@@ -152,19 +150,20 @@
                     x-transition:leave="transition ease-in duration-150"
                     x-transition:leave-start="opacity-100 translate-y-0"
                     x-transition:leave-end="opacity-0 -translate-y-1"
-                    class="flex items-center gap-2 text-xs text-amber-600 font-medium mb-4">
-                    <i class="fa-solid fa-circle-info flex-shrink-0"></i>
+                    class="flex items-start sm:items-center gap-2 text-[11px] sm:text-xs text-amber-600 font-medium mb-3 sm:mb-4 px-1">
+                    <i class="fa-solid fa-circle-info flex-shrink-0 mt-0.5 sm:mt-0"></i>
                     Centang semua pernyataan di atas untuk mengaktifkan tombol kirim.
                 </div>
 
                 {{-- ── Footer Kirim Biodata ──────────────────────────────────────── --}}
-                <div class="px-8 py-5 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between rounded-b-[20px]">
+                <div class="px-4 sm:px-8 py-4 sm:py-5 border-t border-gray-100 bg-gray-50/50 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0 rounded-b-[20px]">
+
                     <button type="button" @click="step--"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-[#6A7686] border border-gray-200 rounded-full hover:border-[#080C1A] hover:text-[#080C1A] transition-all">
+                        class="flex justify-center items-center gap-2 px-5 py-3 sm:py-2.5 text-sm font-bold text-[#6A7686] border border-gray-300 sm:border-gray-200 rounded-full hover:border-[#080C1A] hover:text-[#080C1A] transition-all w-full sm:w-auto bg-white sm:bg-transparent shadow-sm sm:shadow-none order-2 sm:order-1">
                         <i class="fa-solid fa-arrow-left"></i> Kembali
                     </button>
 
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center w-full sm:w-auto order-1 sm:order-2">
                         <button type="button"
                             hx-post="{{ route('biodata.submit') }}"
                             hx-indicator="#biodata-form"
@@ -172,7 +171,6 @@
                             @htmx:after-request="
                                 const xhr = $event.detail.xhr;
                                 if (xhr.status === 422) {
-                                    // Panggil fungsi penanganan error jika ada
                                     if(typeof setErrors === 'function') setErrors(xhr);
                                 } else if (xhr.status === 200) {
                                     let r = JSON.parse(xhr.response);
@@ -185,17 +183,18 @@
                             :class="(check1 && check2 && check3)
                             ? 'bg-green-600 hover:bg-green-700 hover:-translate-y-px shadow-lg shadow-green-500/30 cursor-pointer'
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none pointer-events-none'"
-                            class="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-black rounded-full text-white transition-all duration-200">
+                            class="flex justify-center items-center gap-2 px-6 sm:px-8 py-3 sm:py-2.5 text-sm font-black rounded-full text-white transition-all duration-200 w-full">
 
                             <span hx-dis-indicator>
-                                <i class="fa-solid fa-paper-plane mr-2"></i> Kirim Biodata Sekarang
+                                <i class="fa-solid fa-paper-plane mr-2"></i> Kirim Biodata
                             </span>
 
                             <span id="next-indicator" class="htmx-indicator gap-2">
-                                <i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...
+                                <i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...
                             </span>
                         </button>
                     </div>
+
                 </div>
 
             </div>{{-- /footer --}}

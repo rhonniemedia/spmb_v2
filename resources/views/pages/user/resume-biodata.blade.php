@@ -514,19 +514,22 @@
                     @endif
 
                     {{-- Container tombol aksi di bagian bawah file resume-biodata.blade.php --}}
-                    <div class="flex gap-3 items-center flex-wrap justify-between" x-data="{ openConfirmModal: false }">
+                    <!-- PERUBAHAN: flex-col-reverse di HP agar tombol aksi utama di atas, menyamping di layar sm -->
+                    <div class="flex flex-col-reverse sm:flex-row sm:items-center gap-3 sm:justify-between" x-data="{ openConfirmModal: false }">
+
+                        <!-- Tombol Kembali -->
                         <a href="{{ route('dashboard') }}"
-                            class="inline-flex items-center gap-[7px] px-[22px] py-[11px] rounded-full font-sans text-[13px] font-bold no-underline bg-white text-[#080C1A] border-[1.5px] border-[#E5E7EB] hover:border-[#080C1A] hover:-translate-y-px transition-all">
-                            <i class="fa-solid fa-gauge"></i>Kembali ke Dashboard
+                            class="flex items-center justify-center gap-[7px] w-full sm:w-auto px-5 sm:px-[22px] py-3.5 sm:py-[11px] rounded-full font-sans text-sm sm:text-[13px] font-bold no-underline bg-white text-[#080C1A] border-[1.5px] border-[#E5E7EB] hover:border-[#080C1A] hover:-translate-y-px transition-all">
+                            <i class="fa-solid fa-gauge"></i> Kembali
                         </a>
 
                         @if(isset($isReRegistrationActive) && $isReRegistrationActive)
                         <button type="button" @click="openConfirmModal = true"
-                            class="inline-flex items-center gap-[7px] px-[22px] py-[11px] rounded-full font-sans text-[13px] font-bold bg-[#FF1443] text-white shadow-[0_4px_14px_rgba(255,20,67,0.25)] hover:bg-[#c90e33] hover:-translate-y-[2px] transition-all cursor-pointer">
+                            class="flex items-center justify-center gap-[7px] w-full sm:w-auto px-5 sm:px-[22px] py-3.5 sm:py-[11px] rounded-full font-sans text-sm sm:text-[13px] font-bold bg-[#FF1443] text-white shadow-[0_4px_14px_rgba(255,20,67,0.25)] hover:bg-[#c90e33] hover:-translate-y-[2px] transition-all cursor-pointer">
                             <i class="fa-solid fa-user-check text-[13px]"></i> Daftar Ulang
                         </button>
                         @else
-                        <button class="inline-flex items-center gap-[7px] px-[22px] py-[11px] rounded-full font-sans text-[13px] font-bold bg-[#30B22D] text-white shadow-[0_4px_14px_rgba(48,178,45,0.25)] hover:bg-[#27A024] hover:-translate-y-[2px] transition-all cursor-pointer disabled:opacity-[0.45] disabled:cursor-not-allowed disabled:transform-none"
+                        <button class="flex items-center justify-center gap-[7px] w-full sm:w-auto px-5 sm:px-[22px] py-3.5 sm:py-[11px] rounded-full font-sans text-sm sm:text-[13px] font-bold bg-[#30B22D] text-white shadow-[0_4px_14px_rgba(48,178,45,0.25)] hover:bg-[#27A024] hover:-translate-y-[2px] transition-all cursor-pointer disabled:opacity-[0.45] disabled:cursor-not-allowed disabled:transform-none"
                             id="regBtn" disabled onclick="submitRegistration()"
                             data-can-register="{{ $canRegister ? 'true' : 'false' }}">
                             <i class="fa-solid fa-rotate-right text-[13px]"></i> Lanjut ke Pendaftaran
@@ -539,35 +542,39 @@
                                 class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                                 style="display: none;">
 
-                                {{-- Backdrop Overlay (Flat, Tanpa Blur, Tanpa Efek Animasi) --}}
+                                {{-- Backdrop Overlay --}}
                                 <div class="fixed inset-0 bg-black/60" @click="openConfirmModal = false"></div>
 
-                                {{-- Kotak Modal Konfirmasi Khas Komponen Profesional --}}
-                                <div class="relative bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl z-[10000] font-sans text-left border border-gray-100">
+                                {{-- Kotak Modal Konfirmasi --}}
+                                <!-- PERUBAHAN: Padding dalam disesuaikan (p-5 di HP, p-6 di PC) -->
+                                <div class="relative bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl z-[10000] font-sans text-left border border-gray-100 mx-auto">
 
-                                    {{-- Konten Utama: Guntingan Baris Kiri Ikon & Kanan Teks --}}
-                                    <div class="flex items-start gap-4">
-                                        {{-- Wadah Ikon Peringatan (Kuning/Oranye Khas Konfirmasi) --}}
-                                        <div class="flex-shrink-0 w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center">
+                                    {{-- Konten Utama --}}
+                                    <div class="flex items-start gap-3 sm:gap-4">
+                                        {{-- Wadah Ikon Peringatan --}}
+                                        <!-- Penyesuaian margin atas di HP agar ikon sejajar dengan teks -->
+                                        <div class="flex-shrink-0 w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mt-0.5 sm:mt-0">
                                             <i class="fa-solid fa-triangle-exclamation text-lg"></i>
                                         </div>
 
                                         {{-- Pesan Konfirmasi --}}
                                         <div class="flex-1">
-                                            <h3 class="text-lg font-bold text-[#080C1A] leading-6">
+                                            <h3 class="text-base sm:text-lg font-bold text-[#080C1A] leading-6">
                                                 Konfirmasi Pendaftaran Ulang
                                             </h3>
-                                            <p class="text-sm text-[#6A7686] mt-2 leading-relaxed">
+                                            <p class="text-[13px] sm:text-sm text-[#6A7686] mt-1.5 sm:mt-2 leading-relaxed">
                                                 Apakah Anda yakin ingin menyelesaikan proses ini? Tindakan ini akan mengunci seluruh data dokumen fisik Anda ke sistem akademik SPMB. Berkas yang telah dikirim tidak dapat diubah kembali.
                                             </p>
                                         </div>
                                     </div>
 
-                                    {{-- Baris Tombol Aksi (Rata Kanan di Bagian Bawah) --}}
-                                    <div class="flex items-center justify-end gap-2.5 mt-6 pt-4 border-t border-gray-100">
+                                    {{-- Baris Tombol Aksi --}}
+                                    <!-- PERUBAHAN: Tombol dalam modal dibuat menumpuk vertikal di HP (flex-col-reverse) -->
+                                    <div class="flex flex-col-reverse sm:flex-row items-stretch sm:justify-end gap-2.5 sm:gap-2.5 mt-5 sm:mt-6 pt-4 border-t border-gray-100">
+
                                         {{-- Tombol Batal --}}
                                         <button type="button" @click="openConfirmModal = false"
-                                            class="px-4 py-2 bg-white hover:bg-gray-50 text-[#080C1A] border border-gray-200 rounded-xl text-xs font-semibold transition-all cursor-pointer">
+                                            class="w-full sm:w-auto flex justify-center items-center px-4 py-3 sm:py-2 bg-white hover:bg-gray-50 text-[#080C1A] border border-gray-200 rounded-xl text-[13px] sm:text-xs font-semibold transition-all cursor-pointer">
                                             Batal
                                         </button>
 
@@ -595,9 +602,10 @@
                                                     alert('Terjadi kendala koneksi sistem.');
                                                 });
                                             "
-                                            class="px-4 py-2 bg-[#FF1443] hover:bg-[#c90e33] text-white rounded-xl text-xs font-semibold transition-all shadow-sm cursor-pointer">
+                                            class="w-full sm:w-auto flex justify-center items-center px-4 py-3 sm:py-2 bg-[#FF1443] hover:bg-[#c90e33] text-white rounded-xl text-[13px] sm:text-xs font-semibold transition-all shadow-sm cursor-pointer">
                                             Ya, Daftar Ulang
                                         </button>
+
                                     </div>
 
                                 </div>
