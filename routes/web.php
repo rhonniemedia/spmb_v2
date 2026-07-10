@@ -165,6 +165,7 @@ Route::middleware(['auth', 'role:superadmin,admin,verifikator,observator'])->pre
         Route::get('/placement-rejected', [ReportController::class, 'penjenjanganDitolak'])->name('penjenjangan-ditolak');
         Route::get('/placement-pending', [ReportController::class, 'penjenjanganDipending'])->name('penjenjangan-pending');
         Route::get('/re-registration', [ReportController::class, 'daftarUlang'])->name('daftar-ulang');
+        Route::get('/daftar-ulang/excel', [ReportController::class, 'daftarUlangExcel'])->name('daftar-ulang.excel');
     });
 
     Route::prefix('profile')->name('profil.')->group(function () {

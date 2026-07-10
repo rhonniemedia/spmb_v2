@@ -396,15 +396,18 @@ class ReportController extends Controller
     }
 
     /**
-     * 8. Cetak Hasil Daftar Ulang Per Jurusan 
-     * (Berdasarkan Data Penjenjangan yang Diterima)
+     * Helper bersama: menyusun data Daftar Ulang Per Jurusan.
+     * Dipakai baik oleh cetak PDF (daftarUlang) maupun ekspor Excel (daftarUlangExcel)
+     * supaya query & mapping-nya tidak duplikat.
+     *
+     * @return array|null  null jika belum ada batch penjenjangan
      */
-    public function daftarUlang(Request $request)
+    private function getDataDaftarUlang()
     {
         $latestBatch = SelectionResult::max('batch') ?? 0;
 
         if ($latestBatch == 0) {
-            return back()->with('error', 'Belum ada data penjenjangan untuk dicetak.');
+            return null;
         }
 
         // Ambil jurusan yang aktif
@@ -451,6 +454,7 @@ class ReportController extends Controller
             return (object) [
                 'concentration_id' => $result->accepted_concentration_id ?? null,
                 'registration_number' => $reg->registration_number ?? '-',
+                'nisn' => $personal->nisn ?? '-',
                 'student_name' => $personal->full_name ?? '-',
                 'gender' => $personal->gender ?? '-',
                 'asal_sekolah' => $personal->previous_school ?? '-',
@@ -465,14 +469,51 @@ class ReportController extends Controller
             return $group->sortBy('student_name')->values();
         });
 
-        $tanggalHariIni = $this->getTanggalCetak();
+        return [
+            'dataKeahlian' => $dataKeahlian,
+            'pendaftarPerKeahlian' => $pendaftarPerKeahlian,
+            'tanggalHariIni' => $this->getTanggalCetak(),
+        ];
+    }
 
-        $pdf = Pdf::loadView('pages.admin.laporan.daftar-ulang-jurusan', compact(
-            'dataKeahlian',
-            'pendaftarPerKeahlian',
-            'tanggalHariIni'
-        ))->setPaper('A4', 'landscape');
+    /**
+     * 8. Cetak Hasil Daftar Ulang Per Jurusan (PDF)
+     * (Berdasarkan Data Penjenjangan yang Diterima)
+     */
+    public function daftarUlang(Request $request)
+    {
+        $data = $this->getDataDaftarUlang();
+
+        if ($data === null) {
+            return back()->with('error', 'Belum ada data penjenjangan untuk dicetak.');
+        }
+
+        $pdf = Pdf::loadView('pages.admin.laporan.daftar-ulang-jurusan', $data)
+            ->setPaper('A4', 'landscape');
 
         return $pdf->stream('Laporan_Daftar_Ulang_' . date('Ymd') . '.pdf');
+    }
+
+    /**
+     * 9. Unduh Hasil Daftar Ulang Per Jurusan (Excel)
+     * Sheet dipisah per jurusan, kolom sama seperti versi PDF ditambah
+     * kolom keterangan status yang lebih lengkap.
+     */
+    public function daftarUlangExcel(Request $request)
+    {
+        $data = $this->getDataDaftarUlang();
+
+        if ($data === null) {
+            return back()->with('error', 'Belum ada data penjenjangan untuk diunduh.');
+        }
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\DaftarUlangExport(
+                $data['dataKeahlian'],
+                $data['pendaftarPerKeahlian'],
+                $data['tanggalHariIni']
+            ),
+            'Laporan_Daftar_Ulang_' . date('Ymd') . '.xlsx'
+        );
     }
 }

@@ -17,6 +17,11 @@
 
             {{-- TOMBOL CETAK LAPORAN (Hanya Superadmin & Admin) --}}
             @canany(['superadmin', 'admin', 'verifikator'])
+            <a href="{{ route('admin.laporan.daftar-ulang.excel') }}"
+                class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold text-sm transition-all duration-300 cursor-pointer shadow-sm shadow-emerald-600/30">
+                <i data-lucide="sheet" class="size-4"></i>
+                <span>Download</span>
+            </a>
             <a href="{{ route('admin.laporan.daftar-ulang') }}" target="_blank"
                 class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold text-sm transition-all duration-300 cursor-pointer shadow-sm shadow-emerald-600/30">
                 <i data-lucide="printer" class="size-4"></i>
