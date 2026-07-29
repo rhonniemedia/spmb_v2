@@ -67,7 +67,7 @@ class DaftarUlangSheetExport implements FromArray, WithTitle, WithStyles, WithCo
         $this->rowTitle1 = 1;
         $this->rowTitle4 = count($rows); // baris 4
 
-        $rows[] = array_fill(0, 9, ''); // baris kosong pemisah (tetap diberi sel supaya tidak "hilang")
+        $rows[] = array_fill(0, 15, ''); // baris kosong pemisah (tetap diberi sel supaya tidak "hilang")
 
         $rows[] = [
             'Konsentrasi Keahlian: ' . $this->keahlian->name . ' (' . $this->keahlian->alias . ')',
@@ -76,12 +76,19 @@ class DaftarUlangSheetExport implements FromArray, WithTitle, WithStyles, WithCo
             '',
             '',
             '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '', // Tambahan elemen kosong agar terdorong ke kanan
             'Tanggal Cetak:',
             $this->tanggalHariIni,
+            '' // Untuk mengisi kolom O (Keterangan Status)
         ];
         $this->rowInfo = count($rows);
 
-        $rows[] = array_fill(0, 9, '');
+        $rows[] = array_fill(0, 15, '');
 
         // ── Header kolom tabel ──
         $rows[] = [
@@ -91,6 +98,12 @@ class DaftarUlangSheetExport implements FromArray, WithTitle, WithStyles, WithCo
             'NAMA LENGKAP',
             'JK',
             'ASAL SEKOLAH',
+            'NAMA AYAH',
+            'NO HP AYAH',
+            'NAMA IBU',
+            'NO HP IBU',
+            'NAMA WALI',
+            'NO HP WALI',
             'TANGGAL DAFTAR ULANG',
             'KET',
             'KETERANGAN STATUS',
@@ -113,6 +126,15 @@ class DaftarUlangSheetExport implements FromArray, WithTitle, WithStyles, WithCo
                     strtoupper($pendaftar->student_name),
                     $pendaftar->gender,
                     strtoupper($pendaftar->asal_sekolah),
+
+                    // Panggil data orang tua yang sudah di-mapping dari controller
+                    strtoupper($pendaftar->nama_ayah),
+                    $pendaftar->telepon_ayah,
+                    strtoupper($pendaftar->nama_ibu),
+                    $pendaftar->telepon_ibu,
+                    strtoupper($pendaftar->nama_wali),
+                    $pendaftar->telepon_wali,
+
                     $pendaftar->tanggal_daftar_ulang,
                     $pendaftar->keterangan,
                     $this->keteranganLabel[$pendaftar->keterangan] ?? $pendaftar->keterangan,
@@ -130,7 +152,7 @@ class DaftarUlangSheetExport implements FromArray, WithTitle, WithStyles, WithCo
 
         $this->rowDataEnd = count($rows);
 
-        $rows[] = array_fill(0, 9, '');
+        $rows[] = array_fill(0, 15, '');
 
         $rows[] = [
             'Rekapitulasi',
@@ -143,7 +165,7 @@ class DaftarUlangSheetExport implements FromArray, WithTitle, WithStyles, WithCo
         ];
         $this->rowRekap = count($rows);
 
-        $rows[] = array_fill(0, 9, '');
+        $rows[] = array_fill(0, 15, '');
 
         $rows[] = ['Keterangan: V = Terverifikasi, B = Belum Daftar Ulang, D = Ditolak, M = Menunggu Verifikasi'];
         $this->rowLegend = count($rows);
@@ -160,26 +182,36 @@ class DaftarUlangSheetExport implements FromArray, WithTitle, WithStyles, WithCo
             'D' => 32,  // NAMA LENGKAP
             'E' => 6,   // JK
             'F' => 34,  // ASAL SEKOLAH
-            'G' => 20,  // TANGGAL DAFTAR ULANG
-            'H' => 8,   // KET
-            'I' => 28,  // KETERANGAN STATUS
+            'G' => 25,  // NAMA AYAH
+            'H' => 16,  // NO HP AYAH
+            'I' => 25,  // NAMA IBU
+            'J' => 16,  // NO HP IBU
+            'K' => 25,  // NAMA WALI
+            'L' => 16,  // NO HP WALI
+            'M' => 20,  // TANGGAL DAFTAR ULANG
+            'N' => 8,   // KET
+            'O' => 28,  // KETERANGAN STATUS
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->mergeCells("A{$this->rowTitle1}:I{$this->rowTitle1}");
-        $sheet->mergeCells('A2:I2');
-        $sheet->mergeCells('A3:I3');
-        $sheet->mergeCells("A{$this->rowTitle4}:I{$this->rowTitle4}");
+        // Ubah semua ujung merge dari I menjadi O (karena total ada 15 kolom, A sampai O)
+        $sheet->mergeCells("A{$this->rowTitle1}:O{$this->rowTitle1}");
+        $sheet->mergeCells('A2:O2');
+        $sheet->mergeCells('A3:O3');
+        $sheet->mergeCells("A{$this->rowTitle4}:O{$this->rowTitle4}");
 
         $sheet->getStyle("A{$this->rowTitle1}:A{$this->rowTitle4}")->getFont()->setBold(true)->setSize(13);
-        $sheet->getStyle("A{$this->rowTitle1}:I{$this->rowTitle4}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("A{$this->rowTitle1}:O{$this->rowTitle4}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         $sheet->getStyle("A{$this->rowInfo}")->getFont()->setBold(true);
-        $sheet->getStyle("G{$this->rowInfo}")->getFont()->setBold(true);
+        // Tanggal Cetak bergeser posisinya ke kolom O agar tetap di ujung kanan (opsional, sesuaikan dengan desain)
+        // Atau biarkan di G jika ingin tetap di tengah
+        $sheet->getStyle("M{$this->rowInfo}")->getFont()->setBold(true);
 
-        $headerRange = "A{$this->rowHeader}:I{$this->rowHeader}";
+        // Header dari A sampai O
+        $headerRange = "A{$this->rowHeader}:O{$this->rowHeader}";
         $sheet->getStyle($headerRange)->getFont()->setBold(true);
         $sheet->getStyle($headerRange)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F0F0F0');
         $sheet->getStyle($headerRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
@@ -193,23 +225,29 @@ class DaftarUlangSheetExport implements FromArray, WithTitle, WithStyles, WithCo
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Border untuk seluruh tabel (header sampai baris data terakhir)
-                $sheet->getStyle("A{$this->rowHeader}:I{$this->rowDataEnd}")
+                // Border untuk seluruh tabel (header sampai baris data terakhir, dari A sampai O)
+                $sheet->getStyle("A{$this->rowHeader}:O{$this->rowDataEnd}")
                     ->getBorders()->getAllBorders()
                     ->setBorderStyle(Border::BORDER_THIN);
 
-                $sheet->getStyle("A{$this->rowDataStart}:I{$this->rowDataEnd}")
+                // Default rata tengah untuk semua sel di tabel
+                $sheet->getStyle("A{$this->rowDataStart}:O{$this->rowDataEnd}")
                     ->getAlignment()
                     ->setHorizontal(Alignment::HORIZONTAL_CENTER)
                     ->setVertical(Alignment::VERTICAL_CENTER);
 
-                // Rata kiri untuk kolom Nama Lengkap, Asal Sekolah, Keterangan Status
-                $sheet->getStyle("D{$this->rowDataStart}:D{$this->rowDataEnd}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                $sheet->getStyle("F{$this->rowDataStart}:F{$this->rowDataEnd}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                $sheet->getStyle("I{$this->rowDataStart}:I{$this->rowDataEnd}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                // Rata kiri untuk teks panjang agar rapi
+                $sheet->getStyle("D{$this->rowDataStart}:D{$this->rowDataEnd}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT); // Nama Lengkap
+                $sheet->getStyle("F{$this->rowDataStart}:F{$this->rowDataEnd}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT); // Asal Sekolah
+                $sheet->getStyle("G{$this->rowDataStart}:G{$this->rowDataEnd}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT); // Nama Ayah
+                $sheet->getStyle("I{$this->rowDataStart}:I{$this->rowDataEnd}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT); // Nama Ibu
+                $sheet->getStyle("K{$this->rowDataStart}:K{$this->rowDataEnd}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT); // Nama Wali
 
-                // Baris rekap dibold
-                $sheet->getStyle("A{$this->rowRekap}:I{$this->rowRekap}")->getFont()->setBold(true);
+                // PENTING: Keterangan status sekarang bergeser ke kolom O
+                $sheet->getStyle("O{$this->rowDataStart}:O{$this->rowDataEnd}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+
+                // Baris rekap dibold (A sampai O)
+                $sheet->getStyle("A{$this->rowRekap}:O{$this->rowRekap}")->getFont()->setBold(true);
 
                 // Baris legenda dibuat miring & lebih kecil
                 $sheet->getStyle("A{$this->rowLegend}")->getFont()->setItalic(true)->setSize(10);

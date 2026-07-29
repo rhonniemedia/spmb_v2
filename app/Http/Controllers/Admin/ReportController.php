@@ -414,7 +414,7 @@ class ReportController extends Controller
         $dataKeahlian = Concentration::where('status', 'active')->orderBy('name')->get();
 
         // 1. Ambil SEMUA data penjenjangan yang DITERIMA
-        $acceptedResults = SelectionResult::with(['registration.personalData'])
+        $acceptedResults = SelectionResult::with(['registration.personalData.parents'])
             ->where('batch', $latestBatch)
             ->where('status', 'accepted')
             ->get();
@@ -431,6 +431,14 @@ class ReportController extends Controller
         $mappedData = $acceptedResults->map(function ($result) use ($reRegistrations) {
             $reg = $result->registration;
             $personal = $reg->personalData ?? null;
+
+            // Ambil data orang tua menggunakan relasi parents
+            $parents = $personal ? $personal->parents : collect();
+
+            // Cari spesifik ayah, ibu, dan wali menggunakan konstanta dari model ParentData
+            $ayah = $parents->where('relationship', \App\Models\ParentData::RELATIONSHIP_FATHER)->first();
+            $ibu = $parents->where('relationship', \App\Models\ParentData::RELATIONSHIP_MOTHER)->first();
+            $wali = $parents->where('relationship', \App\Models\ParentData::RELATIONSHIP_GUARDIAN)->first();
 
             // Cari data daftar ulang berdasarkan ID pendaftaran
             $reReg = $reRegistrations->get($reg->id);
@@ -458,6 +466,12 @@ class ReportController extends Controller
                 'student_name' => $personal->full_name ?? '-',
                 'gender' => $personal->gender ?? '-',
                 'asal_sekolah' => $personal->previous_school ?? '-',
+                'nama_ayah' => $ayah ? $ayah->name : '-',
+                'telepon_ayah' => $ayah ? $ayah->phone_number : '-',
+                'nama_ibu' => $ibu ? $ibu->name : '-',
+                'telepon_ibu' => $ibu ? $ibu->phone_number : '-',
+                'nama_wali' => $wali ? $wali->name : '-',
+                'telepon_wali' => $wali ? $wali->phone_number : '-',
                 'tanggal_daftar_ulang' => $tanggalDaftarUlang,
                 'keterangan' => $keterangan
             ];
