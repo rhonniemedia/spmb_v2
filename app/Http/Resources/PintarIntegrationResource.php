@@ -18,7 +18,7 @@ class PintarIntegrationResource extends JsonResource
     {
         $reg = $this->registrationData;
         $personal = $reg->personalData ?? null;
-        $selection = $reg->selectionResult ?? null;
+        $selection = $reg->latestSelectionResult ?? null;
 
         // Memisahkan data orang tua berdasarkan 'relationship'
         $parents = $personal ? $personal->parents : collect();
@@ -32,7 +32,6 @@ class PintarIntegrationResource extends JsonResource
             : null;
 
         // ── MENYUSUN ARRAY ORANG TUA YANG BERSIH ──
-        // Array ini hanya akan diisi jika data orang tua benar-benar ada.
         $dataOrangTua = [];
 
         if ($ayah) {
@@ -45,7 +44,7 @@ class PintarIntegrationResource extends JsonResource
                 'pekerjaan'       => $ayah->occupation,
                 'pendidikan'      => $ayah->education,
                 'penghasilan'     => $ayah->income_range,
-                'no_hp'           => $ayah->phone_number,
+                'no_hp'           => $this->formatPhoneNumber($ayah->phone_number),
                 'alamat'          => $ayah->address,
             ];
         }
@@ -60,7 +59,7 @@ class PintarIntegrationResource extends JsonResource
                 'pekerjaan'       => $ibu->occupation,
                 'pendidikan'      => $ibu->education,
                 'penghasilan'     => $ibu->income_range,
-                'no_hp'           => $ibu->phone_number,
+                'no_hp'           => $this->formatPhoneNumber($ibu->phone_number),
                 'alamat'          => $ibu->address,
             ];
         }
@@ -75,7 +74,7 @@ class PintarIntegrationResource extends JsonResource
                 'pekerjaan'       => $wali->occupation,
                 'pendidikan'      => $wali->education,
                 'penghasilan'     => $wali->income_range,
-                'no_hp'           => $wali->phone_number,
+                'no_hp'           => $this->formatPhoneNumber($wali->phone_number),
                 'alamat'          => $wali->address,
             ];
         }
@@ -102,7 +101,7 @@ class PintarIntegrationResource extends JsonResource
 
             // ── GROUP 2: CONTACT & ADDRESS ──
             'email'                    => $personal->email ?? null,
-            'no_hp_siswa'              => $personal->phone_number ?? null,
+            'no_hp_siswa'              => $this->formatPhoneNumber($personal->phone_number ?? null),
             'alamat_siswa'             => $personal->address ?? null,
             'rt'                       => $personal->rt ?? null,
             'rw'                       => $personal->rw ?? null,
@@ -144,5 +143,31 @@ class PintarIntegrationResource extends JsonResource
             // ── ARRAY ORANG TUA ──
             'orang_tua'                => $dataOrangTua,
         ];
+    }
+
+    /**
+     * Membersihkan dan memformat nomor HP menjadi format standar '08xxx'
+     */
+    private function formatPhoneNumber($phone)
+    {
+        if (empty($phone)) return null;
+
+        // Hapus semua karakter yang bukan angka (termasuk spasi, +, -, dll)
+        $cleaned = preg_replace('/[^0-9]/', '', $phone);
+
+        // Jika kosong setelah dibersihkan, kembalikan null
+        if (empty($cleaned)) return null;
+
+        // Hapus awalan '62' (bisa jadi berulang seperti 6262 karena +62+62)
+        while (str_starts_with($cleaned, '62')) {
+            $cleaned = substr($cleaned, 2);
+        }
+
+        // Pastikan selalu berawalan '0'
+        if (!str_starts_with($cleaned, '0')) {
+            $cleaned = '0' . $cleaned;
+        }
+
+        return $cleaned;
     }
 }
