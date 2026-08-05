@@ -35,10 +35,34 @@ class IntegrationController extends Controller
             ], 404);
         }
 
+        // --- MENGHITUNG STATISTIK PER KONSENTRASI KEAHLIAN ---
+        $statistics = $verifiedStudents->groupBy(function ($item) {
+            // Mengelompokkan berdasarkan nama jurusan
+            return $item->registrationData->latestSelectionResult->acceptedConcentration->name ?? 'Belum Ditentukan';
+        })->map(function ($group) {
+            // Menghitung total dan rincian per gender dalam grup tersebut
+            return [
+                'total' => $group->count(),
+                'laki_laki' => $group->filter(function ($item) {
+                    $gender = $item->registrationData->personalData->gender ?? '';
+                    // Deteksi jika gender berupa Enum atau String
+                    $genderValue = is_object($gender) ? ($gender->value ?? '') : $gender;
+                    return strtoupper($genderValue) === 'L';
+                })->count(),
+                'perempuan' => $group->filter(function ($item) {
+                    $gender = $item->registrationData->personalData->gender ?? '';
+                    $genderValue = is_object($gender) ? ($gender->value ?? '') : $gender;
+                    return strtoupper($genderValue) === 'P';
+                })->count(),
+            ];
+        });
+
+        // --- FORMAT PENGIRIMAN JSON ---
         return PintarIntegrationResource::collection($verifiedStudents)->additional([
             'meta' => [
                 'status' => 'success',
                 'total_data' => $verifiedStudents->count(),
+                'statistik_jurusan' => $statistics, // <-- Data ditambahkan di sini
                 'timestamp' => now()->toDateTimeString()
             ]
         ]);
